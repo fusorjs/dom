@@ -1,0 +1,17 @@
+{
+  "name": "@perform/core",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Igor Sukharev <imixaly4@gmail.com>",
+  "scripts": {
+    "dev:start": "shx rm -rf dev/* && shx cp package.json dev && tsc --outDir dev --watch",
+    "dev:link": "tsc --outDir dev && shx cp package.json dev && cd dev && yarn link",
+    "dev:unlink": "cd dev && yarn unlink"
+  },
+  "devDependencies": {
+    "shx": "^0.3.3",
+    "typescript": "^4.2.3"
+  }
+}
