@@ -6,9 +6,9 @@
   "license": "ISC",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
   "scripts": {
-    "dev:start": "shx rm -rf dev/* && shx cp package.json dev && tsc --outDir dev --watch",
-    "dev:link": "tsc --outDir dev && shx cp package.json dev && cd dev && yarn link",
-    "dev:unlink": "cd dev && yarn unlink"
+    "start": "shx rm -rf dev/* && tsc --outDir dev --watch",
+    "link": "tsc --outDir dev && shx cp package.json dev && cd dev && yarn link",
+    "unlink": "shx cp package.json dev && cd dev && yarn unlink"
   },
   "devDependencies": {
     "shx": "^0.3.3",
