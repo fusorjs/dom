@@ -1,6 +1,6 @@
-import {isObject} from './utils';
-import {initializeAttributes} from './dom/attributes/initializeAttributes';
-import {initializeChildren} from './dom/children/initializeChildren';
+import {isObject} from '../utils';
+import {initializeAttributes} from './attributes/initializeAttributes';
+import {initializeChildren} from './children/initializeChildren';
 
 interface Attributes {
   [key: string]: unknown;
