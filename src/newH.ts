@@ -1,7 +1,8 @@
 import {isObject} from './utils';
 import {initializeAttributes} from './dom/attributes/initializeAttributes';
+import {initializeChildren} from './dom/children/initializeChildren';
 
-interface Props {
+interface Attributes {
   [key: string]: unknown;
 }
 
@@ -16,11 +17,12 @@ interface ChildUpdater {
   (element: HTMLElement): void;
 }
 
-export const h = (...args: [tagName: string, propsOrChild?: Props | Child, ...children: Child[]]) => {
+export const h = (...args: [tagName: string, attributesOrChild?: Attributes | Child, ...children: Child[]]) => {
   let element: HTMLElement;
   let propUpdaters: PropUpdater[] | undefined;
   let childUpdaters: ChildUpdater[];
 
+  // render
   return () => {
     // * All subsequent runs are just updating the rendered element:
     if (element) {
@@ -29,23 +31,19 @@ export const h = (...args: [tagName: string, propsOrChild?: Props | Child, ...ch
     }
     // * The first run must be in render, as it is actually renders the element:
     else {
-      const [tagName, propsOrChild] = args;
+      const [tagName, attributesOrChild] = args;
 
       element = document.createElement(tagName);
 
-      if (propsOrChild !== undefined) {
-        let i = 1;
+      if (attributesOrChild !== undefined) {
+        let index = 1;
 
-        if (isObject(propsOrChild)) {
-          i = 2;
-          propUpdaters = initializeAttributes(propsOrChild, element);
+        if (isObject(attributesOrChild)) {
+          index = 2;
+          propUpdaters = initializeAttributes(element, attributesOrChild);
         }
 
-        const nodes = [], updaters = [];
-
-        for (const {length} = args; i < length; i ++) {
-          // todo
-        }
+        // childUpdaters = initializeChildren(element, args, index);
       }
     }
 

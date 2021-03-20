@@ -1,7 +1,7 @@
 
 import {isObject} from './utils';
 import {initializeAttributes} from './dom/attributes/initializeAttributes';
-import {initializeChild} from './dom/children/initializeChildren';
+import {initializeChildren} from './dom/children/initializeChildren';
 
 const getPropsAndChildren = args => {
   let props, children;
@@ -24,22 +24,14 @@ const getPropsAndChildren = args => {
 const setAndCompilePropsAndChildren = (element, props, children) => {
   let propUpdaters, childUpdaters;
 
-  if (props) propUpdaters = initializeAttributes(props, element);
+  if (props) propUpdaters = initializeAttributes(element, props);
 
-  // todo refactor to initializeChildren
   if (children) {
-    const nodes = [], {length} = children;
+    let childNodes;
 
-    for (const child of children) {
-      const updater = initializeChild(child, nodes, length);
+    [childNodes, childUpdaters] = initializeChildren(children);
 
-      if (updater) {
-        childUpdaters ??= [];
-        childUpdaters.push(updater);
-      }
-    }
-
-    element.append(...nodes);
+    if (childNodes) element.append(...childNodes);
   }
 
   return [propUpdaters, childUpdaters];

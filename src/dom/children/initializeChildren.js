@@ -30,54 +30,59 @@ const createChildUpdater = (node, f, prev) => () => {
   node = v;
 };
 
-const createChildrenUpdater = (getNextChildren, prevChildren, prevNodes) => parentNode => {
-  const nextChildren = getNextChildren();
+const createChildrenUpdater = (prevNodes, getNextNodes) => (parentNode) => {
+  const nextNodes = getNextNodes();
 
-  if (prevChildren === nextChildren) return;
-
-  const nextNodes = [];
-
-  for (const child of nextChildren) {
-    // ? ignore returned updater
-    initializeChild(child, nextNodes); // ! no length
-  }
+  if (prevNodes === nextNodes) return;
 
   updateChildren(parentNode, prevNodes, nextNodes);
 
-  prevChildren = nextChildren;
   prevNodes = nextNodes;
 };
 
-export function initializeChild(v, nodes, length) {
-  let updater;
+export const initializeChildren = (children, startIndex = 0) => {
+  let nodes, updaters, index = startIndex;
 
-  if (v && isFunction(v)) {
-    const f = v;
-    v = v();
+  for (const {length} = children; index < length; index ++) {
+    let v = children[index];
 
-    if (v instanceof HTMLElement) updater = f;
-    else {
-      let prev = v;
+    if (v && isFunction(v)) {
+      const f = v;
 
-      if (v && isFunction(v)) v = prev = v(); // conditions
+      v = v();
 
-      if (v instanceof HTMLElement);
-      else if (isDefiniteValue(v)) v = document.createTextNode(v);
-      else if (v && isArray(v) && length === 1) { // * array, single child
-        for (const child of v) {
-          // ? ignore returned updater
-          initializeChild(child, nodes); // ! no length
-        }
-
-        return createChildrenUpdater(f, v, nodes); // ! exit early
+      if (v instanceof HTMLElement) {
+        updaters ??= [];
+        updaters.push(f);
       }
-      else throw new Error(`unsupported child: ${f}`);
+      else {
+        let prev = v;
 
-      updater = createChildUpdater(v, f, prev);
+        if (v && isFunction(v)) v = prev = v(); // condition
+
+        if (v instanceof HTMLElement);
+        else if (isDefiniteValue(v)) v = document.createTextNode(v);
+        else if (v && isArray(v)) { // array
+          if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
+
+          const [nodes] = initializeChildren(v);
+
+          return [
+            nodes,
+            // updaters
+            [createChildrenUpdater(nodes, () => initializeChildren(f())[0])]
+          ];
+        }
+        else throw new Error(`unsupported child: ${f}`);
+
+        updaters ??= [];
+        updaters.push(createChildUpdater(v, f, prev));
+      }
     }
+
+    nodes ??= [];
+    nodes.push(v);
   }
 
-  nodes.push(v);
-
-  return updater;
+  return [nodes, updaters];
 };
