@@ -1,4 +1,5 @@
-import { isObject } from './utils';
+import {isObject} from './utils';
+import {initializeAttributes} from './dom/attributes/initializeAttributes';
 
 interface Props {
   [key: string]: unknown;
@@ -15,33 +16,39 @@ interface ChildUpdater {
   (element: HTMLElement): void;
 }
 
-export const h = (tagName: string, propsOrChild?: Props | Child, ...children: Child[]) => {
+export const h = (...args: [tagName: string, propsOrChild?: Props | Child, ...children: Child[]]) => {
   let element: HTMLElement;
-  let propUpdaters: PropUpdater[];
+  let propUpdaters: PropUpdater[] | undefined;
   let childUpdaters: ChildUpdater[];
 
-  // Render function:
   return () => {
-    // All subsequent runs are just updating the rendered element:
+    // * All subsequent runs are just updating the rendered element:
     if (element) {
       propUpdaters?.forEach(u => u());
       childUpdaters?.forEach(u => u(element));
     }
-    // The first run must be in render, as it is actually renders the element:
+    // * The first run must be in render, as it is actually renders the element:
     else {
+      const [tagName, propsOrChild] = args;
+
       element = document.createElement(tagName);
 
-      let i = 1;
+      if (propsOrChild !== undefined) {
+        let i = 1;
 
+        if (isObject(propsOrChild)) {
+          i = 2;
+          propUpdaters = initializeAttributes(propsOrChild, element);
+        }
 
-      // [propUpdaters, childUpdaters] = setAndCompilePropsAndChildren(element, ...getPropsAndChildren(args));
+        const nodes = [], updaters = [];
+
+        for (const {length} = args; i < length; i ++) {
+          // todo
+        }
+      }
     }
 
     return element;
   };
 };
-
-
-
-
-// export const div = (...a) => h('div', ...a);
