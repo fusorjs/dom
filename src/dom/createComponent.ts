@@ -2,7 +2,7 @@ import {isObject} from '../utils';
 import {initializeAttributes} from './attributes';
 import {initializeChildren} from './children';
 
-export const createComponent: ComponentCreator = (...args) => {
+export const createComponent: DomComponentCreator = (...args) => {
   let element: HTMLElement;
   let propUpdaters: PropUpdater[] | undefined;
   let childUpdaters: ChildUpdater[];
