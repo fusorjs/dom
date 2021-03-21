@@ -2,22 +2,7 @@ import {isObject} from '../utils';
 import {initializeAttributes} from './attributes/initializeAttributes';
 import {initializeChildren} from './children/initializeChildren';
 
-interface Attributes {
-  [key: string]: unknown;
-}
-
-interface Child {
-}
-
-interface PropUpdater {
-  (): void;
-}
-
-interface ChildUpdater {
-  (element: HTMLElement): void;
-}
-
-export const h = (...args: [tagName: string, attributesOrChild?: Attributes | Child, ...children: Child[]]) => {
+export const h: ComponentCreator = (...args) => {
   let element: HTMLElement;
   let propUpdaters: PropUpdater[] | undefined;
   let childUpdaters: ChildUpdater[];
@@ -36,14 +21,20 @@ export const h = (...args: [tagName: string, attributesOrChild?: Attributes | Ch
       element = document.createElement(tagName);
 
       if (attributesOrChild !== undefined) {
-        let index = 1;
+        let startIndex = 1;
 
         if (isObject(attributesOrChild)) {
-          index = 2;
+          startIndex = 2;
           propUpdaters = initializeAttributes(element, attributesOrChild);
         }
 
-        // childUpdaters = initializeChildren(element, args, index);
+        if (args.length > startIndex) {
+          let childNodes;
+
+          [childNodes, childUpdaters] = initializeChildren(args, startIndex);
+
+          if (childNodes) element.append(...childNodes);
+        }
       }
     }
 
