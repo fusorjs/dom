@@ -1,8 +1,8 @@
 import {isObject} from '../utils';
-import {initializeAttributes} from './attributes/initializeAttributes';
-import {initializeChildren} from './children/initializeChildren';
+import {initializeAttributes} from './attributes';
+import {initializeChildren} from './children';
 
-export const h: ComponentCreator = (...args) => {
+export const createComponent: ComponentCreator = (...args) => {
   let element: HTMLElement;
   let propUpdaters: PropUpdater[] | undefined;
   let childUpdaters: ChildUpdater[];
