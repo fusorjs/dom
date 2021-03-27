@@ -1,16 +1,4 @@
-
-const areArraysEqual = (a1, a2) => {
-  const {length} = a1;
-
-  if (length !== a2.length)
-    return false;
-
-  for (let i = 0; i < length; i ++)
-    if (a1[i] !== a2[i])
-      return false;
-
-  return true;
-}
+import {areArraysEqual} from './areEqual';
 
 export const memF = f => {
   let prevArgs, prevResult;
