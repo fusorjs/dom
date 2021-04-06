@@ -2,10 +2,10 @@ import {isObject} from '../utils';
 import {initializeAttributes} from './attributes';
 import {initializeChildren} from './children';
 
-export const createComponent: DomComponentCreator = (...args) => {
+export const createComponent: DomComponent = (...args) => {
   let element: HTMLElement;
-  let propUpdaters: PropUpdater[] | undefined;
-  let childUpdaters: ChildUpdater[];
+  let propUpdaters: DomPropUpdater[] | undefined;
+  let childUpdaters: DomChildUpdater[];
 
   // render
   return () => {

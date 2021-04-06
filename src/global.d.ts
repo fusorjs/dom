@@ -6,10 +6,8 @@ interface Attributes {
 interface Child {
 }
 
-type ComponentCreatorOptArgs = [attributesOrChild?: Attributes | Child, ...children: Child[]];
+type ComponentArgs = [attributesOrChild?: Attributes | Child, ...children: Child[]];
 
-type ComponentCreatorArgs = [tagName: string, ...ComponentCreatorOptArgs];
-
-interface ComponentCreator <Result = unknown> {
-  (...args: ComponentCreatorArgs): Result;
+interface Component <Result> {
+  (tagName: string, ...args: ComponentArgs): Result;
 }

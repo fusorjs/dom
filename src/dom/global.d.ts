@@ -1,18 +1,18 @@
 
-interface PropUpdater {
+interface DomPropUpdater {
   (): void;
 }
 
-interface ChildUpdater {
+interface DomChildUpdater {
   (element: HTMLElement): void;
 }
 
-interface DomComponentRenderer {
+interface DomRenderer {
   (): HTMLElement;
 }
 
-type DomComponentCreator = ComponentCreator<DomComponentRenderer>;
+type DomComponent = Component<DomRenderer>;
 
-interface DomComponentUpdater <Item> {
+interface DomItemUpdater <Item> {
   (getItem: Item): ComponentRenderer;
 }
