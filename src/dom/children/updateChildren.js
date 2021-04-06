@@ -1,12 +1,6 @@
 
-// todo jsonpatch compatibility
-// const updateByJsonPatch = (parentNode, jsonPatch) => {
-//   for (const { op, path, value } of jsonPatch) {
-//     switch (op) {
-//       // case
-//     }
-//   }
-// };
+// todo rename to diffChildren
+// ? rendering plugin
 
 export const updateChildren = (parentNode, prevNodes, nextNodes) => {
   const prevLength = prevNodes?.length ?? 0;

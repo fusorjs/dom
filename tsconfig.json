@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "outDir": "dev",
         "target": "es6",
         "lib": [
             "dom",
@@ -19,7 +20,8 @@
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
         "resolveJsonModule": true,
-        "isolatedModules": true
+        "isolatedModules": true,
+        "baseUrl": "src",
     },
     "include": [
         "src"

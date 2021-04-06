@@ -40,6 +40,13 @@ const createChildrenUpdater = (prevNodes, getNextNodes) => (parentNode) => {
   prevNodes = nextNodes;
 };
 
+const CHILDREN_UPDATER_KEY = '__PERFORM_CHILDREN_UPDATER';
+
+export const childrenUpdater = (f) => {
+  f[CHILDREN_UPDATER_KEY] = true;
+  return f;
+}
+
 export const initializeChildren = (children, startIndex = 0) => {
   let nodes, updaters, index = startIndex;
 

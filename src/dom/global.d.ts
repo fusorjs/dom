@@ -7,6 +7,12 @@ interface ChildUpdater {
   (element: HTMLElement): void;
 }
 
-type DomComponentRenderer = ComponentRenderer<HTMLElement>;
+interface DomComponentRenderer {
+  (): HTMLElement;
+}
 
 type DomComponentCreator = ComponentCreator<DomComponentRenderer>;
+
+interface DomComponentUpdater <Item> {
+  (getItem: Item): ComponentRenderer;
+}

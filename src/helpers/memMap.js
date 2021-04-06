@@ -1,12 +1,13 @@
 
-// todo: memo component map, create one instance of component's prop/child updaters
-// todo jsonpatch compatibility
+// todo rename to diffArray
+// ? move to components
+// ? create one instance of component's prop/child updaters for all array items
 
 const ID_KEY = '__PERFORM_ID';
 
 // use idKey for perfomance optimization
-// Without key children will be recreated only if getItem returns different value.
-// With key children will be recreated only if getItem returns different value and the keys do not match.
+// Without key, children will be recreated only if `getItem` returns different value.
+// With key, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
 export const memMap = (getItems, createRenderer, idKey) => {
   let prevItems, prevRenderers, nextItems;
