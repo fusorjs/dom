@@ -1,34 +1,39 @@
 
-export interface ArrayDiffer <Item> {
-  (startIndex: number, length: number, prevItems: readonly Item[], nextItems: readonly Item[]): void;
+export interface DiffUpdate <Item> {
+  (index: number, prev: Item, next: Item): void;
+}
+export interface DiffItem <Item> {
+  (index: number, item: Item): void;
 }
 
+// does not create new arrays
 export const arrayDiff = <Item> (
-  update: ArrayDiffer<Item>,
-  append: ArrayDiffer<Item>,
-  remove: ArrayDiffer<Item>,
-  prevItems: readonly Item[],
-  nextItems: readonly Item[],
+  update: DiffUpdate<Item>,
+  create: DiffItem<Item>,
+  remove: DiffItem<Item>,
+  prevItems?: readonly Item[],
+  nextItems?: readonly Item[],
 ) => {
-  const prevLength = prevItems.length;
-  const nextLength = nextItems.length;
+  const prevLength = prevItems?.length ?? 0;
+  const nextLength = nextItems?.length ?? 0;
   const minLength = Math.min(prevLength, nextLength);
 
-  if (minLength) update(0, minLength, prevItems, nextItems);
+  // todo move for idKey
+  // this is simple index comparator
+  for (let i = 0; i < minLength; i ++) {
+    const p = (prevItems as readonly Item[])[i];
+    const n = (nextItems as readonly Item[])[i];
+    if (p !== n) update(i, p, n);
+  }
 
   if (prevLength !== nextLength) {
-    if (prevLength < nextLength) append(minLength, nextLength, prevItems, nextItems);
-    else if (prevLength > nextLength) remove(minLength, prevLength, prevItems, nextItems);
-  }
-};
-
-export const arrayCompare = <Item> (
-  replace: (index: number, prevItem: Item, nextItem: Item) => void
-): ArrayDiffer<Item> => (index, length, prevItems, nextItems) => {
-  for (; index < length; index ++) {
-    const p = prevItems[index];
-    const n = nextItems[index];
-
-    if (p !== n) replace(index, p, n);
+    if (nextLength > prevLength) {
+      for (let i = minLength; i < nextLength; i ++)
+        create(i, (nextItems as readonly Item[])[i]);
+    }
+    else if (prevLength > nextLength) {
+      for (let i = minLength; i < prevLength; i ++)
+        remove(i, (prevItems as readonly Item[])[i]);
+    }
   }
 };

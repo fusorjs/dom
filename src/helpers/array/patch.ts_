@@ -1,0 +1,53 @@
+import {arrayDiff, DiffUpdate, DiffItem, DiffAll} from './diff';
+
+interface ActionOne <Item> {
+  type: 'update-one';
+  index: number;
+  item: Item;
+}
+
+interface ActionMany <Item> {
+  type: 'append-many' | 'remove-many';
+  index: number;
+  length: number;
+  items: readonly Item[];
+}
+
+interface ActionAll <Item> {
+  type: 'append-all' | 'remove-all';
+  length: number;
+  items: readonly Item[];
+}
+
+type Action <Item> = ActionOne<Item> | ActionMany<Item> | ActionAll<Item>;
+
+export type Patch <Item> = Action<Item>[];
+
+export const getArrayPatch = <Item> (
+  prevItems?: readonly Item[],
+  nextItems?: readonly Item[],
+) => {
+  const patch: Patch<Item> = [];
+
+  arrayDiff<Item>(
+    <DiffUpdate<Item>>((index, prevItem, nextItem) => {
+      patch.push({type: 'update-one', index, item: nextItem});
+    }),
+    <DiffItem<Item>>((index, length, items) => {
+      patch.push({type: 'append-many', index, length, items});
+    }),
+    <DiffItem<Item>>((index, length, items) => {
+      patch.push({type: 'remove-many', index, length, items});
+    }),
+    <DiffAll<Item>>((length, items) => {
+      patch.push({type: 'append-all', length, items});
+    }),
+    <DiffAll<Item>>((length, items) => {
+      patch.push({type: 'remove-all', length, items});
+    }),
+    prevItems,
+    nextItems,
+  );
+
+  return patch;
+};

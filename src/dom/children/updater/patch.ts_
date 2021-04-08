@@ -1,0 +1,28 @@
+import {Patch} from 'helpers/array/patch';
+import {childrenUpdater} from '../initializeChildren';
+
+export const patchChildren = <Item> (getPatch: () => Patch<Item>, createRenderer: DomItem<Item>) => {
+  let prevPatch: Patch<Item>, curItems: Item[] = [];
+
+  return childrenUpdater((parentNode: Node) => {
+    const nextPatch = getPatch();
+
+    if (prevPatch === nextPatch) return;
+
+    for (const action of nextPatch) {
+      switch (action.type) {
+        case 'append-many':
+          const {index, length, items} = action;
+          for (const item of action.items) {
+            curItems.push(item);
+          }
+
+          break;
+
+        default: throw new RangeError(`unknown action type: "${action.type}"`)
+      }
+    }
+
+    prevPatch = nextPatch;
+  });
+}

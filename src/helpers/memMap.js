@@ -10,7 +10,7 @@ const ID_KEY = '__PERFORM_ID';
 // With key, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
 export const memMap = (getItems, createRenderer, idKey) => {
-  let prevItems, prevRenderers, nextItems;
+  let prevItems, nextItems, prevRenderers;
 
   const createNext = (index) => {
     const render = createRenderer(() => nextItems[index]);
