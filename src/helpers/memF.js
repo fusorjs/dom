@@ -1,11 +1,10 @@
-import {areArraysEqual} from './areEqual';
+import {areArraysEqualShallow} from './array/equal';
 
-// todo first run case, for no args
 export const memF = f => {
   let prevArgs, prevResult;
 
   return (...nextArgs) => {
-    if (prevArgs && areArraysEqual(prevArgs, nextArgs))
+    if (prevArgs && areArraysEqualShallow(prevArgs, nextArgs))
       return prevResult;
 
     prevArgs = nextArgs;
