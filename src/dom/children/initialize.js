@@ -1,6 +1,6 @@
 import {isFunction, isArray} from '../../utils';
 
-import {updateChildren} from './updateChildren';
+import {updateNodes} from './update/nodes';
 
 const isDefiniteValue = v => {
   const t = typeof v;
@@ -35,7 +35,7 @@ const createChildrenUpdater = (prevNodes, getNextNodes) => (parentNode) => {
 
   if (prevNodes === nextNodes) return;
 
-  updateChildren(parentNode, prevNodes, nextNodes);
+  updateNodes(parentNode, prevNodes, nextNodes);
 
   prevNodes = nextNodes;
 };

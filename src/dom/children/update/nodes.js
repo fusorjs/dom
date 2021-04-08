@@ -2,7 +2,7 @@
 // todo rename to diffChildren
 // ? rendering plugin
 
-export const updateChildren = (parentNode, prevNodes, nextNodes) => {
+export const updateNodes = (parentNode, prevNodes, nextNodes) => {
   const prevLength = prevNodes?.length ?? 0;
   const nextLength = nextNodes?.length ?? 0;
 

@@ -1,6 +1,6 @@
 import {isObject} from '../utils';
-import {initializeAttributes} from './attributes';
-import {initializeChildren} from './children';
+import {initializeAttributes} from './attributes/initialize';
+import {initializeChildren} from './children/initialize';
 
 export const createComponent: DomComponent = (...args) => {
   let element: HTMLElement;
