@@ -17,5 +17,5 @@ export const createTags = <Result> (tagNames: string[], createComponent: Compone
   return componentCreators;
 };
 
-export * from './HTML_TAG_NAMES';
-export * from './SVG_TAG_NAMES';
+export * from './names/html';
+export * from './names/svg';
