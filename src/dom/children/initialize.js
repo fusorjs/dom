@@ -1,4 +1,4 @@
-import {isFunction, isArray} from '../../utils';
+import {isFunction, isArray} from '../../helpers/utils';
 
 import {updateNodes} from './update/nodes';
 
@@ -40,12 +40,10 @@ const createChildrenUpdater = (prevNodes, getNextNodes) => (parentNode) => {
   prevNodes = nextNodes;
 };
 
-const CHILDREN_UPDATER_KEY = '__PERFORM_CHILDREN_UPDATER';
 
-export const childrenUpdater = (f) => {
-  f[CHILDREN_UPDATER_KEY] = true;
-  return f;
-}
+const CHILDREN_UPDATER_KEY = '__PERFORM_CHILDREN_UPDATER';
+export const childrenUpdater = (f) => {f[CHILDREN_UPDATER_KEY] = true; return f;};
+export const isChildrenUpdater = (f) => f[CHILDREN_UPDATER_KEY] === true;
 
 export const initializeChildren = (children, startIndex = 0) => {
   let nodes, updaters, index = startIndex;

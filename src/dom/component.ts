@@ -1,4 +1,4 @@
-import {isObject} from '../utils';
+import {isObject} from '../helpers/utils';
 import {initializeAttributes} from './attributes/initialize';
 import {initializeChildren} from './children/initialize';
 
