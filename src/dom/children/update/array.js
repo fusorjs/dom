@@ -1,5 +1,5 @@
+import {arrayDiffIndexed} from '../../../helpers/array/diff';
 
-// todo rename to diffArray
 // ? move to components
 // ? create one instance of component's prop/child updaters for all array items
 
@@ -10,16 +10,16 @@ const ID_KEY = '__PERFORM_ID';
 // With key, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
 export const childArray = (getItems, createRenderer, idKey) => {
-  let prevItems, nextItems, prevRenderers;
+  let items, renderers = [];
 
   const createNext = (index) => {
-    const render = createRenderer(() => nextItems[index]);
+    const render = createRenderer(() => items[index]);
 
     if (idKey) {
-      const id = nextItems[index][idKey];
+      const id = items[index][idKey];
 
       if (id === undefined)
-        throw new Error(`missing item id value for "${idKey}" in: ${nextItems[index]}`);
+        throw new Error(`missing item id value for "${idKey}" in: ${items[index]}`);
 
       render[ID_KEY] = id;
     }
@@ -29,61 +29,27 @@ export const childArray = (getItems, createRenderer, idKey) => {
 
   // Render function:
   return () => {
-    nextItems = getItems();
+    arrayDiffIndexed(
+      (i, p, n) => {
+        const render = renderers[i];
 
-    // console.log(prevItems, nextItems)
-
-    // All subsequent runs:
-    if (prevItems) {
-      if (prevItems === nextItems) return prevRenderers;
-
-      const prevLength = prevItems.length;
-      const nextLength = nextItems.length;
-
-      let i = 0, nextRenderers;
-
-      // update
-      for (const minLength = Math.min(prevLength, nextLength); i < minLength; i ++) {
-        // console.log(prevItems[i] === nextItems[i]);
-        const nextItem = nextItems[i];
-
-        if (prevItems[i] !== nextItem) {
-          const prevRenderer = prevRenderers[i];
-
-          if (idKey && prevRenderer[ID_KEY] === nextItem[idKey]) {
-            // console.log(render[ID_KEY], i);
-            prevRenderer();
-          }
-          else {
-            nextRenderers ??= prevRenderers.slice(0, minLength);
-            nextRenderers[i] = createNext(i); // todo refactor props updater prev
-          }
+        if (idKey && render[ID_KEY] === n[idKey]) {
+          render();
         }
-      }
-
-      if (prevLength !== nextLength) {
-        // create
-        if (prevLength < nextLength) {
-          nextRenderers ??= [...prevRenderers];
-          for (; i < nextLength; i ++) nextRenderers.push(createNext(i));
+        else {
+          renderers[i] = createNext(i); // todo refactor props updater prev
         }
-        // delete
-        else if (prevLength > nextLength) {
-          nextRenderers ??= prevRenderers.slice(0, nextLength);
-        }
-      }
+      },
+      (i, n) => {
+        renderers.push(createNext(i));
+      },
+      (i, n) => {
+        renderers.pop();
+      },
+      items,
+      items = getItems(),
+    );
 
-      if (nextRenderers) prevRenderers = nextRenderers;
-    }
-    // The first run:
-    else {
-      const nextLength = nextItems.length;
-      prevRenderers = [];
-      for (let i = 0; i < nextLength; i ++) prevRenderers.push(createNext(i));
-    }
-
-    prevItems = nextItems;
-
-    return prevRenderers;
+    return renderers;
   };
 };
