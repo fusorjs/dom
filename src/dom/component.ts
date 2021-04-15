@@ -5,7 +5,7 @@ import {initializeChildren} from './children/initialize';
 export const createComponent: DomComponent = (...args) => {
   let element: HTMLElement;
   let propUpdaters: DomPropUpdater[] | undefined;
-  let childUpdaters: DomChildUpdater[];
+  let childUpdaters: DomChildUpdater[] | undefined;
 
   // render
   return () => {
@@ -29,11 +29,7 @@ export const createComponent: DomComponent = (...args) => {
         }
 
         if (args.length > startIndex) {
-          let childNodes;
-
-          [childNodes, childUpdaters] = initializeChildren(args, startIndex);
-
-          if (childNodes) element.append(...childNodes);
+          childUpdaters = initializeChildren(element, args, startIndex);
         }
       }
     }

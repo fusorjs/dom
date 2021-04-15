@@ -1,6 +1,6 @@
 import {isFunction, isArray} from '../../helpers/utils';
 
-import {updateNodes} from './update/nodes';
+// import {updateNodes} from './update/nodes';
 
 const isDefiniteValue = v => {
   const t = typeof v;
@@ -30,23 +30,23 @@ const createChildUpdater = (node, f, prev) => () => {
   node = v;
 };
 
-const createChildrenUpdater = (prevNodes, getNextNodes) => (parentNode) => {
-  const nextNodes = getNextNodes();
+// const createChildrenUpdater = (prevNodes, getNextNodes) => (parentNode) => {
+//   const nextNodes = getNextNodes();
 
-  if (prevNodes === nextNodes) return;
+//   if (prevNodes === nextNodes) return;
 
-  updateNodes(parentNode, prevNodes, nextNodes);
+//   updateNodes(parentNode, prevNodes, nextNodes);
 
-  prevNodes = nextNodes;
-};
+//   prevNodes = nextNodes;
+// };
 
 
 const CHILDREN_UPDATER_KEY = '__PERFORM_CHILDREN_UPDATER';
 export const childrenUpdater = (f) => {f[CHILDREN_UPDATER_KEY] = true; return f;};
 export const isChildrenUpdater = (f) => f[CHILDREN_UPDATER_KEY] === true;
 
-export const initializeChildren = (children, startIndex = 0) => {
-  let nodes, updaters, index = startIndex;
+export const initializeChildren = (parentNode, children, startIndex = 0) => {
+  let updaters, index = startIndex;
 
   for (const {length} = children; index < length; index ++) {
     let v = children[index];
@@ -54,7 +54,13 @@ export const initializeChildren = (children, startIndex = 0) => {
     if (v && isFunction(v)) {
       const f = v;
 
-      v = v();
+      if (isChildrenUpdater(f)) {
+        if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
+        f(parentNode);
+        return [f];
+      }
+
+      v = v(); // renderer, condition
 
       if (v instanceof HTMLElement) {
         updaters ??= [];
@@ -63,21 +69,21 @@ export const initializeChildren = (children, startIndex = 0) => {
       else {
         let prev = v;
 
-        if (v && isFunction(v)) v = prev = v(); // condition
+        if (v && isFunction(v)) v = prev = v(); // condition renderer, child array
 
         if (v instanceof HTMLElement);
         else if (isDefiniteValue(v)) v = document.createTextNode(v);
-        else if (v && isArray(v)) { // array
-          if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
+        // else if (v && isArray(v)) { // array
+        //   if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
 
-          const [nodes] = initializeChildren(v);
+        //   const [nodes] = initializeChildren(v);
 
-          return [
-            nodes,
-            // updaters
-            [createChildrenUpdater(nodes, () => initializeChildren(f())[0])]
-          ];
-        }
+        //   return [
+        //     nodes,
+        //     // updaters
+        //     [createChildrenUpdater(nodes, () => initializeChildren(f())[0])]
+        //   ];
+        // }
         else throw new Error(`unsupported child: ${f}`);
 
         updaters ??= [];
@@ -85,9 +91,8 @@ export const initializeChildren = (children, startIndex = 0) => {
       }
     }
 
-    nodes ??= [];
-    nodes.push(v);
+    parentNode.append(v);
   }
 
-  return [nodes, updaters];
+  return updaters;
 };

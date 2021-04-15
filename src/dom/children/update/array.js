@@ -1,5 +1,7 @@
 import {arrayDiffIndexed} from '../../../helpers/array/diff';
 
+import {childrenUpdater} from '../initialize';
+
 // ? move to components
 // ? create one instance of component's prop/child updaters for all array items
 
@@ -10,7 +12,7 @@ const ID_KEY = '__PERFORM_ID';
 // With key, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
 export const childArray = (getItems, createRenderer, idKey) => {
-  let items, renderers = [];
+  let items, renderers = [], childNodes = [];
 
   const createNext = (index) => {
     const render = createRenderer(() => items[index]);
@@ -24,11 +26,17 @@ export const childArray = (getItems, createRenderer, idKey) => {
       render[ID_KEY] = id;
     }
 
-    return render;
+    renderers[index] = render;
+
+    const node = render();
+
+    childNodes[index] = node;
+
+    return node;
   };
 
   // Render function:
-  return () => {
+  return childrenUpdater((parentNode) => {
     arrayDiffIndexed(
       (i, p, n) => {
         const render = renderers[i];
@@ -37,19 +45,20 @@ export const childArray = (getItems, createRenderer, idKey) => {
           render();
         }
         else {
-          renderers[i] = createNext(i); // todo refactor props updater prev
+          childNodes[i].replaceWith(createNext(i)); // todo refactor props updater prev
         }
       },
       (i, n) => {
-        renderers.push(createNext(i));
+        parentNode.append(createNext(i));
       },
       (i, n) => {
-        renderers.pop();
+        childNodes[i].remove();
+        // renderers.pop(); // todo
       },
       items,
       items = getItems(),
     );
 
     return renderers;
-  };
+  });
 };
