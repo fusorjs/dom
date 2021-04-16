@@ -7,8 +7,7 @@ export interface DiffItem <Item> {
 }
 
 // todo move, test
-// simple diff based on array index
-export const arrayDiffIndexed = <Item> (
+export const arrayDiff1 = <Item> (
   update: DiffUpdate<Item>,
   create: DiffItem<Item>,
   remove: DiffItem<Item>,
@@ -34,7 +33,9 @@ export const arrayDiffIndexed = <Item> (
         create(i, (nextItems as readonly Item[])[i]);
     }
     else if (prevLength > nextLength) {
-      for (let i = minLength; i < prevLength; i ++)
+      // for (let i = minLength; i < prevLength; i ++)
+      //   remove(i, (prevItems as readonly Item[])[i]);
+      for (let i = prevLength - 1; i >= minLength; i --)
         remove(i, (prevItems as readonly Item[])[i]);
     }
   }
@@ -56,30 +57,26 @@ export const arrayDiffKeyed = <Item> (
   update: DiffUpdate<Item>,
   create: DiffItem<Item>,
   remove: DiffItem<Item>,
-  // todo move for idKey
-  // idKey?: string,
+  // todo move
   prevItems?: readonly Item[],
   nextItems?: readonly Item[],
+  idKey?: string,
 ) => {
   const prevLength = prevItems?.length ?? 0;
   const nextLength = nextItems?.length ?? 0;
   const maxLength = Math.max(prevLength, nextLength);
 
-  for (let index = 0; index < maxLength; index ++) {
-    const p = prevItems?.[index];
-    const n = nextItems?.[index];
+  for (let i = 0; i < maxLength; i ++) {
+    const p = prevItems?.[i];
+    const n = nextItems?.[i];
 
     if (p === n) continue;
 
+    if (p !== undefined) {
+      remove(i, p);
+    }
+
     if (p !== undefined && n !== undefined) {
-
-
-      // if (idKey && (p as any)[idKey] === (n as any)[idKey]) {
-      //   update(index, p, n);
-      // }
-
-      for (let i = index + 1; i < nextLength; i ++) {
-      }
 
     }
 

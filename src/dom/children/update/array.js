@@ -1,4 +1,4 @@
-import {arrayDiffIndexed} from '../../../helpers/array/diff';
+import {arrayDiff1} from '../../../helpers/array/diff';
 
 import {childrenUpdater} from '../initialize';
 
@@ -28,7 +28,7 @@ export const childArray = (getItems, createRenderer, idKey) => {
 
   // Render function:
   return childrenUpdater((parentNode) => {
-    arrayDiffIndexed(
+    arrayDiff1(
       (i, p, n) => {
         if (idKey && p[idKey] === n[idKey]) {
           renderers[i]();
@@ -42,14 +42,14 @@ export const childArray = (getItems, createRenderer, idKey) => {
       },
       (i, n) => {
         childNodes[i].remove();
-        // renderers.splice(i, 1);
-        // childNodes.splice(i, 1);
-        // renderers.pop(); // todo
-        // childNodes.pop(); // todo
+        renderers.splice(i, 1);
+        childNodes.splice(i, 1);
       },
       items,
       items = getItems(),
     );
+
+    // console.log({items, renderers, childNodes});
 
     return renderers;
   });
