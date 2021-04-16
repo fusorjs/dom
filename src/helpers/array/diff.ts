@@ -6,6 +6,7 @@ export interface DiffItem <Item> {
   (index: number, item: Item): void;
 }
 
+// todo move, test
 // simple diff based on array index
 export const arrayDiffIndexed = <Item> (
   update: DiffUpdate<Item>,

@@ -5,8 +5,6 @@ import {childrenUpdater} from '../initialize';
 // ? move to components
 // ? create one instance of component's prop/child updaters for all array items
 
-const ID_KEY = '__PERFORM_ID';
-
 // use idKey for perfomance optimization
 // Without key, children will be recreated only if `getItem` returns different value.
 // With key, children will be recreated only if `getItem` returns different value and the keys do not match.
@@ -15,21 +13,14 @@ export const childArray = (getItems, createRenderer, idKey) => {
   let items, renderers = [], childNodes = [];
 
   const createNext = (index) => {
-    const render = createRenderer(() => items[index]);
-
-    if (idKey) {
-      const id = items[index][idKey];
-
-      if (id === undefined)
-        throw new Error(`missing item id value for "${idKey}" in: ${items[index]}`);
-
-      render[ID_KEY] = id;
+    if (idKey && items[index][idKey] === undefined) {
+      throw new Error(`missing item id value for "${idKey}" in: ${items[index]}`);
     }
 
-    renderers[index] = render;
-
+    const render = createRenderer(() => items[index]);
     const node = render();
 
+    renderers[index] = render;
     childNodes[index] = node;
 
     return node;
@@ -39,10 +30,8 @@ export const childArray = (getItems, createRenderer, idKey) => {
   return childrenUpdater((parentNode) => {
     arrayDiffIndexed(
       (i, p, n) => {
-        const render = renderers[i];
-
-        if (idKey && render[ID_KEY] === n[idKey]) {
-          render();
+        if (idKey && p[idKey] === n[idKey]) {
+          renderers[i]();
         }
         else {
           childNodes[i].replaceWith(createNext(i)); // todo refactor props updater prev
@@ -53,7 +42,10 @@ export const childArray = (getItems, createRenderer, idKey) => {
       },
       (i, n) => {
         childNodes[i].remove();
+        // renderers.splice(i, 1);
+        // childNodes.splice(i, 1);
         // renderers.pop(); // todo
+        // childNodes.pop(); // todo
       },
       items,
       items = getItems(),
