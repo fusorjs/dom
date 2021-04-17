@@ -1,14 +1,16 @@
-export interface DiffOne <Item> {
+export interface DiffOne <Item> { // unary
   (index: number, item: Item): void;
 }
-export interface DiffTwo <Item> {
+export interface DiffTwo <Item> { // binary
   (index: number, prev: Item, next: Item): void;
 }
 
 interface DiffProps <Item> {
-  insert: DiffOne<Item>;
-  remove: DiffOne<Item>;
-  replace?: DiffTwo<Item>;
+  push: DiffOne<Item>;
+  // insert: DiffOne<Item>; // todo
+  remove: DiffOne<Item>; // todo: split out pop
+  // move: DiffTwo<Item>; // todo
+  // replace?: DiffTwo<Item>; // ? do we need it
   prevItems?: readonly Item[];
   nextItems?: readonly Item[];
 }
@@ -18,11 +20,10 @@ interface DiffKeyProps <Item extends KeyMap> {
   update: DiffTwo<Item>;
 }
 
-// todo move, test
 export function arrayDiff1<Item extends KeyMap> (props: DiffProps<Item> & DiffKeyProps<Item>): void;
 export function arrayDiff1<Item> (props: DiffProps<Item>): void;
 export function arrayDiff1<Item> ({
-  insert, remove, replace, prevItems, nextItems, idKey, update
+  push, remove, prevItems, nextItems, idKey, update
 }: DiffProps<Item> & Partial<DiffKeyProps<Item>>) {
   if (prevItems === nextItems) return;
 
@@ -30,17 +31,21 @@ export function arrayDiff1<Item> ({
   const nextLength = nextItems?.length ?? 0;
   const minLength = Math.min(prevLength, nextLength);
 
-  for (let i = 0; i < minLength; i ++) {
-    const p = (prevItems as readonly Item[])[i];
-    const n = (nextItems as readonly Item[])[i];
+  let indexPrev = 0, indexNext = 0;
 
+  for (; indexPrev < minLength; indexNext ++, indexPrev ++) {
+    const p = (prevItems as readonly Item[])[indexPrev];
+    const n = (nextItems as readonly Item[])[indexNext];
+
+    // * no change
     if (p === n) continue;
 
+    // * update
     if (idKey) {
       const nid = (n as KeyMap)[idKey];
 
       if ((p as KeyMap)[idKey] === nid) {
-        (update as DiffTwo<Item>)(i, p, n);
+        (update as DiffTwo<Item>)(indexNext, p, n);
         continue;
       }
 
@@ -49,66 +54,49 @@ export function arrayDiff1<Item> ({
       }
     }
 
-    if (replace) replace(i, p, n);
-    else {
-      remove(i, p);
-      insert(i, n);
-    }
+    // // * move
+    // for (let _i = i + 1; _i < nextLength; i ++) {
+    //   const _n = (nextItems as readonly Item[])[_i];
+
+    //   if (p === _n) {
+    //     throw new Error(`move not implemented yet`);
+    //   }
+
+    //   // todo idKey update
+    // }
+
+    // // * replace
+    // if (replace) replace(i, p, n);
+    // else {
+    //   remove(i, p);
+    //   insert(i, n);
+    // }
+
+    // * remove
+    remove(indexNext, p);
+    indexNext --; // keep next item the same
   }
 
+  // * rest
   if (prevLength !== nextLength) {
+    // * push
     if (nextLength > prevLength) {
       for (let i = minLength; i < nextLength; i ++)
-        insert(i, (nextItems as readonly Item[])[i]);
+      push(i, (nextItems as readonly Item[])[i]);
     }
-    else if (prevLength > nextLength) {
+    // * pop
+    else {
+      // // 1
       // for (let i = minLength; i < prevLength; i ++)
       //   remove(i, (prevItems as readonly Item[])[i]);
-      for (let i = prevLength - 1; i >= minLength; i --)
+      // // 2
+      // for (let i = prevLength - 1; i >= minLength; i --)
+      //   remove(i, (prevItems as readonly Item[])[i]);
+      // 3
+      const start = minLength - 1 + (indexPrev - indexNext);
+
+      for (let i = prevLength - 1; i > start; i --)
         remove(i, (prevItems as readonly Item[])[i]);
     }
   }
 };
-
-/*
-// const lookAheadFor = <Item>(
-//   item: Item,
-//   startIndex: number,
-//   nextItems: readonly Item[],
-//   nextLength: number,
-// ) => {
-//   for (let i = startIndex; i < nextLength; i ++) {
-//   }
-// };
-
-// advanced diff based on array index and identity key
-export const arrayDiffKeyed = <Item> (
-  update: DiffUpdate<Item>,
-  create: DiffItem<Item>,
-  remove: DiffItem<Item>,
-  // todo move
-  prevItems?: readonly Item[],
-  nextItems?: readonly Item[],
-  idKey?: string,
-) => {
-  const prevLength = prevItems?.length ?? 0;
-  const nextLength = nextItems?.length ?? 0;
-  const maxLength = Math.max(prevLength, nextLength);
-
-  for (let i = 0; i < maxLength; i ++) {
-    const p = prevItems?.[i];
-    const n = nextItems?.[i];
-
-    if (p === n) continue;
-
-    if (p !== undefined) {
-      remove(i, p);
-    }
-
-    if (p !== undefined && n !== undefined) {
-
-    }
-
-  }
-};
-*/

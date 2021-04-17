@@ -10,39 +10,52 @@ import {childrenUpdater} from '../initialize';
 // With key, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
 export const childArray = (getItems, createRenderer, idKey) => {
-  let items, renderers = [], nodes = [];
+  let items, children = [], renderers = [], nodes = [];
 
+  // must be synchronous as renderers, nodes, childNodes are mutated
   return childrenUpdater((parentNode) => {
     arrayDiff1({
       prevItems: items,
       nextItems: items = getItems(),
-      insert: (i) => {
+      push: (i, item) => {
+        // const child = {
+        //   item};
+
         const render = createRenderer(() => items[i]);
         const node = render();
-        const prevNode = nodes[i];
 
-        renderers.splice(i, 0, render);
-        nodes.splice(i, 0, node);
+        renderers.push(render);
+        nodes.push(node);
 
-        if (prevNode) parentNode.insertBefore(node, prevNode);
-        else parentNode.append(node);
+        parentNode.append(node);
       },
+      // insert: (i) => {
+      //   const render = createRenderer(() => items[i]);
+      //   const node = render();
+      //   const prevNode = nodes[i];
+
+      //   renderers.splice(i, 0, render);
+      //   nodes.splice(i, 0, node);
+
+      //   if (prevNode) parentNode.insertBefore(node, prevNode);
+      //   else parentNode.append(node);
+      // },
       remove: (i) => {
         nodes[i].remove();
 
         renderers.splice(i, 1);
         nodes.splice(i, 1);
       },
-      replace: (i) => {
-        const render = createRenderer(() => items[i]);
-        const node = render();
-        const prevNode = nodes[i];
+      // replace: (i) => {
+      //   const render = createRenderer(() => items[i]);
+      //   const node = render();
+      //   const prevNode = nodes[i];
 
-        renderers[i] = render;
-        nodes[i] = node;
+      //   renderers[i] = render;
+      //   nodes[i] = node;
 
-        prevNode.replaceWith(node);
-      },
+      //   prevNode.replaceWith(node);
+      // },
       idKey,
       update: (i) => {
         renderers[i]();
@@ -50,7 +63,5 @@ export const childArray = (getItems, createRenderer, idKey) => {
     });
 
     console.log({items, renderers, nodes});
-
-    // return renderers;
   });
 };
