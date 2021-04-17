@@ -12,34 +12,45 @@ import {childrenUpdater} from '../initialize';
 export const childArray = (getItems, createRenderer, idKey) => {
   let items, renderers = [], nodes = [];
 
-  // Render function:
   return childrenUpdater((parentNode) => {
     arrayDiff1({
       prevItems: items,
       nextItems: items = getItems(),
-      insert: (i, n) => {
+      insert: (i) => {
         const render = createRenderer(() => items[i]);
         const node = render();
+        const prevNode = nodes[i];
 
         renderers.splice(i, 0, render);
         nodes.splice(i, 0, node);
 
-        parentNode.append(node); // todo check
+        if (prevNode) parentNode.insertBefore(node, prevNode);
+        else parentNode.append(node);
       },
-      remove: (i, n) => {
+      remove: (i) => {
         nodes[i].remove();
 
         renderers.splice(i, 1);
         nodes.splice(i, 1);
       },
+      replace: (i) => {
+        const render = createRenderer(() => items[i]);
+        const node = render();
+        const prevNode = nodes[i];
+
+        renderers[i] = render;
+        nodes[i] = node;
+
+        prevNode.replaceWith(node);
+      },
       idKey,
-      update: (i, p, n) => {
+      update: (i) => {
         renderers[i]();
       },
     });
 
-    // console.log({items, renderers, childNodes});
+    console.log({items, renderers, nodes});
 
-    return renderers;
+    // return renderers;
   });
 };

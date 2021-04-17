@@ -1,28 +1,28 @@
-
-export interface DiffUpdate <Item> {
-  (index: number, prev: Item, next: Item): void;
-}
-export interface DiffItem <Item> {
+export interface DiffOne <Item> {
   (index: number, item: Item): void;
+}
+export interface DiffTwo <Item> {
+  (index: number, prev: Item, next: Item): void;
 }
 
 interface DiffProps <Item> {
-  insert: DiffItem<Item>;
-  remove: DiffItem<Item>;
+  insert: DiffOne<Item>;
+  remove: DiffOne<Item>;
+  replace?: DiffTwo<Item>;
   prevItems?: readonly Item[];
   nextItems?: readonly Item[];
 }
 
 interface DiffKeyProps <Item extends KeyMap> {
   idKey: string;
-  update: DiffUpdate<Item>;
+  update: DiffTwo<Item>;
 }
 
 // todo move, test
 export function arrayDiff1<Item extends KeyMap> (props: DiffProps<Item> & DiffKeyProps<Item>): void;
 export function arrayDiff1<Item> (props: DiffProps<Item>): void;
 export function arrayDiff1<Item> ({
-  insert, remove, prevItems, nextItems, idKey, update
+  insert, remove, replace, prevItems, nextItems, idKey, update
 }: DiffProps<Item> & Partial<DiffKeyProps<Item>>) {
   if (prevItems === nextItems) return;
 
@@ -40,7 +40,7 @@ export function arrayDiff1<Item> ({
       const nid = (n as KeyMap)[idKey];
 
       if ((p as KeyMap)[idKey] === nid) {
-        (update as DiffUpdate<Item>)(i, p, n);
+        (update as DiffTwo<Item>)(i, p, n);
         continue;
       }
 
@@ -49,8 +49,11 @@ export function arrayDiff1<Item> ({
       }
     }
 
-    remove(i, p);
-    insert(i, n);
+    if (replace) replace(i, p, n);
+    else {
+      remove(i, p);
+      insert(i, n);
+    }
   }
 
   if (prevLength !== nextLength) {
