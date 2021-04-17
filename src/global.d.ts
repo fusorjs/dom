@@ -1,3 +1,6 @@
+interface KeyMap {
+  [k: string]: any;
+}
 
 interface Attributes {
   [key: string]: unknown;

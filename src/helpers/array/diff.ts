@@ -6,14 +6,24 @@ export interface DiffItem <Item> {
   (index: number, item: Item): void;
 }
 
+interface DiffProps <Item> {
+  insert: DiffItem<Item>;
+  remove: DiffItem<Item>;
+  prevItems?: readonly Item[];
+  nextItems?: readonly Item[];
+}
+
+interface DiffKeyProps <Item extends KeyMap> {
+  idKey: string;
+  update: DiffUpdate<Item>;
+}
+
 // todo move, test
-export const arrayDiff1 = <Item> (
-  update: DiffUpdate<Item>,
-  create: DiffItem<Item>,
-  remove: DiffItem<Item>,
-  prevItems?: readonly Item[],
-  nextItems?: readonly Item[],
-) => {
+export function arrayDiff1<Item extends KeyMap> (props: DiffProps<Item> & DiffKeyProps<Item>): void;
+export function arrayDiff1<Item> (props: DiffProps<Item>): void;
+export function arrayDiff1<Item> ({
+  insert, remove, prevItems, nextItems, idKey, update
+}: DiffProps<Item> & Partial<DiffKeyProps<Item>>) {
   if (prevItems === nextItems) return;
 
   const prevLength = prevItems?.length ?? 0;
@@ -24,13 +34,29 @@ export const arrayDiff1 = <Item> (
     const p = (prevItems as readonly Item[])[i];
     const n = (nextItems as readonly Item[])[i];
 
-    if (p !== n) update(i, p, n);
+    if (p === n) continue;
+
+    if (idKey) {
+      const nid = (n as KeyMap)[idKey];
+
+      if ((p as KeyMap)[idKey] === nid) {
+        (update as DiffUpdate<Item>)(i, p, n);
+        continue;
+      }
+
+      if (nid === undefined) {
+        throw new Error(`missing item id value for "${idKey}" in: ${n}`);
+      }
+    }
+
+    remove(i, p);
+    insert(i, n);
   }
 
   if (prevLength !== nextLength) {
     if (nextLength > prevLength) {
       for (let i = minLength; i < nextLength; i ++)
-        create(i, (nextItems as readonly Item[])[i]);
+        insert(i, (nextItems as readonly Item[])[i]);
     }
     else if (prevLength > nextLength) {
       // for (let i = minLength; i < prevLength; i ++)

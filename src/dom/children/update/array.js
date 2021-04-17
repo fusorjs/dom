@@ -10,44 +10,33 @@ import {childrenUpdater} from '../initialize';
 // With key, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
 export const childArray = (getItems, createRenderer, idKey) => {
-  let items, renderers = [], childNodes = [];
-
-  const createNext = (index) => {
-    if (idKey && items[index][idKey] === undefined) {
-      throw new Error(`missing item id value for "${idKey}" in: ${items[index]}`);
-    }
-
-    const render = createRenderer(() => items[index]);
-    const node = render();
-
-    renderers[index] = render;
-    childNodes[index] = node;
-
-    return node;
-  };
+  let items, renderers = [], nodes = [];
 
   // Render function:
   return childrenUpdater((parentNode) => {
-    arrayDiff1(
-      (i, p, n) => {
-        if (idKey && p[idKey] === n[idKey]) {
-          renderers[i]();
-        }
-        else {
-          childNodes[i].replaceWith(createNext(i)); // todo refactor props updater prev
-        }
+    arrayDiff1({
+      prevItems: items,
+      nextItems: items = getItems(),
+      insert: (i, n) => {
+        const render = createRenderer(() => items[i]);
+        const node = render();
+
+        renderers.splice(i, 0, render);
+        nodes.splice(i, 0, node);
+
+        parentNode.append(node); // todo check
       },
-      (i, n) => {
-        parentNode.append(createNext(i));
-      },
-      (i, n) => {
-        childNodes[i].remove();
+      remove: (i, n) => {
+        nodes[i].remove();
+
         renderers.splice(i, 1);
-        childNodes.splice(i, 1);
+        nodes.splice(i, 1);
       },
-      items,
-      items = getItems(),
-    );
+      idKey,
+      update: (i, p, n) => {
+        renderers[i]();
+      },
+    });
 
     // console.log({items, renderers, childNodes});
 
