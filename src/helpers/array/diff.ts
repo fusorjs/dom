@@ -1,29 +1,28 @@
-export interface DiffOne <Item> { // unary
+
+export interface DiffBinary <Item> {
   (index: number, item: Item): void;
-}
-export interface DiffTwo <Item> { // binary
-  (index: number, prev: Item, next: Item): void;
 }
 
 interface DiffProps <Item> {
-  push: DiffOne<Item>;
-  // insert: DiffOne<Item>; // todo
-  remove: DiffOne<Item>; // todo: split out pop
-  // move: DiffTwo<Item>; // todo
-  // replace?: DiffTwo<Item>; // ? do we need it
   prevItems?: readonly Item[];
   nextItems?: readonly Item[];
+  push: (item: Item) => void; // append to the end
+  pop: () => void; // remove from the end
+  // insert: DiffBinary<Item>; // todo insert into/before index
+  remove: (index: number) => void; // todo remove at index
+  // move: (fromIndex: number, toIndex: number) => void; // todo move from index to index
+  // replace?: DiffBinary<Item>; // ? do we need it // replace with a new item at index
 }
 
 interface DiffKeyProps <Item extends KeyMap> {
   idKey: string;
-  update: DiffTwo<Item>;
+  update: DiffBinary<Item>; // update item data with the same key
 }
 
-export function arrayDiff1<Item extends KeyMap> (props: DiffProps<Item> & DiffKeyProps<Item>): void;
-export function arrayDiff1<Item> (props: DiffProps<Item>): void;
-export function arrayDiff1<Item> ({
-  push, remove, prevItems, nextItems, idKey, update
+export function arrayDiff<Item extends KeyMap> (props: DiffProps<Item> & DiffKeyProps<Item>): void;
+export function arrayDiff<Item> (props: DiffProps<Item>): void;
+export function arrayDiff<Item> ({
+  prevItems, nextItems, push, pop, remove, idKey, update
 }: DiffProps<Item> & Partial<DiffKeyProps<Item>>) {
   if (prevItems === nextItems) return;
 
@@ -45,7 +44,7 @@ export function arrayDiff1<Item> ({
       const nid = (n as KeyMap)[idKey];
 
       if ((p as KeyMap)[idKey] === nid) {
-        (update as DiffTwo<Item>)(indexNext, p, n);
+        (update as DiffBinary<Item>)(indexNext, n);
         continue;
       }
 
@@ -73,7 +72,7 @@ export function arrayDiff1<Item> ({
     // }
 
     // * remove
-    remove(indexNext, p);
+    remove(indexNext);
     indexNext --; // keep next item the same
   }
 
@@ -82,7 +81,7 @@ export function arrayDiff1<Item> ({
     // * push
     if (nextLength > prevLength) {
       for (let i = minLength; i < nextLength; i ++)
-      push(i, (nextItems as readonly Item[])[i]);
+        push((nextItems as readonly Item[])[i]);
     }
     // * pop
     else {
@@ -95,8 +94,7 @@ export function arrayDiff1<Item> ({
       // 3
       const start = minLength - 1 + (indexPrev - indexNext);
 
-      for (let i = prevLength - 1; i > start; i --)
-        remove(i, (prevItems as readonly Item[])[i]);
+      for (let i = prevLength - 1; i > start; i --) pop();
     }
   }
 };

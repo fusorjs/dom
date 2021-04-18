@@ -1,4 +1,4 @@
-import {arrayDiff1} from '../../../helpers/array/diff';
+import {arrayDiff} from '../../../helpers/array/diff';
 
 import {childrenUpdater} from '../initialize';
 
@@ -10,23 +10,20 @@ import {childrenUpdater} from '../initialize';
 // With key, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
 export const childArray = (getItems, createRenderer, idKey) => {
-  let items, children = [], renderers = [], nodes = [];
+  let items, children = [];
 
-  // must be synchronous as renderers, nodes, childNodes are mutated
+  // must be atomic/synchronous as renderers, nodes, childNodes are mutated
   return childrenUpdater((parentNode) => {
-    arrayDiff1({
+    arrayDiff({
       prevItems: items,
       nextItems: items = getItems(),
-      push: (i, item) => {
-        // const child = {
-        //   item};
-
-        const render = createRenderer(() => items[i]);
+      push: (item) => {
+        const child = [item];
+        const render = createRenderer(() => child[0]);
         const node = render();
 
-        renderers.push(render);
-        nodes.push(node);
-
+        child.push(render, node);
+        children.push(child);
         parentNode.append(node);
       },
       // insert: (i) => {
@@ -40,11 +37,11 @@ export const childArray = (getItems, createRenderer, idKey) => {
       //   if (prevNode) parentNode.insertBefore(node, prevNode);
       //   else parentNode.append(node);
       // },
+      pop: () => {
+        children.pop()[2].remove();
+      },
       remove: (i) => {
-        nodes[i].remove();
-
-        renderers.splice(i, 1);
-        nodes.splice(i, 1);
+        children.splice(i, 1)[0][2].remove();
       },
       // replace: (i) => {
       //   const render = createRenderer(() => items[i]);
@@ -57,11 +54,14 @@ export const childArray = (getItems, createRenderer, idKey) => {
       //   prevNode.replaceWith(node);
       // },
       idKey,
-      update: (i) => {
-        renderers[i]();
+      update: (i, item) => {
+        const child = children[i];
+
+        child[0] = item;
+        child[1]();
       },
     });
 
-    console.log({items, renderers, nodes});
+    console.log({items, children});
   });
 };
