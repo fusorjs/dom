@@ -1,100 +1,119 @@
+import {getKeyIndexMap} from '../array/map';
 
-export interface DiffBinary <Item> {
+interface IndexedAction <Item> {
   (index: number, item: Item): void;
 }
 
-interface DiffProps <Item> {
-  prevItems?: readonly Item[];
-  nextItems?: readonly Item[];
-  push: (item: Item) => void; // append to the end
-  pop: () => void; // remove from the end
-  // insert: DiffBinary<Item>; // todo insert into/before index
-  remove: (index: number) => void; // todo remove at index
-  // move: (fromIndex: number, toIndex: number) => void; // todo move from index to index
-  // replace?: DiffBinary<Item>; // ? do we need it // replace with a new item at index
+interface IndexedProps <Item> {
+  // * not changes array length:
+  swap: (prevIndex: number, nextIndex: number) => void; // swap items from prev index to the next index position
+  replace: IndexedAction<Item>; // replace item with a new item at the index position
+  // * changes array length:
+  push: (item: Item) => void; // insert item at the end of array
+  pop: () => void; // remove last item from the end of array
+  // * changes array length and does reindex:
+  insert: IndexedAction<Item>; // insert new item to array at the index position
+  remove: (index: number) => void; // remove item from array at the index position
+  // * initial state
+  prevItems?: Item[]; // ! will be mutated
 }
 
-interface DiffKeyProps <Item extends KeyMap> {
-  idKey: string;
-  update: DiffBinary<Item>; // update item data with the same key
+interface KeyedProps <Item extends KeyMap> {
+  key: string; // name for id field
+  update: IndexedAction<Item>; // update item data with the same key
 }
 
-export function arrayDiff<Item extends KeyMap> (props: DiffProps<Item> & DiffKeyProps<Item>): void;
-export function arrayDiff<Item> (props: DiffProps<Item>): void;
-export function arrayDiff<Item> ({
-  prevItems, nextItems, push, pop, remove, idKey, update
-}: DiffProps<Item> & Partial<DiffKeyProps<Item>>) {
-  if (prevItems === nextItems) return;
+export const arrayKeyDiff = <Item extends KeyMap> ({
+  swap, replace, push, pop, insert, remove, key, update, prevItems = [],
+}: IndexedProps<Item> & KeyedProps<Item>) => {
+  const prevLength = prevItems.length;
+  const prevMap = getKeyIndexMap(key, prevItems, 0, prevLength);
 
-  const prevLength = prevItems?.length ?? 0;
-  const nextLength = nextItems?.length ?? 0;
-  const minLength = Math.min(prevLength, nextLength);
+  return (nextItems: readonly Item[]) => {
+    // * no changes
+    if (prevItems === nextItems) return;
 
-  let indexPrev = 0, indexNext = 0;
+    const nextLength = nextItems.length;
+    const nextMap = getKeyIndexMap(key, nextItems, 0, nextLength);
 
-  for (; indexPrev < minLength; indexNext ++, indexPrev ++) {
-    const p = (prevItems as readonly Item[])[indexPrev];
-    const n = (nextItems as readonly Item[])[indexNext];
+    let prevIndex = 0;
+    let nextIndex = 0;
 
-    // * no change
-    if (p === n) continue;
+    for (; prevIndex > prevLength && nextIndex < nextLength;) {
+      const prevItem = prevItems[prevIndex];
+      const nextItem = nextItems[nextIndex];
 
-    // * update
-    if (idKey) {
-      const nid = (n as KeyMap)[idKey];
-
-      if ((p as KeyMap)[idKey] === nid) {
-        (update as DiffBinary<Item>)(indexNext, n);
+      if (prevItem === nextItem) {
+        // * no change
+        prevIndex ++;
+        nextIndex ++;
         continue;
       }
 
-      if (nid === undefined) {
-        throw new Error(`missing item id value for "${idKey}" in: ${n}`);
+      const prevId = prevItem[key];
+      const nextId = nextItem[key];
+
+      // todo move to the end
+      if (prevId === nextId) {
+        // * update
+        update(prevIndex, nextItem);
+        prevIndex ++;
+        nextIndex ++;
+        continue;
       }
+
+      // next could insert or remove or replace
+
+      let prevHasNextIndex = nextMap[prevId];
+      let nextHasPrevIndex = prevMap[nextId];
+
+      if (prevHasNextIndex === undefined && nextHasPrevIndex === undefined) {
+        // * replace
+        replace(prevIndex, nextItem);
+        prevIndex ++;
+        nextIndex ++;
+        continue;
+      }
+
+      if (prevHasNextIndex === undefined) {
+        // * remove
+        remove(nextIndex)
+        prevIndex ++;
+        continue;
+      }
+
+      if (nextHasPrevIndex === undefined) {
+        // * insert
+        insert(prevIndex, nextItem);
+        nextIndex ++;
+        continue;
+      }
+
+      // * swap
+      // todo
+      swap(nextHasPrevIndex, prevHasNextIndex);
     }
 
-    // // * move
-    // for (let _i = i + 1; _i < nextLength; i ++) {
-    //   const _n = (nextItems as readonly Item[])[_i];
-
-    //   if (p === _n) {
-    //     throw new Error(`move not implemented yet`);
+    // * rest
+    // if (prevLength !== nextLength) {
+    //   // * push
+    //   if (nextLength > prevLength) {
+    //     for (let i = minLength; i < nextLength; i ++)
+    //       push((nextItems as readonly Item[])[i]);
     //   }
+    //   // * pop
+    //   else {
+    //     // // 1
+    //     // for (let i = minLength; i < prevLength; i ++)
+    //     //   remove(i, (prevItems as readonly Item[])[i]);
+    //     // // 2
+    //     // for (let i = prevLength - 1; i >= minLength; i --)
+    //     //   remove(i, (prevItems as readonly Item[])[i]);
+    //     // 3
+    //     const start = minLength - 1 + (i - i);
 
-    //   // todo idKey update
+    //     for (let i = prevLength - 1; i > start; i --) pop();
+    //   }
     // }
-
-    // // * replace
-    // if (replace) replace(i, p, n);
-    // else {
-    //   remove(i, p);
-    //   insert(i, n);
-    // }
-
-    // * remove
-    remove(indexNext);
-    indexNext --; // keep next item the same
-  }
-
-  // * rest
-  if (prevLength !== nextLength) {
-    // * push
-    if (nextLength > prevLength) {
-      for (let i = minLength; i < nextLength; i ++)
-        push((nextItems as readonly Item[])[i]);
-    }
-    // * pop
-    else {
-      // // 1
-      // for (let i = minLength; i < prevLength; i ++)
-      //   remove(i, (prevItems as readonly Item[])[i]);
-      // // 2
-      // for (let i = prevLength - 1; i >= minLength; i --)
-      //   remove(i, (prevItems as readonly Item[])[i]);
-      // 3
-      const start = minLength - 1 + (indexPrev - indexNext);
-
-      for (let i = prevLength - 1; i > start; i --) pop();
-    }
-  }
+  };
 };

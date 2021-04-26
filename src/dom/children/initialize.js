@@ -1,11 +1,6 @@
-import {isFunction, isArray} from '../../helpers/utils';
+import {isFunction, isArray, isLiteral} from '../../helpers/utils';
 
 // import {updateNodes} from './update/nodes';
-
-const isLiteralValue = v => {
-  const t = typeof v;
-  return t === 'string' || t === 'number';
-};
 
 const createChildUpdater = (node, f, prev) => () => {
   let v = f();
@@ -16,7 +11,7 @@ const createChildUpdater = (node, f, prev) => () => {
   else prev = v;
 
   if (v instanceof HTMLElement);
-  else if (isLiteralValue(v)) {
+  else if (isLiteral(v)) {
     if (node instanceof Text) {
       node.nodeValue = v;
       return;
@@ -72,7 +67,7 @@ export const initializeChildren = (parentNode, children, startIndex = 0) => {
         if (v && isFunction(v)) v = prev = v(); // condition renderer, child array
 
         if (v instanceof HTMLElement);
-        else if (isLiteralValue(v)) v = document.createTextNode(v);
+        else if (isLiteral(v)) v = document.createTextNode(v);
         // else if (v && isArray(v)) { // array
         //   if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
 
