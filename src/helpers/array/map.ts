@@ -4,7 +4,7 @@ interface KeyIndexMap {
   [key: string]: number;
 }
 
-export const getKeyIndexMap = <Item extends KeyMap>(
+export const getKeyIndexMap = <Item extends MapObject>(
   key: string, items: readonly Item[], from: number = 0, length: number = items.length
 ) => {
   const map: KeyIndexMap = Object.create(null);

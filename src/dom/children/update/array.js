@@ -1,4 +1,4 @@
-import {arrayKeyDiff} from '../../../helpers/array/diff';
+import {keyedDiff} from '../../../helpers/array/diff';
 
 import {childrenUpdater} from '../initialize';
 import {swapNodes} from '../utils';
@@ -27,9 +27,9 @@ export const childArray = (getItems, createRenderer, key) => {
 
   // must be atomic/synchronous as renderers, nodes, childNodes are mutated
   return childrenUpdater((parentNode) => {
-    arrayKeyDiff({
-      prevItems: items,
-      nextItems: items = getItems(),
+    keyedDiff({
+      prevArray: items,
+      nextArray: items = getItems(),
       push: (item) => {
         const child = createChild(item);
         children.push(child);

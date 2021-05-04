@@ -1,4 +1,4 @@
-interface KeyMap {
+interface MapObject {
   [k: string]: any;
 }
 
