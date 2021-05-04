@@ -24,6 +24,9 @@
         "baseUrl": "src",
     },
     "include": [
-        "src"
+        "src/**/*"
+    ],
+    "exclude": [
+        "**/*.spec.ts"
     ]
 }
