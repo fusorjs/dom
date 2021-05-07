@@ -6,17 +6,15 @@ const toArray = (s: string) => {
   return s ? s.split('  ') : [];
 };
 
-// type Step = [state: string[], action: string];
-
-// const toPairs = (acc: Step[], v: string, i: number, arr: readonly string[]) => {
-//   if (i % 2 === 0) {
-//     const [state, action] = arr.slice(i, i + 2);
-//     acc.push([toArray(state), action]);
-//   }
-//   return acc;
-// }
-
 test.each([
+  //   0  1  2  3  4  5  6  7  8  9
+  [
+    '  a  b  c  d  e  f  g  h  i  j  ',
+    '  a  b  c  e  f  g  h  i  j     |  remove 3',
+    '  a  b  e  f  g  h  i  j        |  remove 2',
+    '  a  e  f  g  h  i  j           |  remove 1',
+    '  a  e  f  g  h  i  j           ',
+  ],
   //   0  1  2  3  4  5  6  7  8  9
   [
     '  a  b  c  d  e  f  g           ',
@@ -27,11 +25,11 @@ test.each([
   ],
   //   0  1  2  3  4  5  6  7  8  9
   [
-    '  a  b  c  d  e  f  g  h  i  j  ',
-    '  a  c  d  e  f  g  h  i  j     |  remove 1',
-    '  a  d  e  f  g  h  i  j        |  remove 1',
-    '  a  e  f  g  h  i  j           |  remove 1',
-    '  a  e  f  g  h  i  j           ',
+    '  a  b  c  d  e  f  g  ',
+    '  a  b  c  d  e  f     |  pop',
+    '  a  b  c  d  e        |  pop',
+    '  a  b  c  d           |  pop',
+    '  a  b  c  d           '
   ],
   //   0  1  2  3  4  5  6  7  8  9
   [
@@ -44,25 +42,17 @@ test.each([
   //   0  1  2  3  4  5  6  7  8  9
   [
     '  a  b  c  d  e  f  g  ',
-    '  a  b  c  d  e  f     |  pop',
-    '  a  b  c  d  e        |  pop',
-    '  a  b  c  d           |  pop',
-    '  a  b  c  d           '
-  ],
-  //   0  1  2  3  4  5  6  7  8  9
-  [
-    '  a  b  c  d  e  f  g  ',
-    '  a  x  c  d  e  f  g  |  replace 1 x',
-    '  a  x  c  y  e  f  g  |  replace 3 y',
-    '  a  x  c  y  e  z  g  |  replace 5 z',
+    '  a  b  c  d  e  z  g  |  replace 5 z',
+    '  a  b  c  y  e  z  g  |  replace 3 y',
+    '  a  x  c  y  e  z  g  |  replace 1 x',
     '  a  x  c  y  e  z  g  ',
   ],
   //   0  1  2  3  4  5  6  7  8  9
   [
     '  a  b  c  d  e  f  g  ',
-    '  c  b  a  d  e  f  g  |  swap 0 2',
-    '  c  g  a  d  e  f  b  |  swap 1 6',
-    '  c  g  e  d  a  f  b  |  swap 2 4',
+    '  e  b  c  d  a  f  g  |  swap 0 4',
+    '  e  g  c  d  a  f  b  |  swap 1 6',
+    '  c  g  e  d  a  f  b  |  swap 2 0',
     '  c  g  e  d  a  f  b  ',
   ],
   //   0  1  2  3  4  5  6  7  8  9
@@ -90,19 +80,44 @@ test.each([
 ].map(
   ([prev, ...steps]) => [prev, steps.pop(), steps]
 ))(
-  'indexedDiff',
+  'indexedDiff(%p, %p)',
   (prev, next, expected) => {
-    const steps: string[] = [];
+    const prevArray = toArray(prev as string);
+    const items: string[] = [...prevArray];
+    const result: string[] = [];
+    const maxLength = Math.max((prev as string).length, (next as string).length) - 4;
+    const toString = () => `  ${items.join('  ').padEnd(maxLength, ' ')}  |  `;
     indexedDiff({
-      prevArray: toArray(prev as string),
+      prevArray,
       nextArray: toArray(next as string),
-      push: (item) => steps.push(`push ${item}`),
-      insert: (index, item) => steps.push(`insert ${index} ${item}`),
-      replace: (index, item) => steps.push(`replace ${index} ${item}`),
-      swap: (prevIndex, nextIndex) => steps.push(`swap ${prevIndex} ${nextIndex}`),
-      pop: () => steps.push(`pop`),
-      remove: (index) => steps.push(`remove ${index}`),
+      push: (value) => {
+        items.push(value);
+        result.push(`${toString()}push ${value}`);
+      },
+      insert: (index, value) => {
+        items.splice(index, 0, value);
+        result.push(`${toString()}insert ${index} ${value}`);
+      },
+      replace: (index, value) => {
+        items[index] = value;
+        result.push(`${toString()}replace ${index} ${value}`);
+      },
+      swap: (prevIndex, nextIndex) => {
+        const prev = items[prevIndex];
+        items[prevIndex] = items[nextIndex];
+        items[nextIndex] = prev;
+        result.push(`${toString()}swap ${prevIndex} ${nextIndex}`);
+      },
+      pop: () => {
+        items.pop();
+        result.push(`${toString()}pop`);
+      },
+      remove: (index) => {
+        items.splice(index, 1);
+        result.push(`${toString()}remove ${index}`);
+      },
     });
-    console.log({prev, next, expected, steps});
+    // console.log({prev, next, expected, result});
+    expect(result).toStrictEqual(expected);
   }
 );

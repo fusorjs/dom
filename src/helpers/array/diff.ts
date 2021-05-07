@@ -12,100 +12,102 @@ interface IndexedAction <Item> {
 //   }
 // };
 
-const REINDEX_STEP = 1;
-
 interface CommonProps <Item> {
   prevArray: readonly Item[];
   nextArray: readonly Item[];
   // * highest priority actions:
-  insert: IndexedAction<Item>; // insert new item to array at the index position
   remove: (index: number) => void; // remove item from array at the index position
+  insert: IndexedAction<Item>; // insert new item to array at the index position
   // * optimisation actions:
-  push: (item: Item) => void; // insert item at the end of array
   pop: () => void; // remove last item from the end of array
+  push: (item: Item) => void; // insert item at the end of array
   replace: IndexedAction<Item>; // replace item with a new item at the index position
   swap: (prevIndex: number, nextIndex: number) => void; // swap items from prev index to the next index position
 }
 
 // big O notation: (p-rev, n-ext, d-iff) lengths
 export const indexedDiff = <Item> ({
-  prevArray, nextArray, insert, remove, push, pop, replace, swap
+  prevArray, nextArray, remove, insert, pop, push, replace, swap
 }: CommonProps<Item>) => {
   // * no changes
   if (prevArray === nextArray) return;
 
   const prevIndexesToDelete: number[] = [];
   const nextIndexesToAdd = new Set<number>()
-  const prevIndexesToSwap = new Map<number, number>(); // prevIndex: nextIndex
-  const prevIndexDistance: {[prevIndex: number]: number} = {};
+  const prevIndexesToSwap = new Map<number, number>(); // <prevIndex, nextIndex>
+  const prevIndexesShift: {[prevIndex: number]: number} = Object.create(null);
 
   // ! The order of the following code blocks is important !
 
   // 1. Get prev differences:
   {
-    const nextMap = new Map(nextArray.map((item, index) => [item, index])); // O(n)
-    prevArray.forEach((item, prevIndex) => { // O(p)
+    const nextMap = new Map(nextArray.map((item, index) => [item, index])); // todo for; O(n)
+    prevArray.forEach((item, prevIndex) => { // todo for; O(p)
       const nextIndex = nextMap.get(item);
       if (nextIndex === prevIndex) return;
       if (nextIndex === undefined) prevIndexesToDelete.push(prevIndex);
-      else prevIndexesToSwap.set(prevIndex, nextIndex);
+      // else prevIndexesToSwap.set(prevIndex, nextIndex);
+      // else if (prevIndex < nextIndex) prevIndexesToSwap.set(prevIndex, nextIndex);
+      else if (! prevIndexesToSwap.has(nextIndex)) prevIndexesToSwap.set(prevIndex, nextIndex);
     });
   }
 
   // 2. Get next differences:
   {
-    const prevMap = new Map(prevArray.map((item, index) => [item, index])); // O(p)
-    nextArray.forEach((item, nextIndex) => { // O(n)
+    const prevMap = new Map(prevArray.map((item, index) => [item, index])); // todo for; O(p)
+    nextArray.forEach((item, nextIndex) => { // todo for; O(n)
       const prevIndex = prevMap.get(item);
       if (prevIndex === nextIndex) return;
       if (prevIndex === undefined) nextIndexesToAdd.add(nextIndex);
-      else prevIndexesToSwap.set(prevIndex, nextIndex);
+      // else if (! prevIndexesToSwap.has(prevIndex)) prevIndexesToSwap.set(prevIndex, nextIndex);
     });
   }
 
+  const hasItemsToSwap = prevIndexesToSwap.size > 0;
   let {length} = prevArray;
 
-  // 3. Manage items to delete:
-  {
-    const deleteLength = prevIndexesToDelete.length;
+  length --;
 
-    for (let i = 0; i < deleteLength; i ++) { // O(d)
-      const prevIndex = prevIndexesToDelete[i];
+  // 3. Delete items in reverse:
+  for (let i = prevIndexesToDelete.length - 1; i >= 0; i --) { // O(d)
+    const prevIndex = prevIndexesToDelete[i];
 
-      if (nextIndexesToAdd.has(prevIndex)) {
-        // * replace
-        replace(prevIndex, nextArray[prevIndex]);
-        nextIndexesToAdd.delete(prevIndex);
-        continue;
-      }
-
-      if (prevIndex - 1 < length) {
-        // * remove
-        remove(prevIndex);
-        for (let _i = i + 1; _i < deleteLength; _i ++) { // O([0..d*d-1])
-          prevIndexesToDelete[_i] -= REINDEX_STEP;
-        }
-        prevIndexDistance[prevIndex] ??= 0;
-        prevIndexDistance[prevIndex] -= REINDEX_STEP;
-      }
-      else {
-        // * pop
-        pop();
-      }
-
-      length --;
+    if (nextIndexesToAdd.has(prevIndex)) {
+      // * replace
+      replace(prevIndex, nextArray[prevIndex]);
+      nextIndexesToAdd.delete(prevIndex);
+      continue;
     }
+
+    if (prevIndex < length) {
+      // * remove
+      remove(prevIndex);
+      if (hasItemsToSwap) {
+        prevIndexesShift[prevIndex] ??= 0;
+        prevIndexesShift[prevIndex] -= 1;
+      }
+    }
+    else {
+      // * pop
+      pop();
+    }
+
+    length --;
   }
 
-  // 4. Manage items to add:
+  length ++;
+
+  // 4. Add items:
   for (const nextIndex of nextIndexesToAdd) { // O(a)
     const item = nextArray[nextIndex];
 
     if (nextIndex < length) {
       // * insert
       insert(nextIndex, item);
-      prevIndexDistance[nextIndex] ??= 0;
-      prevIndexDistance[nextIndex] += REINDEX_STEP;
+      if (hasItemsToSwap) {
+        prevIndexesShift[nextIndex] ??= 0;
+        prevIndexesShift[nextIndex] += 1;
+      }
     }
     else {
       // * push
@@ -115,9 +117,13 @@ export const indexedDiff = <Item> ({
     length ++;
   };
 
-  // todo 5. Swap items:
-  for (const [prevIndex, nextIndex] of prevIndexesToSwap) {
+  let shift = 0;
 
+  // 5. Swap items:
+  for (const [prevIndex, nextIndex] of prevIndexesToSwap) { // O(s)
+    // todo shift
+    // * swap
+    // swap(prevIndex, nextIndex);
   }
 };
 
