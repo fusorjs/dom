@@ -89,7 +89,6 @@ test.each([
     const toString = () => `  ${items.join('  ').padEnd(maxLength, ' ')}  |  `;
     indexedDiff({
       prevArray,
-      nextArray: toArray(next as string),
       push: (value) => {
         items.push(value);
         result.push(`${toString()}push ${value}`);
@@ -116,7 +115,7 @@ test.each([
         items.splice(index, 1);
         result.push(`${toString()}remove ${index}`);
       },
-    });
+    })(toArray(next as string));
     // console.log({prev, next, expected, result});
     expect(result).toStrictEqual(expected);
   }

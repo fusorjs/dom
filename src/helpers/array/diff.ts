@@ -1,4 +1,3 @@
-import {getKeyIndexMap} from '../array/map';
 
 interface IndexedAction <Item> {
   (index: number, item: Item): void;
@@ -13,8 +12,6 @@ interface IndexedAction <Item> {
 // };
 
 interface CommonProps <Item> {
-  prevArray: readonly Item[];
-  nextArray: readonly Item[];
   // * highest priority actions:
   remove: (index: number) => void; // remove item from array at the index position
   insert: IndexedAction<Item>; // insert new item to array at the index position
@@ -23,109 +20,118 @@ interface CommonProps <Item> {
   push: (item: Item) => void; // insert item at the end of array
   replace: IndexedAction<Item>; // replace item with a new item at the index position
   swap: (prevIndex: number, nextIndex: number) => void; // swap items from prev index to the next index position
+  // * initial state
+  prevArray?: Item[]; // ! will be mutated !
 }
 
 // big O notation: (p-rev, n-ext, d-iff) lengths
 export const indexedDiff = <Item> ({
-  prevArray, nextArray, remove, insert, pop, push, replace, swap
+  remove, insert, pop, push, replace, swap, prevArray = []
 }: CommonProps<Item>) => {
-  // * no changes
-  if (prevArray === nextArray) return;
+  const prevMap = new Map(prevArray.map((item, index) => [item, index])); // todo for; O(p)
+  let prevLength = prevArray.length
 
-  const prevIndexesToDelete: number[] = [];
-  const nextIndexesToAdd = new Set<number>()
-  const prevIndexesToSwap = new Map<number, number>(); // <prevIndex, nextIndex>
-  const prevIndexesShift: {[prevIndex: number]: number} = Object.create(null);
+  return (nextArray: readonly Item[]) => {
+    // * no changes
+    if (prevArray === nextArray) return;
 
-  // ! The order of the following code blocks is important !
-
-  // 1. Get prev differences:
-  {
     const nextMap = new Map(nextArray.map((item, index) => [item, index])); // todo for; O(n)
-    prevArray.forEach((item, prevIndex) => { // todo for; O(p)
-      const nextIndex = nextMap.get(item);
-      if (nextIndex === prevIndex) return;
-      if (nextIndex === undefined) prevIndexesToDelete.push(prevIndex);
-      // else prevIndexesToSwap.set(prevIndex, nextIndex);
-      // else if (prevIndex < nextIndex) prevIndexesToSwap.set(prevIndex, nextIndex);
-      else if (! prevIndexesToSwap.has(nextIndex)) prevIndexesToSwap.set(prevIndex, nextIndex);
-    });
-  }
+    const nextIndexesToAdd = new Set<number>()
 
-  // 2. Get next differences:
-  {
-    const prevMap = new Map(prevArray.map((item, index) => [item, index])); // todo for; O(p)
+    // ! The order of the following code blocks is important !
+
+    // 2. Find items to add:
     nextArray.forEach((item, nextIndex) => { // todo for; O(n)
-      const prevIndex = prevMap.get(item);
-      if (prevIndex === nextIndex) return;
-      if (prevIndex === undefined) nextIndexesToAdd.add(nextIndex);
-      // else if (! prevIndexesToSwap.has(prevIndex)) prevIndexesToSwap.set(prevIndex, nextIndex);
+      if (prevMap.get(item) === undefined) nextIndexesToAdd.add(nextIndex);
     });
-  }
 
-  const hasItemsToSwap = prevIndexesToSwap.size > 0;
-  let {length} = prevArray;
+    prevLength --; // begin deletions >>>
 
-  length --;
+    // 3. Delete items in reverse:
+    for (let prevIndex = prevLength; prevIndex >= 0; prevIndex --) { // O(d)
+      const prevItem = prevArray[prevIndex];
 
-  // 3. Delete items in reverse:
-  for (let i = prevIndexesToDelete.length - 1; i >= 0; i --) { // O(d)
-    const prevIndex = prevIndexesToDelete[i];
+      if (nextMap.get(prevItem) !== undefined) continue; // skip not DELETE_UNDEFINED
 
-    if (nextIndexesToAdd.has(prevIndex)) {
-      // * replace
-      replace(prevIndex, nextArray[prevIndex]);
-      nextIndexesToAdd.delete(prevIndex);
-      continue;
-    }
-
-    if (prevIndex < length) {
-      // * remove
-      remove(prevIndex);
-      if (hasItemsToSwap) {
-        prevIndexesShift[prevIndex] ??= 0;
-        prevIndexesShift[prevIndex] -= 1;
+      if (nextIndexesToAdd.has(prevIndex)) {
+        nextIndexesToAdd.delete(prevIndex);
+        const nextItem = nextArray[prevIndex];
+        // * replace
+        replace(prevIndex, nextItem);
+        prevArray[prevIndex] = nextItem;
+        prevMap.delete(prevItem);
+        prevMap.set(nextItem, prevIndex);
+        continue;
       }
-    }
-    else {
-      // * pop
-      pop();
-    }
 
-    length --;
-  }
-
-  length ++;
-
-  // 4. Add items:
-  for (const nextIndex of nextIndexesToAdd) { // O(a)
-    const item = nextArray[nextIndex];
-
-    if (nextIndex < length) {
-      // * insert
-      insert(nextIndex, item);
-      if (hasItemsToSwap) {
-        prevIndexesShift[nextIndex] ??= 0;
-        prevIndexesShift[nextIndex] += 1;
+      if (prevIndex < prevLength) {
+        // * remove
+        remove(prevIndex);
+        prevArray.splice(prevIndex, 1);
       }
-    }
-    else {
-      // * push
-      push(item);
+      else {
+        // * pop
+        pop();
+        prevArray.pop();
+      }
+
+      prevMap.delete(prevItem);
+      prevLength --;
     }
 
-    length ++;
+    prevLength ++; // end deletions <<<
+
+    // 4. Add items:
+    for (const nextIndex of nextIndexesToAdd) { // O(a)
+      const item = nextArray[nextIndex];
+
+      if (nextIndex < prevLength) {
+        // * insert
+        insert(nextIndex, item);
+        prevArray.splice(nextIndex, 0, item);
+      }
+      else {
+        // * push
+        push(item);
+        prevArray.push(item);
+      }
+
+      prevMap.set(item, nextIndex);
+      prevLength ++;
+    };
+
+    // 5. Swap items:
+    prevArray.forEach((item, prevIndex) => { // todo for; O(p)
+      const nextIndex = nextMap.get(item) as number; // already DELETE_UNDEFINED
+      if (nextIndex === prevIndex) return;
+      // * swap
+      swap(prevIndex, nextIndex);
+      prevArray[prevIndex] = prevArray[nextIndex];
+      prevArray[nextIndex] = item;
+    });
   };
-
-  let shift = 0;
-
-  // 5. Swap items:
-  for (const [prevIndex, nextIndex] of prevIndexesToSwap) { // O(s)
-    // todo shift
-    // * swap
-    // swap(prevIndex, nextIndex);
-  }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 
 interface KeyUpdateProps <Item extends MapObject> {
   key: string; // name for id field
@@ -138,7 +144,7 @@ export const keyedDiff = <Item extends MapObject> ({
   // * no changes
   if (prevArray === nextArray) return;
 
-  const prevLength = prevArray.length;
+  const prevLength = prevArray.prevLength;
   const prevMap = getKeyIndexMap(key, prevArray, 0, prevLength);
 
   const nextLength = nextArray.length;
@@ -226,3 +232,5 @@ export const keyedDiff = <Item extends MapObject> ({
   //   }
   // }
 };
+
+*/
