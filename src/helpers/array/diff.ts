@@ -3,14 +3,6 @@ interface IndexedAction <Item> {
   (index: number, item: Item): void;
 }
 
-// const reindexMapP = (startIndex: number, distance: number, map: Map<number, unknown>) => {
-//   for (const [index, value] of map) {
-//     if (index < startIndex) continue;
-//     map.set(index + distance, value);
-//     map.delete(index);
-//   }
-// };
-
 interface CommonProps <Item> {
   // * highest priority actions:
   remove: (index: number) => void; // remove item from array at the index position
@@ -24,31 +16,47 @@ interface CommonProps <Item> {
   prevArray?: Item[]; // ! will be mutated !
 }
 
-// big O notation: (p-rev, n-ext, d-iff) lengths
+// Create indexed diff iterator function:
+//   O(prev), Map(prev item index)
+//   return iterator function
+// iterator function:
+//   O(next + prev*2 + add + swap), Map(next item index), Set(index to add)
 export const indexedDiff = <Item> ({
   remove, insert, pop, push, replace, swap, prevArray = []
 }: CommonProps<Item>) => {
-  const prevMap = new Map(prevArray.map((item, index) => [item, index])); // todo for; O(p)
   let prevLength = prevArray.length
+  const prevMap = new Map<Item, number>();
+
+  for (let prevIndex = 0; prevIndex < prevLength; prevIndex ++) { // O(prev)
+    prevMap.set(prevArray[prevIndex], prevIndex);
+  }
 
   return (nextArray: readonly Item[]) => {
-    // * no changes
-    if (prevArray === nextArray) return;
-
-    const nextMap = new Map(nextArray.map((item, index) => [item, index])); // todo for; O(n)
-    const nextIndexesToAdd = new Set<number>()
-
     // ! The order of the following code blocks is important !
 
-    // 2. Find items to add:
-    nextArray.forEach((item, nextIndex) => { // todo for; O(n)
-      if (prevMap.get(item) === undefined) nextIndexesToAdd.add(nextIndex);
-    });
+    // 1. Skip if no changes
+
+    if (prevArray === nextArray) return;
+
+    // 2. Create next map, find items to add
+
+    const nextMap = new Map<Item, number>();
+    const nextIndexesToAdd = new Set<number>();
+
+    {
+      const {length} = nextArray;
+      for (let nextIndex = 0; nextIndex < length; nextIndex ++) { // O(next)
+        const item = nextArray[nextIndex];
+        nextMap.set(item, nextIndex);
+        if (prevMap.get(item) === undefined) nextIndexesToAdd.add(nextIndex);
+      }
+    }
+
+    // 3. Replace/remove/pop items (in reverse)
 
     prevLength --; // begin deletions >>>
 
-    // 3. Delete items in reverse:
-    for (let prevIndex = prevLength; prevIndex >= 0; prevIndex --) { // O(d)
+    for (let prevIndex = prevLength; prevIndex >= 0; prevIndex --) { // O(prev)
       const prevItem = prevArray[prevIndex];
 
       if (nextMap.get(prevItem) !== undefined) continue; // skip not DELETE_UNDEFINED
@@ -66,6 +74,7 @@ export const indexedDiff = <Item> ({
 
       if (prevIndex < prevLength) {
         // * remove
+        // ? investigate: replace if has items to add, could lead to more swaps
         remove(prevIndex);
         prevArray.splice(prevIndex, 1);
       }
@@ -81,8 +90,9 @@ export const indexedDiff = <Item> ({
 
     prevLength ++; // end deletions <<<
 
-    // 4. Add items:
-    for (const nextIndex of nextIndexesToAdd) { // O(a)
+    // 4. Insert/push items
+
+    for (const nextIndex of nextIndexesToAdd) { // O(add)
       const item = nextArray[nextIndex];
 
       if (nextIndex < prevLength) {
@@ -100,15 +110,19 @@ export const indexedDiff = <Item> ({
       prevLength ++;
     };
 
-    // 5. Swap items:
-    prevArray.forEach((item, prevIndex) => { // todo for; O(p)
+    // 5. Swap items
+
+    const swapRecursive = (item: Item, prevIndex: number) => {
       const nextIndex = nextMap.get(item) as number; // already DELETE_UNDEFINED
       if (nextIndex === prevIndex) return;
       // * swap
       swap(prevIndex, nextIndex);
       prevArray[prevIndex] = prevArray[nextIndex];
       prevArray[nextIndex] = item;
-    });
+      swapRecursive(prevArray[prevIndex], prevIndex); // O(swap)
+    };
+
+    prevArray.forEach(swapRecursive); // O(prev)
   };
 };
 
