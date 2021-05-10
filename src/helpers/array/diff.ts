@@ -21,14 +21,16 @@ interface CommonProps <Item> {
 //   return iterator function
 // iterator function:
 //   O(next + prev*2 + add + swap), Map(next item index), Set(index to add)
-export const indexedDiff = <Item> ({
+export const valueDiff = <Item> ({
   remove, insert, pop, push, replace, swap, prevArray = []
 }: CommonProps<Item>) => {
   let prevLength = prevArray.length
   const prevMap = new Map<Item, number>();
 
-  for (let prevIndex = 0; prevIndex < prevLength; prevIndex ++) { // O(prev)
-    prevMap.set(prevArray[prevIndex], prevIndex);
+  for (let i = 0; i < prevLength; i ++) { // O(prev)
+    const v = prevArray[i];
+    if (prevMap.has(v)) throw new RangeError(`duplicate prevArray value: ${v}`);
+    prevMap.set(v, i);
   }
 
   return (nextArray: readonly Item[]) => {
@@ -45,10 +47,11 @@ export const indexedDiff = <Item> ({
 
     {
       const {length} = nextArray;
-      for (let nextIndex = 0; nextIndex < length; nextIndex ++) { // O(next)
-        const item = nextArray[nextIndex];
-        nextMap.set(item, nextIndex);
-        if (prevMap.get(item) === undefined) nextIndexesToAdd.add(nextIndex);
+      for (let i = 0; i < length; i ++) { // O(next)
+        const v = nextArray[i];
+        if (nextMap.has(v)) throw new RangeError(`duplicate nextArray value: ${v}`);
+        nextMap.set(v, i);
+        if (prevMap.get(v) === undefined) nextIndexesToAdd.add(i);
       }
     }
 
