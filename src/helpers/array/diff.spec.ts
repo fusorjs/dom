@@ -3,127 +3,74 @@ import {createDiff} from './diff';
 
 describe('createDiff', () => {
 
-  const toArray = (s: string) => {
-    s = s.trim();
-    return s ? s.split('  ') : [];
-  };
-
-  const createStringDiff = (prev: string) => {
-    const prevArray = toArray(prev);
-    const ctrlArray = [...prevArray];
-    const padLength = prev.length - 4;
-    const toString = () => `  ${ctrlArray.join('  ').padEnd(padLength, ' ')}  |  `;
-
-    let result: string[];
-
-    const diff = createDiff({
-      prevArray,
-      push: (value) => {
-        ctrlArray.push(value);
-        result.push(`${toString()}push ${value}`);
-      },
-      insert: (index, value) => {
-        ctrlArray.splice(index, 0, value);
-        result.push(`${toString()}insert ${index} ${value}`);
-      },
-      replace: (index, value) => {
-        ctrlArray[index] = value;
-        result.push(`${toString()}replace ${index} ${value}`);
-      },
-      swap: (prevIndex, nextIndex) => {
-        const prev = ctrlArray[prevIndex];
-        ctrlArray[prevIndex] = ctrlArray[nextIndex];
-        ctrlArray[nextIndex] = prev;
-        result.push(`${toString()}swap ${prevIndex} ${nextIndex}`);
-      },
-      pop: () => {
-        ctrlArray.pop();
-        result.push(`${toString()}pop`);
-      },
-      remove: (index) => {
-        ctrlArray.splice(index, 1);
-        result.push(`${toString()}remove ${index}`);
-      },
-    });
-
-    return (next: string) => {
-      result = [];
-      diff(toArray(next));
-      return result;
-    };
-  };
-
-  interface MapObject {
-    [k: string]: any;
-  }
-
-  const {stringify} = JSON;
-
-  // const createCommonDiff = <T> (
-  //   prevArray: T[], stringifyValue: (v: T) => string, stringifyArray: (a: T[]) => string
-  // ) => {
-
-  // };
-
-  const createObjectDiff = (prevArray: MapObject[]) => {
-    const ctrlArray = [...prevArray];
-    const toString = () => `${stringify(ctrlArray)}  |  `;
-
-    let result: string[];
-
-    const diff = createDiff({
-      prevArray,
-      push: (value) => {
-        ctrlArray.push(value);
-        result.push(`${toString()}push ${stringify(value)}`);
-      },
-      insert: (index, value) => {
-        ctrlArray.splice(index, 0, value);
-        result.push(`${toString()}insert ${index} ${stringify(value)}`);
-      },
-      replace: (index, value) => {
-        ctrlArray[index] = value;
-        result.push(`${toString()}replace ${index} ${stringify(value)}`);
-      },
-      swap: (prevIndex, nextIndex) => {
-        const prev = ctrlArray[prevIndex];
-        ctrlArray[prevIndex] = ctrlArray[nextIndex];
-        ctrlArray[nextIndex] = prev;
-        result.push(`${toString()}swap ${prevIndex} ${nextIndex}`);
-      },
-      pop: () => {
-        ctrlArray.pop();
-        result.push(`${toString()}pop`);
-      },
-      remove: (index) => {
-        ctrlArray.splice(index, 1);
-        result.push(`${toString()}remove ${index}`);
-      },
-      key: 'id',
-      update: (index, value) => {
-        ctrlArray[index] = value;
-        result.push(`${toString()}update ${index} ${stringify(value)}`);
-      },
-    });
-
-    return (nextArray: MapObject[]) => {
-      result = [];
-      diff(nextArray);
-      return result;
-    };
-  };
-
   // Algorithm:
   // 1) update next
   // 2) replace/remove/pop previous in reverse
   // 3) insert/push next
   // 4) swap previous recursive
 
+  const createCommonDiff = <T> (
+    prevArray: T[], stringifyArray: (a: T[]) => string, stringifyValue: (v: T) => string, key?: string,
+  ) => {
+    const ctrlArray = [...prevArray];
+    const format = (...args: (string|number)[]) => stringifyArray(ctrlArray) + args.join(' ');
+
+    let result: string[];
+
+    const diff = createDiff({
+      prevArray,
+      push: (value) => {
+        ctrlArray.push(value);
+        result.push(format('push', stringifyValue(value)));
+      },
+      insert: (index, value) => {
+        ctrlArray.splice(index, 0, value);
+        result.push(format('insert', index, stringifyValue(value)));
+      },
+      replace: (index, value) => {
+        ctrlArray[index] = value;
+        result.push(format('replace', index, stringifyValue(value)));
+      },
+      swap: (prevIndex, nextIndex) => {
+        const prev = ctrlArray[prevIndex];
+        ctrlArray[prevIndex] = ctrlArray[nextIndex];
+        ctrlArray[nextIndex] = prev;
+        result.push(format('swap', prevIndex, nextIndex));
+      },
+      pop: () => {
+        ctrlArray.pop();
+        result.push(format('pop'));
+      },
+      remove: (index) => {
+        ctrlArray.splice(index, 1);
+        result.push(format('remove', index));
+      },
+      key,
+      update: (index, value) => {
+        ctrlArray[index] = value;
+        result.push(format('update', index, stringifyValue(value)));
+      },
+    });
+
+    return (nextArray: T[]) => {
+      result = [];
+      diff(nextArray);
+      return result;
+    };
+  };
+
   describe('identity by value', () => {
 
-    // const __createStringDiff = (prev: string) => {
-    //   const diff = createCommonDiff(toArray(prev));
-    // };
+    const toArray = (s: string) => {
+      s = s.trim();
+      return s ? s.split('  ') : [];
+    };
+    const stringifyArray = (a: string[]) => `  ${a.join('  ').padEnd(28, ' ')}  |  `;
+    const stringifyValue = (v: string) => v;
+    const createStringDiff = (prev: string) => {
+      const diff = createCommonDiff(toArray(prev), stringifyArray, stringifyValue);
+      return (next: string) => diff(toArray(next));
+    };
 
     describe('feature', () => {
 
@@ -387,15 +334,38 @@ describe('createDiff', () => {
         '  t  s  l  z  y  f  b  e        |  swap 0 7',
         '  f  s  l  z  y  t  b  e        |  swap 0 5',
       ]);
+      //   0  1  2  3  4  5  6  7  8  9  '
+      expect(diff(
+        '  f  s  l  z  y  t  b  e        '
+      )).toStrictEqual([]);
     });
 
   });
 
   describe('identity by key with update', () => {
 
+    interface MapObject {
+      [k: string]: any;
+    }
+
+    const {stringify} = JSON;
+    const stringifyArray = (a: MapObject[]) => `${stringify(a)}  |  `;
+    const stringifyValue = (v: MapObject) => stringify(v);
+    const createObjectDiff = (prevArray: MapObject[], key = 'id') => createCommonDiff(
+      prevArray, stringifyArray, stringifyValue, key
+    );
+
     test('no changes', () => {
       const same = [{"id":"a","val":"aaa"},{"id":"b","val":"bbb"},{"id":"c","val":"ccc"}];
       expect(createObjectDiff(same)(same)).toStrictEqual([]);
+    });
+
+    test('no update without the key', () => {
+      const prev = [{"id":"a","val":"aaa"},{"id":"b","val":"bbb"},{"id":"c","val":"ccc"}];
+      const next = [...prev]; next[1] = {"id":"b","val":"BBB"};
+      expect(createObjectDiff(prev, '')(next)).toStrictEqual([
+        '[{"id":"a","val":"aaa"},{"id":"b","val":"BBB"},{"id":"c","val":"ccc"}]  |  replace 1 {"id":"b","val":"BBB"}',
+      ]);
     });
 
     test('update', () => {
@@ -444,21 +414,36 @@ describe('createDiff', () => {
     });
 
     test('sequence', () => {
-      const prev = [{"id":"a","val":"aaa"},{"id":"b","val":"bbb"},{"id":"c","val":"ccc"}];
-      const next = [...prev];
-      next[0] = {"id":"b","val":"BBB"};
-      next[1] = prev[0];
-      next[2] = {"id":"d","val":"ddd"};
-      next.push({"id":"e","val":"eee"});
-      expect(createObjectDiff(prev)(next)).toStrictEqual([
+      const items = [{"id":"a","val":"aaa"},{"id":"b","val":"bbb"},{"id":"c","val":"ccc"}];
+      const diff = createObjectDiff([...items]);
+      let temp = items[0];
+      items[0] = {"id":"b","val":"BBB"};
+      items[1] = temp;
+      items[2] = {"id":"d","val":"ddd"};
+      items.push({"id":"e","val":"eee"});
+      // [{"id":"b","val":"BBB"},{"id":"a","val":"aaa"},{"id":"d","val":"ddd"},{"id":"e","val":"eee"}]
+      expect(diff(items)).toStrictEqual([
         '[{"id":"a","val":"aaa"},{"id":"b","val":"BBB"},{"id":"c","val":"ccc"}]  |  update 1 {"id":"b","val":"BBB"}',
         '[{"id":"a","val":"aaa"},{"id":"b","val":"BBB"},{"id":"d","val":"ddd"}]  |  replace 2 {"id":"d","val":"ddd"}',
         '[{"id":"a","val":"aaa"},{"id":"b","val":"BBB"},{"id":"d","val":"ddd"},{"id":"e","val":"eee"}]  |  push {"id":"e","val":"eee"}',
         '[{"id":"b","val":"BBB"},{"id":"a","val":"aaa"},{"id":"d","val":"ddd"},{"id":"e","val":"eee"}]  |  swap 0 1',
       ]);
-      // todo
+      items[1] = {"id":"z","val":"zzz"};
+      items[2] = {"id":"d","val":"DDD"};
+      items.splice(2, 0, {"id":"y","val":"yyy"});
+      items.unshift({"id":"x","val":"xxx"});
+      // [{"id":"x","val":"xxx"},{"id":"b","val":"BBB"},{"id":"z","val":"zzz"},{"id":"y","val":"yyy"},{"id":"d","val":"DDD"},{"id":"e","val":"eee"}]
+      expect(diff(items)).toStrictEqual([]); // ! no changes, same object
+      expect(diff([...items])).toStrictEqual([
+        '[{"id":"b","val":"BBB"},{"id":"a","val":"aaa"},{"id":"d","val":"DDD"},{"id":"e","val":"eee"}]  |  update 2 {"id":"d","val":"DDD"}',
+        '[{"id":"b","val":"BBB"},{"id":"d","val":"DDD"},{"id":"e","val":"eee"}]  |  remove 1',
+        '[{"id":"x","val":"xxx"},{"id":"b","val":"BBB"},{"id":"d","val":"DDD"},{"id":"e","val":"eee"}]  |  insert 0 {"id":"x","val":"xxx"}',
+        '[{"id":"x","val":"xxx"},{"id":"b","val":"BBB"},{"id":"z","val":"zzz"},{"id":"d","val":"DDD"},{"id":"e","val":"eee"}]  |  insert 2 {"id":"z","val":"zzz"}',
+        '[{"id":"x","val":"xxx"},{"id":"b","val":"BBB"},{"id":"z","val":"zzz"},{"id":"y","val":"yyy"},{"id":"d","val":"DDD"},{"id":"e","val":"eee"}]  |  insert 3 {"id":"y","val":"yyy"}',
+      ]);
+      expect(diff([...items])).toStrictEqual([]); // ! no changes, deep equal array
+      // todo decrement
     });
-
 
   });
 
@@ -470,17 +455,13 @@ describe('createDiff', () => {
       ...props, key: 'id'
     })).toThrow(new RangeError('no "update" property provided')));
 
-    test('no key', () => expect(() => createDiff({
-      ...props, update: _,
-    })).toThrow(new RangeError('no "key" property provided')));
-
     test('prevArray duplicate value', () => expect(() => createDiff({
       ...props, prevArray: [1, 2, 3, 2, 4, 5]
-    })).toThrow(new RangeError('prevArray duplicate: 2')));
+    })([])).toThrow(new RangeError('prevArray duplicate: 2')));
 
     test('prevArray duplicate key', () => expect(() => createDiff({
       ...props, key: 'id', update: _, prevArray: [{id: 1}, {id: 1}, {id: 2}, {id: 3}]
-    })).toThrow(new RangeError('prevArray duplicate: 1')));
+    })([])).toThrow(new RangeError('prevArray duplicate: 1')));
 
     test('nextArray duplicate value', () => expect(() => createDiff({
       ...props
