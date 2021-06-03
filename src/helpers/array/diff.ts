@@ -3,7 +3,12 @@ export interface IndexItemAction <Item> {
   (index: number, item: Item): void;
 }
 
-interface ValueProps <Item> {
+export type PrevMap <Item> = Map<Item, number>;
+
+interface DiffProps <Item> {
+  // * data
+  prevArray: Item[]; // ! will be mutated, original array
+  nextArray: readonly Item[]; // the other array to compare with the original array
   // * highest priority actions:
   remove: (index: number) => void; // remove item from array at the index position
   insert: IndexItemAction<Item>; // insert new item to array at the index position
@@ -12,169 +17,192 @@ interface ValueProps <Item> {
   push: (item: Item) => void; // insert item at the end of array
   replace: IndexItemAction<Item>; // replace item with a new item at the index position
   swap: (prevIndex: number, nextIndex: number) => void; // swap items from prev index to the next index position
-  // * initial state
-  prevArray?: Item[]; // ! will be mutated to match nextArray, make a copy if you need to keep the original value !
+  // * key & update action
+  key?: string; // name for id field, if set requires update field
+  update?: IndexItemAction<Item>; // update item data with the same key
+  // * cache
+  prevMap?: PrevMap<Item>; // ! will be mutated, prev key index
+  // todo count {cycle, remove, insert, pop, push, replace, swap, update} // ! will be mutated
 }
 
-interface KeyProps <Item extends MapObject> {
-  key: string; // name for id field
-  update: IndexItemAction<Item>; // update item data with the same key
-}
-
-// Create value diff function:
-// return diff iterator function
-export const createDiff = <Item> ({
-  remove, insert, pop, push, replace, swap, prevArray = [], key, update,
-}: ValueProps<Item> & Partial<KeyProps<Item>>) => {
-
+// Find differences between two arrays.
+// Calls corresponding actions for each difference.
+// Mutates prevArray to match nextArray. Make a copy if you need to keep the original value.
+// Do not forget to check if (prevArray !== nextArray) before calling this function.
+// O(next*2 + prev + (prev) + (add - delete) + swap), Map(prev key index), Map(next key index), Set(index to add)
+// return Map(prev key index) | undefined
+export const diff = <Item> ({
+  prevArray, nextArray, prevMap,
+  remove, insert, pop, push, replace, swap, key, update,
+}: DiffProps<Item>) => {
   if (key && ! update) throw new RangeError(`no "update" property provided`); // UPDATE_DEFINED_WITH_KEY
 
   let prevLength = prevArray.length
 
-  // return diff iterator function:
-  // O(next*2 + prev*2 + add + swap), Map(prev item index), Map(next item index), Set(index to add)
-  return (nextArray: readonly Item[]) => {
+  const givenPrevMap = prevMap;
 
-    // ! The order of the following code blocks is important !
+  // * Create prev map or reuse the given one
 
-    // 1. Skip if no changes
+  prevMap ??= new Map();
 
-    if (prevArray === nextArray) return;
-
-    // 2. Create next map, find items to add/update
-
-    const nextMap = new Map<Item, number>();
-    const nextIndexesToAdd = new Set<number>();
-
-    {
-      // Create prev map
-
-      const prevMap = new Map<Item, number>(); // ! temporal because remove/insert will require full reindex !
-
-      for (let prevIndex = 0; prevIndex < prevLength; prevIndex ++) { // O(prev)
-        const prevItem = prevArray[prevIndex];
-        const prevId = key ? (prevItem as MapObject)[key] : prevItem;
-
-        if (prevMap.has(prevId)) throw new RangeError(`prevArray duplicate: ${prevId}`);
-
-        prevMap.set(prevId, prevIndex);
-      }
-
-      // Create next map
-
-      const nextLength = nextArray.length;
-
-      for (let nextIndex = 0; nextIndex < nextLength; nextIndex ++) { // O(next)
-        const nextItem = nextArray[nextIndex];
-        const nextId = key ? (nextItem as MapObject)[key] : nextItem;
-
-        if (nextMap.has(nextId)) throw new RangeError(`nextArray duplicate: ${nextId}`);
-
-        nextMap.set(nextId, nextIndex);
-
-        const prevIndex = prevMap.get(nextId);
-
-        if (prevIndex === undefined) {
-          nextIndexesToAdd.add(nextIndex);
-          continue;
-        }
-
-        if (key) {
-          const prevItem = prevArray[prevIndex];
-
-          if (prevItem !== nextItem) {
-            // * update
-            (update as IndexItemAction<Item>/* UPDATE_DEFINED_WITH_KEY */)(prevIndex, nextItem);
-            prevArray[prevIndex] = nextItem;
-          }
-        }
-      }
-    }
-
-    // 3. Replace/remove/pop items (in reverse)
-
-    prevLength --; // begin deletions >>>
-
-    for (let prevIndex = prevLength; prevIndex >= 0; prevIndex --) { // O(prev)
+  if (prevMap.size === 0) {
+    for (let prevIndex = 0; prevIndex < prevLength; prevIndex ++) { // O(prev)
       const prevItem = prevArray[prevIndex];
       const prevId = key ? (prevItem as MapObject)[key] : prevItem;
 
-      if (nextMap.get(prevId) !== undefined) continue; // skip if NEXT_INDEX_DEFINED
+      if (prevMap.has(prevId)) throw new RangeError(`prevArray duplicate: ${prevId}`);
 
-      if (nextIndexesToAdd.has(prevIndex)) {
-        nextIndexesToAdd.delete(prevIndex);
-        const nextItem = nextArray[prevIndex];
-        const nextId = key ? (nextItem as MapObject)[key] : nextItem;
-        // * replace
-        replace(prevIndex, nextItem);
-        prevArray[prevIndex] = nextItem;
-        // prevMap.delete(prevId);
-        // prevMap.set(nextId, prevIndex);
-        continue;
-      }
-
-      if (prevIndex < prevLength) {
-        // * remove
-        // ? investigate: replace if has items to add, could lead to more swaps
-        remove(prevIndex);
-        prevArray.splice(prevIndex, 1);
-      }
-      else {
-        // * pop
-        pop();
-        prevArray.pop();
-      }
-
-      // prevMap.delete(prevId);
-      prevLength --;
+      prevMap.set(prevId, prevIndex);
     }
+  }
 
-    prevLength ++; // end deletions <<<
+  // ! Algorithm: the order of the following blocks is important !
 
-    // 4. Insert/push items
+  // ** 1. update next **
 
-    for (const nextIndex of nextIndexesToAdd) { // O(add)
+  const nextMap = new Map<Item, number>();
+  const nextIndexesToAdd = new Set<number>();
+
+  {
+    const nextLength = nextArray.length;
+
+    // Create next map, find items to add/update
+    for (let nextIndex = 0; nextIndex < nextLength; nextIndex ++) { // O(next)
       const nextItem = nextArray[nextIndex];
       const nextId = key ? (nextItem as MapObject)[key] : nextItem;
 
-      if (nextIndex < prevLength) {
-        // * insert
-        insert(nextIndex, nextItem);
-        prevArray.splice(nextIndex, 0, nextItem);
+      if (nextMap.has(nextId)) throw new RangeError(`nextArray duplicate: ${nextId}`);
+
+      nextMap.set(nextId, nextIndex);
+
+      const prevIndex = prevMap.get(nextId);
+
+      if (prevIndex === undefined) {
+        nextIndexesToAdd.add(nextIndex);
+        continue;
       }
-      else {
-        // * push
-        push(nextItem);
-        prevArray.push(nextItem);
+
+      if (key) {
+        const prevItem = prevArray[prevIndex];
+
+        if (prevItem !== nextItem) {
+          // * update
+          update!/* UPDATE_DEFINED_WITH_KEY */(prevIndex, nextItem);
+          prevArray[prevIndex] = nextItem;
+        }
       }
+    }
+  }
 
-      // prevMap.set(nextId, nextIndex);
-      prevLength ++;
-    };
+  if (! givenPrevMap) prevMap = undefined;
 
-    // 5. Swap items
+  // ** 2. replace/remove/pop previous in reverse **
 
-    const swapRecursive = (prevItem: Item, prevIndex: number) => {
-      const prevId = key ? (prevItem as MapObject)[key] : prevItem;
-      const nextIndex = nextMap.get(prevId) as number; // NEXT_INDEX_DEFINED
+  prevLength --; // begin deletions >>>
 
-      if (nextIndex === prevIndex) return;
+  for (let prevIndex = prevLength; prevIndex >= 0; prevIndex --) { // O(prev)
+    const prevItem = prevArray[prevIndex];
+    const prevId = key ? (prevItem as MapObject)[key] : prevItem;
 
-      const nextItem = prevArray[nextIndex]; // ! get from prevArray !
-      // const nextId = key ? (nextItem as MapObject)[key] : nextItem;
+    if (nextMap.get(prevId) !== undefined) continue; // skip if NEXT_INDEX_DEFINED
 
-      // * swap
-      swap(prevIndex, nextIndex);
+    if (nextIndexesToAdd.has(prevIndex)) {
+      nextIndexesToAdd.delete(prevIndex);
+
+      const nextItem = nextArray[prevIndex];
+      const nextId = key ? (nextItem as MapObject)[key] : nextItem;
+
+      // * replace
+      replace(prevIndex, nextItem);
       prevArray[prevIndex] = nextItem;
-      prevArray[nextIndex] = prevItem;
-      // prevMap.set(prevId, nextIndex);
-      // prevMap.set(nextId, prevIndex);
 
-      swapRecursive(prevArray[prevIndex], prevIndex); // O(swap)
-    };
+      if (prevMap) {
+        prevMap.delete(prevId);
+        prevMap.set(nextId, prevIndex);
+      }
 
-    prevArray.forEach(swapRecursive); // O(next) - by now, prevArray has nextArray length
+      continue;
+    }
+
+    if (prevIndex < prevLength) {
+      // * remove
+      // ? investigate: replace if has items to add, could lead to more swaps
+      remove(prevIndex);
+      prevArray.splice(prevIndex, 1);
+
+      if (prevMap) {
+        // ! will require full reindex
+        prevMap.clear();
+        prevMap = undefined;
+      }
+    }
+    else {
+      // * pop
+      pop();
+      prevArray.pop();
+    }
+
+    if (prevMap) prevMap.delete(prevId);
+
+    prevLength --;
+  }
+
+  prevLength ++; // end deletions <<<
+
+  // ** 3. insert/push next **
+
+  for (const nextIndex of nextIndexesToAdd) { // O(add)
+    const nextItem = nextArray[nextIndex];
+    const nextId = key ? (nextItem as MapObject)[key] : nextItem;
+
+    if (nextIndex < prevLength) {
+      // * insert
+      insert(nextIndex, nextItem);
+      prevArray.splice(nextIndex, 0, nextItem);
+
+      if (prevMap) {
+        // ! will require full reindex
+        prevMap.clear();
+        prevMap = undefined;
+      }
+    }
+    else {
+      // * push
+      push(nextItem);
+      prevArray.push(nextItem);
+    }
+
+    if (prevMap) prevMap.set(nextId, nextIndex);
+
+    prevLength ++;
   };
+
+  // ** 4. swap previous recursive **
+
+  const swapRecursive = (prevItem: Item, prevIndex: number) => {
+    const prevId = key ? (prevItem as MapObject)[key] : prevItem;
+    const nextIndex = nextMap.get(prevId)!; // NEXT_INDEX_DEFINED
+
+    if (nextIndex === prevIndex) return;
+
+    const nextItem = prevArray[nextIndex]; // ! get from prevArray
+
+    // * swap
+    swap(prevIndex, nextIndex);
+    prevArray[prevIndex] = nextItem;
+    prevArray[nextIndex] = prevItem;
+
+    if (prevMap) {
+      const nextId = key ? (nextItem as MapObject)[key] : nextItem;
+
+      prevMap.set(prevId, nextIndex);
+      prevMap.set(nextId, prevIndex);
+    }
+
+    swapRecursive(prevArray[prevIndex], prevIndex); // O(swap)
+  };
+
+  prevArray.forEach(swapRecursive); // O(next) - by now, prevArray has nextArray length
 };
 
 // todo

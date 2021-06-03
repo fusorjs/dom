@@ -1,4 +1,5 @@
 
+// Do not forget to check if (a !== b) before calling this function.
 export const areArraysEqualShallow = (a: Array<unknown>, b: Array<unknown>) => {
   const {length} = a;
 

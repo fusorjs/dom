@@ -1,4 +1,5 @@
 
+// Do not forget to check if (a !== b) before calling this function.
 export const areObjectsEqualShallow = (a: Record<any, unknown>, b: Record<any, unknown>) => {
   const aKeys = Object.keys(a);
   const {length} = aKeys;
