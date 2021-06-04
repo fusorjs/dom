@@ -12,7 +12,3 @@ interface DomRenderer {
 }
 
 type DomComponent = Component<DomRenderer>;
-
-interface DomItem <Item> {
-  (getItem: Item): DomRenderer;
-}

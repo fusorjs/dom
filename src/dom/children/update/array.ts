@@ -1,4 +1,4 @@
-import {keyedDiff} from '../../../helpers/array/diff';
+import {diff, PrevMap} from '../../../helpers/array/diff';
 
 import {childrenUpdater} from '../initialize';
 import {swapNodes} from '../utils';
@@ -10,26 +10,47 @@ const ITEM = 0;
 const RENDER = 1;
 const NODE = 2;
 
+type Child <Item> = [
+  ITEM: Item,
+  RENDER: DomRenderer,
+  NODE: HTMLElement,
+];
+
 // use `key` for perfomance optimization
 // Without `key`, children will be recreated only if `getItem` returns different value.
 // With `key`, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
-export const childArray = (getItems, createRenderer, key) => {
-  let items = [], children = [];
+export const childArray = <Item> (
+  getItems: () => Item[],
+  createRenderer: (getItem: () => Item) => DomRenderer,
+  key?: string,
+) => {
+  const prevArrayCache: Item[] = [];
+  const prevMapCache: PrevMap<Item> = new Map();
 
-  const createChild = (item) => {
-    const child = [item];
+  let prevArray: Item[];
+
+  const children: Child<Item>[] = [];
+
+  const createChild = (item: Item) => {
+    const child: any = [item];
     const render = createRenderer(() => child[ITEM]);
-    const node = render();
-    child.push(render, node);
-    return child;
+    child.push(render, render());
+    return child as Child<Item>;
   };
 
   // must be atomic/synchronous as renderers, nodes, childNodes are mutated
-  return childrenUpdater((parentNode) => {
-    keyedDiff({
-      prevArray: items,
-      nextArray: items = getItems(),
+  return childrenUpdater((parentNode: HTMLElement) => {
+    const nextArray = getItems();
+
+    if (nextArray === prevArray) return;
+
+    prevArray = nextArray;
+
+    diff({
+      prevArray: prevArrayCache,
+      prevMap: prevMapCache,
+      nextArray,
       push: (item) => {
         const child = createChild(item);
         children.push(child);
@@ -55,7 +76,7 @@ export const childArray = (getItems, createRenderer, key) => {
         swapNodes(prevChild[NODE], nextChild[NODE]);
       },
       pop: () => {
-        children.pop()[NODE].remove();
+        children.pop()![NODE].remove();
       },
       remove: (index) => {
         children.splice(index, 1)[0][NODE].remove();
@@ -68,6 +89,6 @@ export const childArray = (getItems, createRenderer, key) => {
       },
     });
 
-    console.log({items, children});
+    console.log({prevArray, children});
   });
 };

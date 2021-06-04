@@ -25,6 +25,8 @@ interface DiffProps <Item> {
   // todo count {cycle, remove, insert, pop, push, replace, swap, update} // ! will be mutated
 }
 
+// todo createDiff = (...) => (nextArray) => counters
+
 // Find differences between two arrays.
 // Calls corresponding actions for each difference.
 // Mutates prevArray to match nextArray. Make a copy if you need to keep the original value.
