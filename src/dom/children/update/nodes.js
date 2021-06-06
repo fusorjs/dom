@@ -1,6 +1,4 @@
 
-// todo refactor with diff
-// todo rename to diffChildren
 // ? rendering plugin
 
 export const updateNodes = (parentNode, prevNodes, nextNodes) => {

@@ -1,4 +1,4 @@
-import {diff, PrevMap} from '../../../helpers/array/diff';
+import {diffArray, PrevMap} from '../../../helpers/array/diff';
 
 import {childrenUpdater} from '../initialize';
 import {swapNodes} from '../utils';
@@ -20,7 +20,7 @@ type Child <Item> = [
 // Without `key`, children will be recreated only if `getItem` returns different value.
 // With `key`, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
-export const childArray = <Item> (
+export const diffChildren = <Item> (
   getItems: () => Item[],
   createRenderer: (getItem: () => Item) => DomRenderer,
   key?: string,
@@ -47,7 +47,7 @@ export const childArray = <Item> (
 
     prevArray = nextArray;
 
-    diff({
+    diffArray({
       prevArray: prevArrayCache,
       prevMap: prevMapCache,
       nextArray,
@@ -88,7 +88,5 @@ export const childArray = <Item> (
         child[RENDER]();
       },
     });
-
-    console.log({prevArray, children});
   });
 };

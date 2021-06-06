@@ -1,5 +1,5 @@
 
-import {diff, PrevMap} from './diff';
+import {diffArray, PrevMap} from './diff';
 
 describe('createDiff', () => {
 
@@ -19,7 +19,7 @@ describe('createDiff', () => {
 
     const format = (...args: (string|number)[]) => stringifyArray(ctrlArray) + args.join(' ');
 
-    diff({
+    diffArray({
       prevArray,
       nextArray,
       push: (value) => {
@@ -539,23 +539,23 @@ describe('createDiff', () => {
       insert: _, remove: _, replace: _, swap: _, push: _, pop: _, update: _,
     };
 
-    test('no update', () => expect(() => diff({
+    test('no update', () => expect(() => diffArray({
       ...props, key: 'id', update: undefined,
     })).toThrow(new RangeError('no "update" property provided')));
 
-    test('prevArray duplicate value', () => expect(() => diff({
+    test('prevArray duplicate value', () => expect(() => diffArray({
       ...props, prevArray: [1, 2, 3, 2, 4, 5]
     })).toThrow(new RangeError('prevArray duplicate: 2')));
 
-    test('prevArray duplicate key', () => expect(() => diff({
+    test('prevArray duplicate key', () => expect(() => diffArray({
       ...props, key: 'id', prevArray: [{id: 1}, {id: 1}, {id: 2}, {id: 3}]
     })).toThrow(new RangeError('prevArray duplicate: 1')));
 
-    test('nextArray duplicate value', () => expect(() => diff({
+    test('nextArray duplicate value', () => expect(() => diffArray({
       ...props, nextArray: [1, 2, 3, 3, 4, 5]
     })).toThrow(new RangeError('nextArray duplicate: 3')));
 
-    test('nextArray duplicate key', () => expect(() => diff({
+    test('nextArray duplicate key', () => expect(() => diffArray({
       ...props, key: 'id', nextArray: [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 4}]
     })).toThrow(new RangeError('nextArray duplicate: 4')));
   });

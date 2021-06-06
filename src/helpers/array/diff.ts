@@ -33,7 +33,7 @@ interface DiffProps <Item> {
 // Do not forget to check if (prevArray !== nextArray) before calling this function.
 // O(next*2 + prev + (prev) + (add - delete) + swap), Map(prev key index), Map(next key index), Set(index to add)
 // return Map(prev key index) | undefined
-export const diff = <Item> ({
+export const diffArray = <Item> ({
   prevArray, nextArray, prevMap,
   remove, insert, pop, push, replace, swap, key, update,
 }: DiffProps<Item>) => {
