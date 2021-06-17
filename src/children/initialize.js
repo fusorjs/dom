@@ -1,4 +1,4 @@
-import {isFunction, isArray, isLiteral} from '../../helpers/utils';
+import {isFunction, isArray, isLiteral} from '@perform/base/utils';
 
 // import {updateNodes} from './update/nodes';
 

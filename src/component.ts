@@ -1,4 +1,7 @@
-import {isObject} from '../helpers/utils';
+import {isObject} from '@perform/base/utils';
+
+import {DomComponent, DomPropUpdater, DomChildUpdater} from 'types';
+
 import {initializeAttributes} from './attributes/initialize';
 import {initializeChildren} from './children/initialize';
 

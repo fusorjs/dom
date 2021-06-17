@@ -1,4 +1,6 @@
-import {diffArray, PrevMap} from '../../../helpers/array/diff';
+import {diffArray, PrevMap} from '@perform/base/array/diff';
+
+import {DomRenderer} from 'types';
 
 import {childrenUpdater} from '../initialize';
 import {swapNodes} from '../utils';
