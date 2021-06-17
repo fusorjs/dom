@@ -1,17 +1,14 @@
 
-interface MapObject {
-  [k: string]: any;
+interface DomPropUpdater {
+  (): void;
 }
 
-interface Attributes {
-  [key: string]: unknown;
+interface DomChildUpdater {
+  (element: HTMLElement): void;
 }
 
-interface Child {
+interface DomRenderer {
+  (): HTMLElement;
 }
 
-type ComponentArgs = [attributesOrChild?: Attributes | Child, ...children: Child[]];
-
-interface Component <Result> {
-  (tagName: string, ...args: ComponentArgs): Result;
-}
+type DomComponent = Component<DomRenderer>;

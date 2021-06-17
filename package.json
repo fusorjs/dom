@@ -1,5 +1,5 @@
 {
-  "name": "@perform/core",
+  "name": "@perform/dom",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -7,9 +7,7 @@
   "author": "Igor Sukharev <imixaly4@gmail.com>",
   "scripts": {
     "start": "shx rm -rf dev/* && tsc --outDir dev --watch",
-    "test": "jest ./src",
-    "link": "tsc --outDir dev && shx cp package.json dev && cd dev && yarn link",
-    "unlink": "shx cp package.json dev && cd dev && yarn unlink"
+    "test": "jest ./src"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
