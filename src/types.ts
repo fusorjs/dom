@@ -1,15 +1,12 @@
-import {Component} from '@perform/base/types';
 
-export interface DomPropUpdater {
+export interface PropUpdater {
   (): void;
 }
 
-export interface DomChildUpdater {
+export interface ChildUpdater {
   (element: HTMLElement): void;
 }
 
-export interface DomRenderer {
+export interface Renderer {
   (): HTMLElement;
 }
-
-export type DomComponent = Component<DomRenderer>;

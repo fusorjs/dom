@@ -1,6 +1,6 @@
 import {diffArray, PrevMap} from '@perform/base/array/diff';
 
-import {DomRenderer} from 'types';
+import {Renderer} from '../../types';
 
 import {childrenUpdater} from '../initialize';
 import {swapNodes} from '../utils';
@@ -14,7 +14,7 @@ const NODE = 2;
 
 type Child <Item> = [
   ITEM: Item,
-  RENDER: DomRenderer,
+  RENDER: Renderer,
   NODE: HTMLElement,
 ];
 
@@ -24,7 +24,7 @@ type Child <Item> = [
 // (keys will not match if you insert/delete)
 export const diffChildren = <Item> (
   getItems: () => Item[],
-  createRenderer: (getItem: () => Item) => DomRenderer,
+  createRenderer: (getItem: () => Item) => Renderer,
   key?: string,
 ) => {
   const prevArrayCache: Item[] = [];

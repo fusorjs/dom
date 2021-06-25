@@ -1,14 +1,15 @@
+import {Component} from '@perform/base/types';
 import {isObject} from '@perform/base/utils';
 
-import {DomComponent, DomPropUpdater, DomChildUpdater} from 'types';
+import {Renderer, PropUpdater, ChildUpdater} from './types';
 
-import {initializeAttributes} from './attributes/initialize';
+import {initializeProps} from './props/initialize';
 import {initializeChildren} from './children/initialize';
 
-export const createComponent: DomComponent = (...args) => {
+export const component: Component<Renderer> = (...args) => {
   let element: HTMLElement;
-  let propUpdaters: DomPropUpdater[] | undefined;
-  let childUpdaters: DomChildUpdater[] | undefined;
+  let propUpdaters: PropUpdater[] | undefined;
+  let childUpdaters: ChildUpdater[] | undefined;
 
   // render
   return () => {
@@ -19,16 +20,16 @@ export const createComponent: DomComponent = (...args) => {
     }
     // * The first run must be in render, as it is actually renders the element:
     else {
-      const [tagName, attributesOrChild] = args;
+      const [tagName, propsOrChild] = args;
 
       element = document.createElement(tagName);
 
-      if (attributesOrChild !== undefined) {
+      if (propsOrChild !== undefined) {
         let startIndex = 1;
 
-        if (isObject(attributesOrChild)) {
+        if (isObject(propsOrChild)) {
           startIndex = 2;
-          propUpdaters = initializeAttributes(element, attributesOrChild);
+          propUpdaters = initializeProps(element, propsOrChild);
         }
 
         if (args.length > startIndex) {

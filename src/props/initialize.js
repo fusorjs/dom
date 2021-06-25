@@ -60,7 +60,7 @@ const createPropertyUpdater = (e, k, f, prev, prevT) => {
   };
 };
 
-export const initializeAttributes = (element, attributes) => {
+export const initializeProps = (element, attributes) => {
   let updaters;
 
   for (let [k, v] of Object.entries(attributes)) {
