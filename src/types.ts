@@ -4,7 +4,7 @@ export interface PropUpdater {
 }
 
 export interface ChildUpdater {
-  (element: HTMLElement): void;
+  (parent: HTMLElement): void;
 }
 
 export interface Renderer {

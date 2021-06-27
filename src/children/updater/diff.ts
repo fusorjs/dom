@@ -2,7 +2,7 @@ import {diffArray, PrevMap} from '@perform/base/array/diff';
 
 import {Renderer} from '../../types';
 
-import {childrenUpdater} from '../initialize';
+import {customUpdater} from './custom';
 import {swapNodes} from '../utils';
 
 // ? move to components
@@ -22,7 +22,7 @@ type Child <Item> = [
 // Without `key`, children will be recreated only if `getItem` returns different value.
 // With `key`, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
-export const diffChildren = <Item> (
+export const diffUpdater = <Item> (
   getItems: () => Item[],
   createRenderer: (getItem: () => Item) => Renderer,
   key?: string,
@@ -42,7 +42,7 @@ export const diffChildren = <Item> (
   };
 
   // must be atomic/synchronous as renderers, nodes, childNodes are mutated
-  return childrenUpdater((parentNode: HTMLElement) => {
+  return customUpdater((parent) => {
     const nextArray = getItems();
 
     if (nextArray === prevArray) return;
@@ -56,13 +56,13 @@ export const diffChildren = <Item> (
       push: (item) => {
         const child = createChild(item);
         children.push(child);
-        parentNode.append(child[NODE]);
+        parent.append(child[NODE]);
       },
       insert: (index, item) => {
         const prevNode = children[index][NODE];
         const child = createChild(item);
         children.splice(index, 0, child);
-        parentNode.insertBefore(child[NODE], prevNode);
+        parent.insertBefore(child[NODE], prevNode);
       },
       replace: (index, item) => {
         const prevNode = children[index][NODE];

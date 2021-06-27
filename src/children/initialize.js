@@ -1,5 +1,6 @@
 import {isFunction, isArray, isLiteral} from '@perform/base/utils';
 
+import {isCustomUpdater} from './updater/custom';
 // import {updateNodes} from './update/nodes';
 
 const createChildUpdater = (node, f, prev) => () => {
@@ -35,21 +36,17 @@ const createChildUpdater = (node, f, prev) => () => {
 //   prevNodes = nextNodes;
 // };
 
-
-const CHILDREN_UPDATER_KEY = '__PERFORM_CHILDREN_UPDATER';
-export const childrenUpdater = (f) => {f[CHILDREN_UPDATER_KEY] = true; return f;};
-export const isChildrenUpdater = (f) => f[CHILDREN_UPDATER_KEY] === true;
-
 export const initializeChildren = (parentNode, children, startIndex = 0) => {
   let updaters, index = startIndex;
 
   for (const {length} = children; index < length; index ++) {
     let v = children[index];
 
-    if (v && isFunction(v)) {
+    if (! v) throw new Error(`unsupported child: ${v}`);
+    else if (isFunction(v)) {
       const f = v;
 
-      if (isChildrenUpdater(f)) {
+      if (isCustomUpdater(f)) {
         if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
         f(parentNode);
         return [f];
@@ -85,6 +82,9 @@ export const initializeChildren = (parentNode, children, startIndex = 0) => {
         updaters.push(createChildUpdater(v, f, prev));
       }
     }
+    else if (v instanceof HTMLElement);
+    else if (isLiteral(v));
+    else throw new Error(`unsupported child: ${v}`);
 
     parentNode.append(v);
   }
