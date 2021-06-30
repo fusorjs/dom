@@ -22,7 +22,7 @@ type Child <Item> = [
 // Without `key`, children will be recreated only if `getItem` returns different value.
 // With `key`, children will be recreated only if `getItem` returns different value and the keys do not match.
 // (keys will not match if you insert/delete)
-export const diffUpdater = <Item> (
+export const diff = <Item> (
   getItems: () => Item[],
   createRenderer: (getItem: () => Item) => Renderer,
   key?: string,

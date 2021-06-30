@@ -36,21 +36,34 @@ const createChildUpdater = (node, f, prev) => () => {
 //   prevNodes = nextNodes;
 // };
 
-export const initializeChildren = (parentNode, children, startIndex = 0) => {
+export const initializeChildren = (parentNode, children, startIndex = 0, recursive = false) => {
   let updaters, index = startIndex;
 
   for (const {length} = children; index < length; index ++) {
     let v = children[index];
 
-    if (! v) throw new Error(`unsupported child: ${v}`);
-    else if (isFunction(v)) {
-      const f = v;
+    if (! v) {
+      throw new Error(`unsupported child: ${v}`);
+    }
+    else if (v instanceof HTMLElement || isLiteral(v)) {
+      parentNode.append(v);
+    }
+    else if (isArray(v)) {
+      if (recursive) throw new Error(`recursive child: ${v}`);
+      if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
+      initializeChildren(parentNode, v, undefined, true);
+      break;
+    }
+    else if (isCustomUpdater(v)) { // before isFunction
+      if (recursive) throw new Error(`recursive child: ${v}`);
+      if ((length - startIndex) !== 1) throw new Error(`not a single child: ${v}`);
+      v(parentNode);
+      updaters = [v];
+      break;
+    }
+    else if (isFunction(v)) { // todo refactor to recursive call
 
-      if (isCustomUpdater(f)) {
-        if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
-        f(parentNode);
-        return [f];
-      }
+      const f = v;
 
       v = v(); // renderer, condition
 
@@ -65,28 +78,27 @@ export const initializeChildren = (parentNode, children, startIndex = 0) => {
 
         if (v instanceof HTMLElement);
         else if (isLiteral(v)) v = document.createTextNode(v);
-        // else if (v && isArray(v)) { // array
-        //   if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
-
-        //   const [nodes] = initializeChildren(v);
-
-        //   return [
-        //     nodes,
-        //     // updaters
-        //     [createChildrenUpdater(nodes, () => initializeChildren(f())[0])]
-        //   ];
-        // }
+        else if (v && isArray(v)) {
+          if (recursive) throw new Error(`recursive child: ${v}`);
+          if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
+          initializeChildren(parentNode, v, undefined, true);
+          updaters = [() => {
+            parentNode.replaceChildren();
+            initializeChildren(parentNode, f(), undefined, true);
+          }]
+          break;
+        }
         else throw new Error(`unsupported child: ${f}`);
 
         updaters ??= [];
         updaters.push(createChildUpdater(v, f, prev));
       }
-    }
-    else if (v instanceof HTMLElement);
-    else if (isLiteral(v));
-    else throw new Error(`unsupported child: ${v}`);
 
-    parentNode.append(v);
+      parentNode.append(v);
+    }
+    else {
+      throw new Error(`unsupported child: ${v}`);
+    }
   }
 
   return updaters;
