@@ -3,7 +3,7 @@ import {isFunction, isArray, isLiteral} from '@perform/base/utils';
 import {isCustomUpdater} from './updater/custom';
 // import {updateNodes} from './update/nodes';
 
-const createChildUpdater = (node, f, prev) => () => {
+const createChildUpdater = (node: Element, f: () => any, prev: any) => () => {
   let v = f();
 
   if (v && isFunction(v)) v = v();
@@ -11,7 +11,7 @@ const createChildUpdater = (node, f, prev) => () => {
   if (prev === v) return;
   else prev = v;
 
-  if (v instanceof HTMLElement);
+  if (v instanceof HTMLElement) {}
   else if (isLiteral(v)) {
     if (node instanceof Text) {
       node.nodeValue = v;
@@ -36,7 +36,9 @@ const createChildUpdater = (node, f, prev) => () => {
 //   prevNodes = nextNodes;
 // };
 
-export const initializeChildren = (parentNode, children, startIndex = 0, recursive = false) => {
+export const initializeChildren = (
+  parentNode: Element, children: any[], startIndex = 0, recursive = false
+) => {
   let updaters, index = startIndex;
 
   for (const {length} = children; index < length; index ++) {
@@ -50,7 +52,7 @@ export const initializeChildren = (parentNode, children, startIndex = 0, recursi
     }
     else if (isArray(v)) {
       if (recursive) throw new Error(`recursive child: ${v}`);
-      if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
+      if ((length - startIndex) !== 1) throw new Error(`not a single child: ${v}`);
       initializeChildren(parentNode, v, undefined, true);
       break;
     }
@@ -76,14 +78,14 @@ export const initializeChildren = (parentNode, children, startIndex = 0, recursi
 
         if (v && isFunction(v)) v = prev = v(); // condition renderer, child array
 
-        if (v instanceof HTMLElement);
+        if (v instanceof HTMLElement) {}
         else if (isLiteral(v)) v = document.createTextNode(v);
         else if (v && isArray(v)) {
           if (recursive) throw new Error(`recursive child: ${v}`);
           if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
           initializeChildren(parentNode, v, undefined, true);
           updaters = [() => {
-            parentNode.replaceChildren();
+            (parentNode as any).replaceChildren(); // todo remove "as any"
             initializeChildren(parentNode, f(), undefined, true);
           }]
           break;
