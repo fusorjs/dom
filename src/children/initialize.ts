@@ -1,5 +1,6 @@
 import {isFunction, isArray, isLiteral} from '@perform/base/utils';
 
+import {Child} from '../types';
 import {isCustomUpdater} from './updater/custom';
 // import {updateNodes} from './update/nodes';
 
@@ -36,8 +37,13 @@ const createChildUpdater = (node: Element, f: () => any, prev: any) => () => {
 //   prevNodes = nextNodes;
 // };
 
+// const initChild = (parentNode: Element, v: Child, index: number) => {
+//   let updaters;
+// };
+// const updater = initChild(parentNode, children[index], length - startIndex);
+
 export const initializeChildren = (
-  parentNode: Element, children: any[], startIndex = 0, recursive = false
+  parentNode: Element, children: Child[], startIndex = 0, recursive = false
 ) => {
   let updaters, index = startIndex;
 

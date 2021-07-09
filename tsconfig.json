@@ -19,5 +19,4 @@
     "isolatedModules": true
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.spec.ts"]
 }

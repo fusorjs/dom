@@ -10,3 +10,5 @@ export interface ChildUpdater {
 export interface Renderer {
   (): HTMLElement;
 }
+
+export type Child = any; // todo
