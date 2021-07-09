@@ -1,9 +1,11 @@
 import {isFunction, isEmpty, isObject, isVoid} from '@perform/base/utils';
 
-const createAttributeActionGetter = (textual, numeric, boolean) => (k, v, vT) => {
+const createAttributeActionGetter = (literal, boolean) => (k, v, vT) => {
   switch (vT) {
-    case 'string': return textual;
-    case 'number': return numeric;
+    case 'string': return literal;
+    case 'number':
+      if (v === NaN) throw new Error(`invalid attribute value: "${k}": ${v}`);
+      return literal;
     case 'boolean': return boolean;
     default: throw new Error(`unsupported attribute type: "${k}": ${v}`);
   }
@@ -11,19 +13,11 @@ const createAttributeActionGetter = (textual, numeric, boolean) => (k, v, vT) =>
 
 const getAttributeSetterAction = createAttributeActionGetter(
   (e, k, v) => e.setAttribute(k, v),
-  (e, k, v) => {
-    if (v === NaN) throw new Error(`invalid attribute value: "${k}": ${v}`);
-    e.setAttribute(k, v);
-  },
   (e, k) => e.setAttribute(k, '')
 );
 
 const getPropertyUpdaterAction = createAttributeActionGetter(
   (e, k, v) => isVoid(v) ? e.removeAttribute(k) : e.setAttribute(k, v),
-  (e, k, v) => {
-    if (v === NaN) throw new Error(`invalid attribute value: "${k}": ${v}`);
-    isVoid(v) ? e.removeAttribute(k) : e.setAttribute(k, v);
-  },
   (e, k, v) => v ? e.removeAttribute(k) : e.setAttribute(k, '')
 );
 
@@ -60,7 +54,7 @@ const createPropertyUpdater = (e, k, f, prev, prevT) => {
   };
 };
 
-export const initializeProps = (element, attributes) => {
+export const initProps = (element, attributes) => {
   let updaters;
 
   for (let [k, v] of Object.entries(attributes)) {

@@ -1,0 +1,1 @@
+import {initProps} from './init';

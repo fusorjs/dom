@@ -3,7 +3,7 @@ import {isObject} from '@perform/base/utils';
 
 import {Renderer, PropUpdater, ChildUpdater} from './types';
 
-import {initializeProps} from './props/initialize';
+import {initProps} from './props/init';
 import {initializeChildren} from './children/initialize';
 
 export const component: Component<Renderer> = (...args) => {
@@ -29,7 +29,7 @@ export const component: Component<Renderer> = (...args) => {
 
         if (isObject(propsOrChild)) {
           startIndex = 2;
-          propUpdaters = initializeProps(element, propsOrChild);
+          propUpdaters = initProps(element, propsOrChild);
         }
 
         if (args.length > startIndex) {
