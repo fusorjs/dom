@@ -1,6 +1,15 @@
+import {KeyValObj} from '@perform/base/types';
 import {isFunction, isEmpty, isObject, isVoid} from '@perform/base/utils';
 
-const createAttributeActionGetter = (literal, boolean) => (k, v, vT) => {
+type Key = string;
+type Value = any;
+type ValueType = string;
+
+interface Action {
+  (e: HTMLElement, k: Key, v: Value): void;
+}
+
+const createAttributeActionGetter = (literal: Action, boolean: Action) => (k: Key, v: Value, vT: ValueType) => {
   switch (vT) {
     case 'string': return literal;
     case 'number':
@@ -21,13 +30,13 @@ const getPropertyUpdaterAction = createAttributeActionGetter(
   (e, k, v) => v ? e.removeAttribute(k) : e.setAttribute(k, '')
 );
 
-const updateInputProperty = (e, k, v) => e[k] = v;
+const updateInputProperty: Action = (e, k, v) => (e as KeyValObj)[k] = v;
 
-const setInitialAttribute = (e, k, v) => {
+const setInitialAttribute: Action = (e, k, v) => {
   getAttributeSetterAction(k, v, typeof v)(e, k, v);
 };
 
-const getPropertyUpdater = (e, k, v, vT) => {
+const getPropertyUpdater = (e: HTMLElement, k: Key, v: Value, vT: ValueType) => {
   if (e.tagName === 'INPUT' && (k === 'value' || k === 'checked')) {
     return updateInputProperty;
   }
@@ -35,7 +44,7 @@ const getPropertyUpdater = (e, k, v, vT) => {
   return getPropertyUpdaterAction(k, v, vT);
 };
 
-const createPropertyUpdater = (e, k, f, prev, prevT) => {
+const createPropertyUpdater = (e: HTMLElement, k: Key, f: () => Value, prev: Value, prevT: ValueType) => {
   const update = getPropertyUpdater(e, k, prev, prevT); // todo element could change maybe
 
   return () => {
@@ -54,11 +63,11 @@ const createPropertyUpdater = (e, k, f, prev, prevT) => {
   };
 };
 
-export const initProps = (element, attributes) => {
+export const initProps = (element: HTMLElement, attributes: KeyValObj) => {
   let updaters;
 
   for (let [k, v] of Object.entries(attributes)) {
-    if (isEmpty(v));
+    if (isEmpty(v)) {}
     else if (k.startsWith('on')) {
       if (v && isFunction(v)) element.addEventListener(k.substring(2), v, false);
       else throw new Error(`not a function attribute value: "${k}": ${v}`);

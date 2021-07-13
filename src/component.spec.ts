@@ -109,7 +109,7 @@ test('set color style of text', () => {
   );
 });
 
-// todo 04.child
+// 04.child
 
 test('', () => {
   let toggle = false;
@@ -134,7 +134,7 @@ test('', () => {
         counter += 1;
         counterRender();
       },
-      style: () => toggle ? 'color:green' : undefined
+      style: () => toggle ? 'color:green' : ''
     },
     () => `Clicked ${counter} times!`
   );
@@ -142,8 +142,21 @@ test('', () => {
   const counterElement = counterRender();
 
   expect(toggleElement.innerHTML).toBe('Off');
-  expect(counterElement.outerHTML).toBe('<button>Clicked 0 times!</button>');
+  expect(counterElement.outerHTML).toBe('<button style="">Clicked 0 times!</button>');
 
-  // todo
+  counterElement.click();
+  counterElement.click();
+
+  expect(toggleElement.innerHTML).toBe('Off');
+  expect(counterElement.outerHTML).toBe('<button style="">Clicked 2 times!</button>');
+
+  toggleElement.click();
+
+  counterElement.click();
+  counterElement.click();
+  counterElement.click();
+
+  expect(toggleElement.innerHTML).toBe('On');
+  expect(counterElement.outerHTML).toBe('<button style="color:green">Clicked 5 times!</button>');
 });
 
