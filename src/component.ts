@@ -1,5 +1,4 @@
-import {Component} from '@perform/base/types';
-import {isObject} from '@perform/base/utils';
+import {Component, isObject} from '@perform/common';
 
 import {Renderer, PropUpdater, ChildUpdater} from './types';
 

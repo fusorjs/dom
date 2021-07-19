@@ -1,4 +1,4 @@
-import {diffArray, PrevMap} from '@perform/base/array/diff';
+import {diffArray, PrevMap} from '@perform/common/array/diff';
 
 import {Renderer} from '../../types';
 

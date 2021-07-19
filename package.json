@@ -5,15 +5,19 @@
   "keywords": [],
   "license": "ISC",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
-    "start": "shx rm -rf dev/* && tsc --outDir dev --watch",
-    "test": "jest ./src"
+    "test": "jest src",
+    "start": "shx rm -rf dist/* && tsc -p tsconfig.dist.json --watch",
+    "prepublishOnly": "shx rm -rf dist/* && tsc -p tsconfig.dist.json"
   },
-  "dependencies": {
-    "@perform/base": "link:../base/dev"
+  "peerDependencies": {
+    "@perform/common": "link:../common/dist"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^26.0.24",
     "jest": "^27.0.6",
     "shx": "^0.3.3",
     "ts-jest": "^27.0.3",

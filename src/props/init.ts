@@ -1,5 +1,4 @@
-import {KeyValObj} from '@perform/base/types';
-import {isFunction, isEmpty, isObject, isVoid} from '@perform/base/utils';
+import {KeyValObj, isFunction, isBlank, isObject} from '@perform/common';
 
 type Key = string;
 type Value = any;
@@ -26,7 +25,7 @@ const getAttributeSetterAction = createAttributeActionGetter(
 );
 
 const getPropertyUpdaterAction = createAttributeActionGetter(
-  (e, k, v) => isVoid(v) ? e.removeAttribute(k) : e.setAttribute(k, v),
+  (e, k, v) => isBlank(v) ? e.removeAttribute(k) : e.setAttribute(k, v),
   (e, k, v) => v ? e.removeAttribute(k) : e.setAttribute(k, '')
 );
 
@@ -67,7 +66,7 @@ export const initProps = (element: HTMLElement, attributes: KeyValObj) => {
   let updaters;
 
   for (let [k, v] of Object.entries(attributes)) {
-    if (isEmpty(v)) {}
+    if (isBlank(v)) {}
     else if (k.startsWith('on')) {
       if (v && isFunction(v)) element.addEventListener(k.substring(2), v, false);
       else throw new Error(`not a function attribute value: "${k}": ${v}`);
@@ -85,7 +84,7 @@ export const initProps = (element: HTMLElement, attributes: KeyValObj) => {
         updaters.push(createPropertyUpdater(element, k, f, v, typeof v));
       }
 
-      if (! isEmpty(v)) setInitialAttribute(element, k, v);
+      if (! isBlank(v)) setInitialAttribute(element, k, v);
     }
   }
 

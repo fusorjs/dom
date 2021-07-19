@@ -1,8 +1,11 @@
-import {isFunction, isArray, isLiteral} from '@perform/base/utils';
+import {isFunction, isArray, isLiteral} from '@perform/common';
 
 import {Child} from '../types';
 import {isCustomUpdater} from './updater/custom';
 // import {updateNodes} from './update/nodes';
+
+// const isHidden = (v: unknown) =>
+//   v === false || v === null || v === undefined || v === true;
 
 const createChildUpdater = (node: Element, f: () => any, prev: any) => () => {
   let v = f();

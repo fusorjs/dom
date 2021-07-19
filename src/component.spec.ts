@@ -1,38 +1,5 @@
 import {component as h} from './component';
 
-// afterEach(() => {
-//   document.body.innerHTML = '';
-// });
-
-// test('Check addTodo able add todo to todoList', () => {
-//   document.body.innerHTML = `
-//     <input id="newTodoInput" />
-//     <button id="addTodoBtn">Add todo</button>
-//     <ol id="todoList"></ol>
-//   `;
-
-//   const addTodo = () => {
-//     const newTodoInput = document.getElementById('newTodoInput') as HTMLInputElement;
-//     let currentTodoList = document.getElementById('todoList')!.innerHTML;
-//     currentTodoList += `<li>${newTodoInput.value}</li>`;
-//     document.getElementById('todoList')!.innerHTML = currentTodoList;
-//     newTodoInput.value = '';
-//   }
-
-//   document.getElementById('addTodoBtn')!.addEventListener('click', addTodo);
-
-//   const newTodoInput = document.getElementById('newTodoInput') as HTMLInputElement;
-//   const addTodoBtn = document.getElementById('addTodoBtn');
-//   const todolist = document.getElementById('todoList');
-
-//   newTodoInput.value = 'New todolist!';
-//   addTodoBtn!.click();
-
-//   expect(todolist!.innerHTML).toBe('<li>New todolist!</li>');
-// });
-
-// document.body.append(render());
-
 // 01.singleton
 
 test('stateless button changes global counter onclick', () => {
@@ -111,7 +78,7 @@ test('set color style of text', () => {
 
 // 04.child
 
-test('', () => {
+test('toggle button color', () => {
   let toggle = false;
 
   const toggleRender = h(
@@ -142,21 +109,26 @@ test('', () => {
   const counterElement = counterRender();
 
   expect(toggleElement.innerHTML).toBe('Off');
-  expect(counterElement.outerHTML).toBe('<button style="">Clicked 0 times!</button>');
+  expect(counterElement.outerHTML).toBe('<button>Clicked 0 times!</button>');
 
   counterElement.click();
   counterElement.click();
 
   expect(toggleElement.innerHTML).toBe('Off');
-  expect(counterElement.outerHTML).toBe('<button style="">Clicked 2 times!</button>');
+  expect(counterElement.outerHTML).toBe('<button>Clicked 2 times!</button>');
 
   toggleElement.click();
-
   counterElement.click();
   counterElement.click();
   counterElement.click();
 
   expect(toggleElement.innerHTML).toBe('On');
   expect(counterElement.outerHTML).toBe('<button style="color:green">Clicked 5 times!</button>');
+
+  toggleElement.click();
+  counterElement.click();
+
+  expect(toggleElement.innerHTML).toBe('Off');
+  expect(counterElement.outerHTML).toBe('<button>Clicked 6 times!</button>');
 });
 

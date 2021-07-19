@@ -11,6 +11,6 @@ test('set color style of text', () => {
   expect(
     buttonElement.outerHTML
   ).toBe(
-    '<button style="color:red" disabled=""></button>'
+    '<button style="color:red" disabled=""></button>' // todo just disabled
   );
 });
