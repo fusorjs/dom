@@ -96,7 +96,7 @@ export const initializeChildren = (
           updaters = [() => {
             (parentNode as any).replaceChildren(); // todo remove "as any"
             initializeChildren(parentNode, f(), undefined, true);
-          }]
+          }];
           break;
         }
         else throw new Error(`unsupported child: ${f}`);

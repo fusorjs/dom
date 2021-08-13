@@ -1,4 +1,4 @@
-import {diffArray, PrevMap} from '@perform/common/array/diff';
+import {diffArray, IndexMap} from '@perform/common';
 
 import {Renderer} from '../../types';
 
@@ -28,7 +28,7 @@ export const diff = <Item> (
   key?: string,
 ) => {
   const prevArrayCache: Item[] = [];
-  const prevMapCache: PrevMap<Item> = new Map();
+  const prevMapCache: IndexMap<Item> = new Map();
 
   let prevArray: Item[];
 
