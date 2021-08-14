@@ -1,4 +1,4 @@
-import {Component, isObject} from '@perform/common';
+import {Component, isObject, KeyValObj} from '@perform/common';
 
 import {Renderer, PropUpdater, ChildUpdater} from './types';
 
@@ -12,6 +12,8 @@ export const component: Component<Renderer> = (...args) => {
 
   // render
   return () => {
+    // ? do we need to separate: creation and updating ?
+
     // * All subsequent runs are just updating the rendered element:
     if (element) {
       propUpdaters?.forEach(u => u());
@@ -28,7 +30,7 @@ export const component: Component<Renderer> = (...args) => {
 
         if (isObject(propsOrChild)) {
           startIndex = 2;
-          propUpdaters = initProps(element, propsOrChild);
+          propUpdaters = initProps(element, propsOrChild as KeyValObj);
         }
 
         if (args.length > startIndex) {
