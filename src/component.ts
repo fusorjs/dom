@@ -2,8 +2,8 @@ import {Component, KeyValObj, Child, isObject} from '@perform/common';
 
 import {Renderer, PropUpdater, ChildUpdater} from './types';
 
-import {initProps} from './props/init';
-import {initializeChildren} from './children/initialize';
+import {initProps} from './prop/init';
+import {initChildren} from './child/init';
 
 export const component: Component<Renderer> = (...args) => {
   let element: HTMLElement;
@@ -34,7 +34,7 @@ export const component: Component<Renderer> = (...args) => {
         }
 
         if (args.length > startIndex) {
-          childUpdaters = initializeChildren(element, args as Child<Renderer>[], startIndex);
+          childUpdaters = initChildren(element, args as Child<Renderer>[], startIndex);
         }
       }
     }

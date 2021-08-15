@@ -13,12 +13,12 @@
 ### DEVELOMENT
 
 - set/get properties instead of (set/get)Attribute for maximum performace (use attributes in development maybe for visibility?)
+- refactor init children
 
 ### BACKLOG
 
-- maybe we shoild separete render to creation and updation phases
+- maybe we should separete render to creation and updation phases
 - declarative logical control structures
-- refactor init children
 - implement style object, data-* object attributes,
 - make 100% typescript
 - 100% test coveragge

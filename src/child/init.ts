@@ -60,7 +60,7 @@ const handleCallback = (f: () => Child<Renderer>, updaters: ChildUpdater[], pare
   }
 }
 
-export const initializeChildren = (
+export const initChildren = (
   parent: HTMLElement, children: Child<Renderer>[], startIndex = 0
 ) => {
   let updaters: ChildUpdater[] | undefined, index = startIndex;
