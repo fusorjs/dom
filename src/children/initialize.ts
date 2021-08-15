@@ -1,4 +1,4 @@
-import {TagPropsChildren, isArray, isFunction, isLiteral} from '@perform/common';
+import {Child, isArray, isFunction, isLiteral} from '@perform/common';
 
 import {Renderer, ChildUpdater} from '../types';
 import {isCustomUpdater} from './updater/custom';
@@ -7,28 +7,36 @@ import {isCustomUpdater} from './updater/custom';
 // const isHidden = (v: unknown) =>
 //   v === false || v === null || v === undefined || v === true;
 
-const createChildUpdater = (node: Element, f: Function, prev: any) => () => {
-  let v = f();
+// todo refactor more
 
-  if (v && isFunction(v)) v = v();
+const hidden = Symbol();
 
-  if (prev === v) return;
-  else prev = v;
+const createChildUpdater = (node: Node, f: Function) => {
+  let prev = hidden;
 
-  if (v instanceof HTMLElement) {}
-  else if (isLiteral(v)) {
-    if (node instanceof Text) {
-      node.nodeValue = v;
-      return;
+  return () => {
+    let v = f();
+
+    if (v && isFunction(v)) v = v();
+
+    if (prev === v) return;
+    else prev = v;
+
+    if (v instanceof HTMLElement) {}
+    else if (isLiteral(v)) {
+      if (node instanceof Text) {
+        node.nodeValue = v;
+        return;
+      }
+      v = document.createTextNode(v);
     }
-    v = document.createTextNode(v);
-  }
-  else throw new Error(`unsupported child: ${f}`);
+    else throw new Error(`unsupported child: ${f}`);
 
-  node.replaceWith(v);
+    (node as HTMLElement).replaceWith(v);
 
-  node = v;
-};
+    node = v;
+  };
+}
 
 // const createChildrenUpdater = (prevNodes, getNextNodes) => (parentNode) => {
 //   const nextNodes = getNextNodes();
@@ -40,76 +48,73 @@ const createChildUpdater = (node: Element, f: Function, prev: any) => () => {
 //   prevNodes = nextNodes;
 // };
 
-// const initChild = (parentNode: Element, v: Child, index: number) => {
-//   let updaters;
-// };
-// const updater = initChild(parentNode, children[index], length - startIndex);
+const handleCallback = (f: () => Child<Renderer>, updaters: ChildUpdater[], parent: HTMLElement) => {
+  const v = f(); // renderer, condition
 
-// todo refactor this function
+  if (v && isFunction(v)) { // condition renderer, child array
+    handleCallback(v as () => Child<Renderer>, updaters, parent);
+  }
+  else if (v instanceof HTMLElement) {
+    updaters.push(f);
+    parent.append(v);
+  }
+  else {
+    if (v instanceof HTMLElement) {
+      updaters.push(createChildUpdater(v, f));
+      parent.append(v);
+    }
+    else if (isLiteral(v)) {
+      const text = document.createTextNode(v as string);
+      updaters.push(createChildUpdater(text, f));
+      parent.append(text);
+    }
+    // else if (v && isArray(v)) {
+    //   if (recursive) throw new Error(`recursive child: ${v}`);
+    //   if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
+    //   initializeChildren(parent, v as Child<Renderer>[], undefined, true);
+    //   updaters = [() => {
+    //     (parent as any).replaceChildren(); // todo remove "as any"
+    //     initializeChildren(parent, f() as Child<Renderer>[], undefined, true);
+    //   }];
+    //   break;
+    // }
+    else throw new Error(`unsupported child: ${f}`);
+  }
+}
+
 export const initializeChildren = (
-  parentNode: HTMLElement, children: TagPropsChildren<Renderer>, startIndex = 0, recursive = false
+  parent: HTMLElement, children: Child<Renderer>[], startIndex = 0, // recursive = false
 ) => {
   let updaters: ChildUpdater[] | undefined, index = startIndex;
 
   for (const {length} = children; index < length; index ++) {
-    let v = children[index];
+    const v = children[index];
 
     if (! v) {
+      // ? skip null | undefined | false | '' ?
       throw new Error(`unsupported child: ${v}`);
     }
-    // else if (v instanceof HTMLElement) { // is not a Child
-    //   parentNode.append(v as HTMLElement);
-    // }
     else if (isLiteral(v)) {
-      parentNode.append(v as string);
+      parent.append(v as string);
     }
-    else if (isArray(v)) {
-      if (recursive) throw new Error(`recursive child: ${v}`);
-      if ((length - startIndex) !== 1) throw new Error(`not a single child: ${v}`);
-      initializeChildren(parentNode, v as TagPropsChildren<Renderer>, undefined, true);
-      break;
-    }
-    else if (isCustomUpdater(v as ChildUpdater)) { // before isFunction
-      if (recursive) throw new Error(`recursive child: ${v}`);
-      if ((length - startIndex) !== 1) throw new Error(`not a single child: ${v}`);
-      (v as ChildUpdater)(parentNode);
-      updaters = [v as ChildUpdater];
-      break;
-    }
-    else if (isFunction(v)) { // todo refactor to recursive call
+    // else if (isArray(v)) {
+    //   if (recursive) throw new Error(`recursive child: ${v}`);
+    //   if ((length - startIndex) !== 1) throw new Error(`not a single child: ${v}`);
+    //   initializeChildren(parent, v as Child<Renderer>[], undefined, true);
+    //   break;
+    // }
+    else if (isFunction(v)) {
 
-      const f = v as Function;
+      // if (isCustomUpdater(v as ChildUpdater)) {
+      //   if (recursive) throw new Error(`recursive child: ${v}`);
+      //   if ((length - startIndex) !== 1) throw new Error(`not a single child: ${v}`);
+      //   (v as ChildUpdater)(parent);
+      //   updaters = [v as ChildUpdater];
+      //   break;
+      // }
 
-      v = f(); // renderer, condition
-
-      if (v instanceof HTMLElement) {
-        updaters ??= [];
-        updaters.push(f as ChildUpdater);
-      }
-      else {
-        let prev = v;
-
-        if (v && isFunction(v)) v = prev = (v as Function)(); // condition renderer, child array
-
-        if (v instanceof HTMLElement) {}
-        else if (isLiteral(v)) (v as any) = document.createTextNode(v as string);
-        else if (v && isArray(v)) {
-          if (recursive) throw new Error(`recursive child: ${v}`);
-          if ((length - startIndex) !== 1) throw new Error(`not a single child: ${f}`);
-          initializeChildren(parentNode, v as TagPropsChildren<Renderer>, undefined, true);
-          updaters = [() => {
-            (parentNode as any).replaceChildren(); // todo remove "as any"
-            initializeChildren(parentNode, f(), undefined, true);
-          }];
-          break;
-        }
-        else throw new Error(`unsupported child: ${f}`);
-
-        updaters ??= [];
-        updaters.push(createChildUpdater(v as unknown as HTMLElement, f, prev));
-      }
-
-      parentNode.append(v as string);
+      updaters ??= [];
+      handleCallback(v as () => Child<Renderer>, updaters, parent);
     }
     else {
       throw new Error(`unsupported child: ${v}`);

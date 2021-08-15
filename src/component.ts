@@ -1,4 +1,4 @@
-import {Component, isObject, KeyValObj} from '@perform/common';
+import {Component, KeyValObj, Child, isObject} from '@perform/common';
 
 import {Renderer, PropUpdater, ChildUpdater} from './types';
 
@@ -34,7 +34,7 @@ export const component: Component<Renderer> = (...args) => {
         }
 
         if (args.length > startIndex) {
-          childUpdaters = initializeChildren(element, args, startIndex);
+          childUpdaters = initializeChildren(element, args as Child<Renderer>[], startIndex);
         }
       }
     }
