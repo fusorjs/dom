@@ -17,7 +17,7 @@ export const component: Component<Renderer> = (...args) => {
     // * All subsequent runs are just updating the rendered element:
     if (element) {
       propUpdaters?.forEach(u => u());
-      childUpdaters?.forEach(u => u(element));
+      childUpdaters?.forEach(u => u());
     }
     // * The first run must be in render, as it is actually renders the element:
     else {
@@ -25,7 +25,7 @@ export const component: Component<Renderer> = (...args) => {
 
       element = document.createElement(tagName);
 
-      if (propsOrChild !== undefined) {
+      if (propsOrChild != undefined) {
         let startIndex = 1;
 
         if (isObject(propsOrChild)) {

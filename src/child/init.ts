@@ -1,64 +1,75 @@
-import {Child, isFunction, isLiteral} from '@perform/common';
+import {Child, some, isFunction, isLiteral} from '@perform/common';
 
 import {Renderer, ChildUpdater} from '../types';
 
-// const isHidden = (v: unknown) =>
-//   v === false || v === null || v === undefined || v === true;
+// includes undefined, true coz ||
+const isSkipable = (v: unknown) => v === false || v == null || v === '' || v === true;
 
-// todo refactor more
+// todo refactor
 
-const hidden = Symbol();
+const createUpdater = (
+  callback: () => Child<Renderer>, parent: HTMLElement
+) => {
+  let prevNode: Node;
+  let prevChild: Child<Renderer>;
 
-const createChildUpdater = (node: Node, f: Function) => {
-  let prev = hidden;
+  const update = (recursed = 0) => {
+    let child = callback();
 
-  return () => {
-    let v = f();
-
-    if (v && isFunction(v)) v = v();
-
-    if (prev === v) return;
-    else prev = v;
-
-    if (v instanceof HTMLElement) {}
-    else if (isLiteral(v)) {
-      if (node instanceof Text) {
-        node.nodeValue = v;
-        return;
+    if (child instanceof HTMLElement) { // component renderer
+      if (prevNode) { // update
+        if (prevChild !== child) {
+          parent.replaceChild(child, prevNode);
+          prevNode = child;
+        }
       }
-      v = document.createTextNode(v);
+      else { // init
+        parent.append(child);
+        prevNode = child;
+      }
     }
-    else throw new Error(`unsupported child: ${f}`);
+    else if (isSkipable(child)) { // before: literal as '', function as null
+      child = '';
+      if (prevNode) { // update
+        if (prevChild !== child) {
+          const text = document.createTextNode(child);
+          parent.replaceChild(text, prevNode);
+          prevNode = text;
+        }
+      }
+      else { // init
+        const text = document.createTextNode(child);
+        parent.append(text);
+        prevNode = text;
+      }
+    }
+    else if (isLiteral(child)) {
+      if (prevNode) { // update
+        if (prevChild !== child) {
+          const text = document.createTextNode(child as string);
+          parent.replaceChild(text, prevNode);
+          prevNode = text;
+        }
+      }
+      else { // init
+        const text = document.createTextNode(child as string);
+        parent.append(text);
+        prevNode = text;
+      }
+    }
+    else if (isFunction(child as some)) { // condition
+      if (recursed === 5) throw new Error(`prevent indefinite loop: ${recursed++}`);
+      update(recursed++);
+    }
+    else throw new Error(`unsupported child: ${callback}`);
 
-    (node as HTMLElement).replaceWith(v);
-
-    node = v;
+    prevChild = child;
   };
-}
 
-const handleCallback = (f: () => Child<Renderer>, updaters: ChildUpdater[], parent: HTMLElement) => {
-  const v = f(); // renderer, condition
+  update(); // init
 
-  if (v && isFunction(v)) { // condition renderer, child array
-    handleCallback(v as () => Child<Renderer>, updaters, parent);
-  }
-  else if (v instanceof HTMLElement) {
-    updaters.push(f);
-    parent.append(v);
-  }
-  else {
-    if (v instanceof HTMLElement) {
-      updaters.push(createChildUpdater(v, f));
-      parent.append(v);
-    }
-    else if (isLiteral(v)) {
-      const text = document.createTextNode(v as string);
-      updaters.push(createChildUpdater(text, f));
-      parent.append(text);
-    }
-    else throw new Error(`unsupported child: ${f}`);
-  }
-}
+  return update;
+};
 
 export const initChildren = (
   parent: HTMLElement, children: Child<Renderer>[], startIndex = 0
@@ -66,20 +77,19 @@ export const initChildren = (
   let updaters: ChildUpdater[] | undefined, index = startIndex;
 
   for (const {length} = children; index < length; index ++) {
-    const v = children[index];
+    const child = children[index];
 
-    if (! v) {
-      // ? skip null | undefined | false | '' ?
-      throw new Error(`unsupported child: ${v}`);
+    if (isSkipable(child)) { // before: literal as '', function as null
+      // Do nothing, I love that! :)
     }
-    else if (isLiteral(v)) {
-      parent.append(v as string);
+    else if (isLiteral(child)) {
+      parent.append(child as string);
     }
-    else if (isFunction(v)) {
+    else if (isFunction(child as some)) { // dynamic value
       updaters ??= [];
-      handleCallback(v as () => Child<Renderer>, updaters, parent);
+      updaters.push(createUpdater(child as () => Child<Renderer>, parent));
     }
-    else throw new Error(`unsupported child: ${v}`);
+    else throw new TypeError(`unsupported child type: ${typeof child}`);
   }
 
   return updaters;
