@@ -56,7 +56,7 @@ const update = (
       component, literal, recursed++
     );
   }
-  else throw new Error(`unsupported child: ${callback}`);
+  else throw new Error(`illegal child: ${callback}`);
 
   prevChild = child;
 
@@ -72,7 +72,7 @@ const createUpdater = (
   // init
   [prevChild, prevNode] = update(
     callback, parentNode,
-    prevChild, prevNode!, // we do not use prevNode on init...
+    prevChild, prevNode!, // we do not use prevNode in: initComponent, initLiteral
     initComponent, initLiteral
   );
 
@@ -87,7 +87,7 @@ const createUpdater = (
 };
 
 export const initChildren = (
-  parent: HTMLElement, children: Child<Renderer>[], startIndex = 0
+  parent: HTMLElement, children: readonly Child<Renderer>[], startIndex = 0
 ) => {
   let updaters: ChildUpdater[] | undefined, index = startIndex;
 
@@ -97,14 +97,15 @@ export const initChildren = (
     if (isSkipable(child)) { // before: literal as '', function as null
       // Do nothing, I love that! :)
     }
-    else if (isLiteral(child)) {
+    else if (isLiteral(child)) { // static value
+      // todo optimize concatenate serial static values to single node
       parent.append(child as string);
     }
     else if (isFunction(child as some)) { // dynamic value
       updaters ??= [];
       updaters.push(createUpdater(child as () => Child<Renderer>, parent));
     }
-    else throw new TypeError(`unsupported child type: ${typeof child}`);
+    else throw new TypeError(`illegal child type: ${typeof child}`);
   }
 
   return updaters;
