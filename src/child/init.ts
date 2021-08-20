@@ -23,6 +23,11 @@ const initLiteral: Setter = (parentNode, child) => {
 }
 
 const updateLiteral: Setter = (parentNode, child, prevNode) => {
+  if (prevNode instanceof Text) {
+    prevNode.nodeValue = child as string;
+    return prevNode;
+  }
+
   const text = document.createTextNode(child as string);
   parentNode.replaceChild(text, prevNode);
   return text;
@@ -43,17 +48,18 @@ const update = (
     if (prevChild !== child) prevNode = literal(parentNode, child, prevNode);
   }
   else if (isLiteral(child)) {
+    if (typeof child === 'number') child = child.toString(); // todo optimize the whole "switch" with typeof
     if (prevChild !== child) prevNode = literal(parentNode, child, prevNode);
   }
   else if (isFunction(child as some)) { // condition
-    if (recursed === 5) throw new Error(`prevent indefinite loop: ${recursed++}`);
+    if (recursed === 5) throw new Error(`preventing indefinite recursion: ${recursed}`);
     return update(
-      callback, parentNode,
+      child as () => Child<Renderer>, parentNode,
       prevChild, prevNode,
-      component, literal, recursed++
+      component, literal, recursed + 1
     );
   }
-  else throw new Error(`illegal child: ${callback}`);
+  else throw new Error(`illegal child: ${callback} value: ${child}`);
 
   prevChild = child;
 
@@ -102,7 +108,7 @@ export const initChildren = (
       updaters ??= [];
       updaters.push(createUpdater(child as () => Child<Renderer>, parent));
     }
-    else throw new TypeError(`illegal child type: ${typeof child}`);
+    else throw new TypeError(`illegal child value: ${child}`);
   }
 
   return updaters;

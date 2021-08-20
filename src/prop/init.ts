@@ -15,7 +15,7 @@ const createAttributeActionGetter = (literal: Action, boolean: Action) => (k: Ke
       if (v === NaN) throw new Error(`invalid attribute value: "${k}": ${v}`);
       return literal;
     case 'boolean': return boolean;
-    default: throw new Error(`unsupported attribute type: "${k}": ${v}`);
+    default: throw new Error(`illegal attribute type: "${k}": ${v}`);
   }
 };
 
