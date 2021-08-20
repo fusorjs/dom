@@ -1,9 +1,6 @@
-import {Child, some, isFunction, isLiteral} from '@perform/common';
+import {Child, some, isEmptyChild, isFunction, isLiteral} from '@perform/common';
 
 import {Renderer, ChildUpdater} from '../types';
-
-// includes undefined, true because of ||
-const isSkipable = (v: unknown) => v === false || v == null || v === '' || v === true;
 
 type RenderedChild = Child<Renderer> | ReturnType<Renderer>;
 
@@ -41,7 +38,7 @@ const update = (
   if (child instanceof HTMLElement) { // component renderer
     if (prevChild !== child) prevNode = component(parentNode, child, prevNode);
   }
-  else if (isSkipable(child)) { // before: literal as '', function as null
+  else if (isEmptyChild(child)) { // before: literal as '', function as null
     child = '';
     if (prevChild !== child) prevNode = literal(parentNode, child, prevNode);
   }
@@ -94,11 +91,11 @@ export const initChildren = (
   for (const {length} = children; index < length; index ++) {
     const child = children[index];
 
-    if (isSkipable(child)) { // before: literal as '', function as null
+    if (isEmptyChild(child)) { // before: literal as '', function as null
       // Do nothing, I love that! :)
     }
     else if (isLiteral(child)) { // static value
-      // todo optimize concatenate serial static values to single node
+      // todo maybe optimize: concatenate serial static values to single node
       parent.append(child as string);
     }
     else if (isFunction(child as some)) { // dynamic value

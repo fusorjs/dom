@@ -1,4 +1,4 @@
-import {KeyValObj, isFunction, isBlank, isObject} from '@perform/common';
+import {Props, isFunction, isEmptyProp, isObject} from '@perform/common';
 
 type Key = string;
 type Value = any;
@@ -25,11 +25,11 @@ const getAttributeSetterAction = createAttributeActionGetter(
 );
 
 const getPropertyUpdaterAction = createAttributeActionGetter(
-  (e, k, v) => isBlank(v) ? e.removeAttribute(k) : e.setAttribute(k, v),
+  (e, k, v) => isEmptyProp(v) ? e.removeAttribute(k) : e.setAttribute(k, v),
   (e, k, v) => v ? e.removeAttribute(k) : e.setAttribute(k, '')
 );
 
-const updateInputProperty: Action = (e, k, v) => (e as KeyValObj)[k] = v;
+const updateInputProperty: Action = (e, k, v) => (e as Props)[k] = v;
 
 const setInitialAttribute: Action = (e, k, v) => {
   getAttributeSetterAction(k, v, typeof v)(e, k, v);
@@ -62,21 +62,21 @@ const createPropertyUpdater = (e: HTMLElement, k: Key, f: () => Value, prev: Val
   };
 };
 
-export const initProps = (element: HTMLElement, attributes: KeyValObj) => {
+export const initProps = (element: HTMLElement, attributes: Readonly<Props>) => {
   let updaters;
 
   for (let [k, v] of Object.entries(attributes)) {
-    if (isBlank(v)) {}
+    if (isEmptyProp(v)) {} // must be first
     else if (k.startsWith('on')) {
-      if (v && isFunction(v)) element.addEventListener(k.substring(2), v, false);
+      if (isFunction(v)) element.addEventListener(k.substring(2), v, false);
       else throw new Error(`not a function attribute value: "${k}": ${v}`);
     }
     else if (k === 'ref') {
-      if (v && isObject(v)) v.current = element; // todo function
+      if (isObject(v)) v.current = element; // todo function
       else throw new Error(`not an object attribute value: "${k}": ${v}`);
     }
     else {
-      if (v && isFunction(v)) {
+      if (isFunction(v)) {
         const f = v;
 
         v = v();
@@ -84,7 +84,7 @@ export const initProps = (element: HTMLElement, attributes: KeyValObj) => {
         updaters.push(createPropertyUpdater(element, k, f, v, typeof v));
       }
 
-      if (! isBlank(v)) setInitialAttribute(element, k, v);
+      if (! isEmptyProp(v)) setInitialAttribute(element, k, v);
     }
   }
 

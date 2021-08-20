@@ -50,6 +50,7 @@ describe('initChildren', () => {
 
       expect(updaters?.length).toBe(1);
 
+      // todo skippable
       test('initial', () => {
         expect(element.childNodes.length).toBe(1);
         const node = element.childNodes[0];
@@ -57,11 +58,9 @@ describe('initChildren', () => {
         expect(node.nodeValue).toBe('');
       });
 
+      // todo the rest
+
     });
-
-  });
-
-  describe('mixed', () => {
 
   });
 
