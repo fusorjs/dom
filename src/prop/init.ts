@@ -1,4 +1,4 @@
-import {Props, isFunction, isEmptyProp, isObject} from '@perform/common';
+import {Props, isFunction, isEmptyProp, isObject, isLiteral} from '@perform/common';
 
 type Key = string;
 type Value = any;
@@ -66,14 +66,24 @@ export const initProps = (element: HTMLElement, attributes: Readonly<Props>) => 
   let updaters;
 
   for (let [k, v] of Object.entries(attributes)) {
-    if (isEmptyProp(v)) {} // must be first
-    else if (k.startsWith('on')) {
-      if (isFunction(v)) element.addEventListener(k.substring(2), v, false);
-      else throw new Error(`not a function attribute value: "${k}": ${v}`);
+    if (isEmptyProp(v)) { // before: function as null, object as null
+      // Do nothing, I love that! :)
     }
+    else if (k.startsWith('on')) {
+      if (isFunction(v)) element.addEventListener(k.substring(2).toLowerCase(), v, false);
+      else throw new TypeError(`illegal property: ${k} value: ${v}`);
+    }
+    // todo data-
+    // todo style
+    // todo area-
     else if (k === 'ref') {
-      if (isObject(v)) v.current = element; // todo function
-      else throw new Error(`not an object attribute value: "${k}": ${v}`);
+      if (isFunction(v)) v(element);
+      else if (isObject(v)) v.current = element;
+      else throw new TypeError(`illegal property: ${k} value: ${v}`);
+    }
+    else if (isLiteral(v)) {
+      // ? maybe development check for correct attribute key=value ?
+      element[k as 'id'] = v;
     }
     else {
       if (isFunction(v)) {

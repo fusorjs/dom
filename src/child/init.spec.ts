@@ -105,7 +105,6 @@ describe('initChildren', () => {
 
       test.each(
         illegalChildren.map(i => [[i]])
-        // [() => () => () => () => () => () => 6, '6'],
       )('illegal child %p', (val: any[]) => {
         expect(() => {
           dynamicValue = val;

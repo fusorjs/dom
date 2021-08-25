@@ -72,7 +72,7 @@ test('set color style of text', () => {
   expect(
     h('p', {style: 'color:red'}, 'This text is red colored.')().outerHTML
   ).toBe(
-    '<p style="color:red">This text is red colored.</p>'
+    '<p style="color: red;">This text is red colored.</p>'
   );
 });
 

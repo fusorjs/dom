@@ -104,7 +104,7 @@ export const initChildren = (
       // todo maybe optimize: concatenate serial static values to single node
       parent.append(child as string);
     }
-    else if (isFunction(child as some)) { // dynamic value
+    else if (isFunction(child!)) { // dynamic value
       updaters ??= [];
       updaters.push(createUpdater(child as () => Child<Renderer>, parent));
     }
