@@ -1,100 +1,88 @@
-import {Props, isFunction, isEmptyProp, isObject, isLiteral} from '@perform/common';
+import {Props, isFunction, isEmptyProp, isObject, isLiteral, stringify} from '@perform/common';
 
 type Key = string;
 type Value = any;
-type ValueType = string;
+type GoodValue = string | number | boolean | undefined | null;
 
-interface Action {
-  (e: HTMLElement, k: Key, v: Value): void;
-}
+const getValue = (f: () => Value, recursed = 0): GoodValue => {
+  const value = f();
+  const type = typeof value;
 
-const createAttributeActionGetter = (literal: Action, boolean: Action) => (k: Key, v: Value, vT: ValueType) => {
-  switch (vT) {
-    case 'string': return literal;
+  switch (type) {
     case 'number':
-      if (v === NaN) throw new Error(`invalid attribute value: "${k}": ${v}`);
-      return literal;
-    case 'boolean': return boolean;
-    default: throw new Error(`illegal attribute type: "${k}": ${v}`);
-  }
-};
-
-const getAttributeSetterAction = createAttributeActionGetter(
-  (e, k, v) => e.setAttribute(k, v),
-  (e, k) => e.setAttribute(k, '')
-);
-
-const getPropertyUpdaterAction = createAttributeActionGetter(
-  (e, k, v) => isEmptyProp(v) ? e.removeAttribute(k) : e.setAttribute(k, v),
-  (e, k, v) => v ? e.removeAttribute(k) : e.setAttribute(k, '')
-);
-
-const updateInputProperty: Action = (e, k, v) => (e as Props)[k] = v;
-
-const setInitialAttribute: Action = (e, k, v) => {
-  getAttributeSetterAction(k, v, typeof v)(e, k, v);
-};
-
-const getPropertyUpdater = (e: HTMLElement, k: Key, v: Value, vT: ValueType) => {
-  if (e.tagName === 'INPUT' && (k === 'value' || k === 'checked')) {
-    return updateInputProperty;
+      if (value === NaN) throw new Error(`invalid attribute value: ${value}`);
+    // case 'string':
+    // case 'boolean':
+      break;
+    case 'function':
+      if (recursed === 5) throw new Error(`preventing indefinite recursion: ${recursed}`);
+      return getValue(value, recursed + 1);
+    // default:
+    //   throw new Error(`illegal property: ${value}`);
   }
 
-  return getPropertyUpdaterAction(k, v, vT);
+  return value;
 };
 
-const createPropertyUpdater = (e: HTMLElement, k: Key, f: () => Value, prev: Value, prevT: ValueType) => {
-  const update = getPropertyUpdater(e, k, prev, prevT); // todo element could change maybe
+const createUpdater = (element: HTMLElement, key: Key, callback: () => Value) => {
+  let prevValue: GoodValue;
+  let prevEmpty: boolean;
+
+  // init
+  prevValue = getValue(callback);
+
+  if (isEmptyProp(prevValue)) prevEmpty = true;
+  else element[key as 'id'] = prevValue as string; // todo cast
 
   return () => {
-    const v = f(), vT = typeof v;
+    // update
+    const nextValue = getValue(callback);
 
-    if (vT !== prevT && prev !== undefined && v !== undefined)
-      throw new Error(`mismatch attribute types: "${k}" initial: ${prev} next: ${v}`);
+    if (prevValue === nextValue) return;
 
-    // console.log({prev, v}); // todo refactor prev
+    prevValue = nextValue;
 
-    if (prev === v) return;
-    prev = v;
-    prevT = vT;
+    const nextEmpty = isEmptyProp(nextValue);
 
-    update(e, k, v);
+    if (nextEmpty && prevEmpty) return;
+
+    prevEmpty = nextEmpty;
+
+    element[key as 'id'] = nextValue as string; // todo cast
   };
 };
 
 export const initProps = (element: HTMLElement, attributes: Readonly<Props>) => {
   let updaters;
 
-  for (let [k, v] of Object.entries(attributes)) {
+  for (const [k, v] of Object.entries(attributes)) {
     if (isEmptyProp(v)) { // before: function as null, object as null
       // Do nothing, I love that! :)
     }
     else if (k.startsWith('on')) {
-      if (isFunction(v)) element.addEventListener(k.substring(2).toLowerCase(), v, false);
-      else throw new TypeError(`illegal property: ${k} value: ${v}`);
+      if (isFunction(v)) element.addEventListener(k.substring(2), v, false);
+      else throw new TypeError(`illegal property: "${k}" = ${stringify(v)}; expected function`);
     }
     // todo data-
-    // todo style
+    // todo style...
     // todo area-
     else if (k === 'ref') {
       if (isFunction(v)) v(element);
       else if (isObject(v)) v.current = element;
-      else throw new TypeError(`illegal property: ${k} value: ${v}`);
-    }
-    else if (isLiteral(v)) {
-      // ? maybe development check for correct attribute key=value ?
-      element[k as 'id'] = v;
+      else throw new TypeError(`illegal property: "${k}" = ${stringify(v)}; expected function or object`);
     }
     else {
-      if (isFunction(v)) {
-        const f = v;
+      const kk = k === 'class' ? 'className' : k;
 
-        v = v();
-        updaters ??= [];
-        updaters.push(createPropertyUpdater(element, k, f, v, typeof v));
+      if (isLiteral(v) || v === true) {
+        // ? maybe in development check for correct attribute key=value
+        element[kk as 'id'] = v;
       }
-
-      if (! isEmptyProp(v)) setInitialAttribute(element, k, v);
+      else if (isFunction(v)) {
+        updaters ??= [];
+        updaters.push(createUpdater(element, kk, v));
+      }
+      else throw new TypeError(`illegal property: "${k}" = ${stringify(v)}`);
     }
   }
 

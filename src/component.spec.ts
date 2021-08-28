@@ -123,12 +123,12 @@ test('toggle button color', () => {
   counterElement.click();
 
   expect(toggleElement.innerHTML).toBe('On');
-  expect(counterElement.outerHTML).toBe('<button style="color:green">Clicked 5 times!</button>');
+  expect(counterElement.outerHTML).toBe('<button style="color: green;">Clicked 5 times!</button>');
 
   toggleElement.click();
   counterElement.click();
 
   expect(toggleElement.innerHTML).toBe('Off');
-  expect(counterElement.outerHTML).toBe('<button>Clicked 6 times!</button>');
+  expect(counterElement.outerHTML).toBe('<button style="">Clicked 6 times!</button>');
 });
 

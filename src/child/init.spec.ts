@@ -1,11 +1,9 @@
+import {stringify} from '@perform/common';
 import {initChildren} from './init';
 
 describe('initChildren', () => {
   const emptyChildren = ['', true, false, null, undefined] as const;
-  const illegalChildren = [
-    [], {},
-    // todo Symbol() TypeError: Cannot convert a Symbol value to a string
-  ] as const;
+  const illegalChildren = [[], {}, Symbol()] as const;
 
   describe('static', () => {
 
@@ -38,7 +36,7 @@ describe('initChildren', () => {
       expect(() => {
         initChildren(element, provided);
       }).toThrow(
-        new TypeError(`illegal child value: ${provided[0]}`)
+        new TypeError(`illegal child: ${stringify(provided[0])}`)
       );
     });
 
@@ -110,7 +108,7 @@ describe('initChildren', () => {
           dynamicValue = val;
           updateElement();
         }).toThrow(
-          new TypeError(`illegal child: ${dynamicChild} value: ${val}`)
+          new TypeError(`illegal child: ${stringify(val)}; from: ${dynamicChild}`)
         );
       });
 

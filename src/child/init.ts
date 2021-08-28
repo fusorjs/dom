@@ -1,4 +1,4 @@
-import {Child, some, isEmptyChild, isFunction, isLiteral} from '@perform/common';
+import {Child, some, isEmptyChild, isFunction, isLiteral, stringify} from '@perform/common';
 
 import {Renderer, ChildUpdater} from '../types';
 
@@ -59,7 +59,7 @@ const update = (
       component, literal, recursed + 1
     );
   }
-  else throw new Error(`illegal child: ${callback} value: ${child}`);
+  else throw new Error(`illegal child: ${stringify(child)}; from: ${callback}`);
 
   prevChild = child;
 
@@ -108,7 +108,7 @@ export const initChildren = (
       updaters ??= [];
       updaters.push(createUpdater(child as () => Child<Renderer>, parent));
     }
-    else throw new TypeError(`illegal child value: ${child}`);
+    else throw new TypeError(`illegal child: ${stringify(child)}`);
   }
 
   return updaters;
