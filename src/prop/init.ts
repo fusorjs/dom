@@ -1,38 +1,23 @@
-import {Props, isFunction, isEmptyProp, isObject, isLiteral, stringify} from '@perform/common';
+import {Props, stringify} from '@perform/common';
 
-type Key = string;
-type Value = any;
-type GoodValue = string | number | boolean | undefined | null;
+// todo pure inline
+const getValue = (callback: Function, recursed = 1): any => {
+  const value = callback();
 
-const getValue = (f: () => Value, recursed = 0): GoodValue => {
-  const value = f();
-  const type = typeof value;
-
-  switch (type) {
-    case 'number':
-      if (value === NaN) throw new Error(`invalid attribute value: ${value}`);
-    // case 'string':
-    // case 'boolean':
-      break;
-    case 'function':
-      if (recursed === 5) throw new Error(`preventing indefinite recursion: ${recursed}`);
-      return getValue(value, recursed + 1);
-    // default:
-    //   throw new Error(`illegal property: ${value}`);
+  if (typeof value === 'function') {
+    if (recursed === 5) throw new TypeError(`preventing indefinite recursion: ${recursed + 1}`);
+    return getValue(value, recursed + 1);
   }
 
   return value;
 };
 
-const createUpdater = (element: HTMLElement, key: Key, callback: () => Value) => {
-  let prevValue: GoodValue;
-  let prevEmpty: boolean;
+const createUpdater = (element: Element, key: string, callback: Function) => {
+  let prevValue: any;
 
   // init
   prevValue = getValue(callback);
-
-  if (isEmptyProp(prevValue)) prevEmpty = true;
-  else element[key as 'id'] = prevValue as string; // todo cast
+  element[key as 'id'] = prevValue;
 
   return () => {
     // update
@@ -41,48 +26,41 @@ const createUpdater = (element: HTMLElement, key: Key, callback: () => Value) =>
     if (prevValue === nextValue) return;
 
     prevValue = nextValue;
-
-    const nextEmpty = isEmptyProp(nextValue);
-
-    if (nextEmpty && prevEmpty) return;
-
-    prevEmpty = nextEmpty;
-
-    element[key as 'id'] = nextValue as string; // todo cast
+    element[key as 'id'] = nextValue;
   };
 };
 
-export const initProps = (element: HTMLElement, attributes: Readonly<Props>) => {
+export const initProps = (element: Element, attributes: Readonly<Props>) => {
   let updaters;
 
-  for (const [k, v] of Object.entries(attributes)) {
-    if (isEmptyProp(v)) { // before: function as null, object as null
-      // Do nothing, I love that! :)
-    }
-    else if (k.startsWith('on')) {
-      if (isFunction(v)) element.addEventListener(k.substring(2), v, false);
-      else throw new TypeError(`illegal property: "${k}" = ${stringify(v)}; expected function`);
+  for (const [key, val] of Object.entries(attributes)) {
+    if (key.startsWith('on')) { // event listeners are staic - do not have updaters
+      if (typeof val === 'function') element.addEventListener(key.substring(2), val, false);
+      else throw new TypeError(`illegal property: "${key}" = ${stringify(val)}; expected function`);
     }
     // todo data-
     // todo style...
     // todo area-
-    else if (k === 'ref') {
-      if (isFunction(v)) v(element);
-      else if (isObject(v)) v.current = element;
-      else throw new TypeError(`illegal property: "${k}" = ${stringify(v)}; expected function or object`);
+    else if (key === 'ref') { // ? deprecate
+      switch (typeof val) {
+        case 'function': val(element); break;
+        case 'object': val.current = element; break; // ? deprecate
+        default: throw new TypeError(
+          `illegal property: "${key}" = ${stringify(val)}; expected function or object`
+        );
+      }
     }
     else {
-      const kk = k === 'class' ? 'className' : k;
+      const _key =
+        key === 'class' ? 'className' :
+        key === 'for'   ? 'htmlFor'   :
+        key;
 
-      if (isLiteral(v) || v === true) {
-        // ? maybe in development check for correct attribute key=value
-        element[kk as 'id'] = v;
-      }
-      else if (isFunction(v)) {
+      if (typeof val === 'function') {
         updaters ??= [];
-        updaters.push(createUpdater(element, kk, v));
+        updaters.push(createUpdater(element, _key, val));
       }
-      else throw new TypeError(`illegal property: "${k}" = ${stringify(v)}`);
+      else element[_key as 'id'] = val;
     }
   }
 
