@@ -1,26 +1,15 @@
 import {Props, stringify} from '@perform/common';
 
-// todo pure inline
-const getValue = (callback: Function, recursed = 1): any => {
-  const value = callback();
-
-  if (typeof value === 'function') {
-    if (recursed === 5) throw new TypeError(`preventing indefinite recursion: ${recursed + 1}`);
-    return getValue(value, recursed + 1);
-  }
-
-  return value;
-};
+import {getValue} from '../utils';
 
 const createUpdater = (element: Element, key: string, callback: Function) => {
-  let prevValue: any;
-
   // init
-  prevValue = getValue(callback);
+  let prevValue = getValue(callback);
+
   element[key as 'id'] = prevValue;
 
+  // update
   return () => {
-    // update
     const nextValue = getValue(callback);
 
     if (prevValue === nextValue) return;

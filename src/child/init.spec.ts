@@ -2,47 +2,61 @@ import {stringify} from '@perform/common';
 import {initChildren} from './init';
 
 describe('initChildren', () => {
-  const emptyChildren = ['', true, false, null, undefined] as const;
-  const illegalChildren = [[], {}, Symbol()] as const;
+  const cases = [
+    ['', ''],
+    ['1', '1'],
+    ['abc', 'abc'],
+    [0, '0'],
+    [-0, '0'],
+    [-1, '-1'],
+    [123, '123'],
+    [NaN, 'NaN'],
+    [() => 222, '222'],
+    [() => () => 333, '333'],
+    [() => () => () => 444, '444'],
+    [[], '[]'],
+    [[1, 2, 3], '[1,2,3]'],
+    [{}, '{}'],
+    [{a: 1, b: 2}, '{"a":1,"b":2}'],
+    [Symbol(), 'Symbol()'],
+    [Symbol('sss'), 'Symbol(sss)'],
+    [true, 'true'],
+    [false, 'false'],
+    [undefined, 'undefined'],
+    [null, 'null'],
+  ];
 
-  describe('static', () => {
-
-    test.each([
-      [['Hello World!'], ['Hello World!']],
-      [[42], ['42']],
-      [['Hi! ', 'I am ', 21, ' years old.'], ['Hi! ', 'I am ', '21', ' years old.']],
-      [[0], ['0']],
-      [[NaN], ['NaN']],
-      [[], []],
-      [emptyChildren, []],
-      [[1, true, '2', false, 'x'], ['1', '2', 'x']],
-    ])('%p toBe %p', (provided: readonly any[], expected: readonly string[]) => {
-      const element = document.createElement('div');
-      const updaters = initChildren(element, provided);
-      expect(updaters).toBeUndefined();
-      if (expected.length > 0) {
-        expect(element.childNodes.length).toBe(expected.length);
-        for (let i = 0, len = expected.length; i < len; i++) {
-          expect(element.childNodes[i].nodeValue).toBe(expected[i]);
-        }
-      }
-      else expect(element.childNodes.length).toBe(0);
-    });
-
-    test.each(
-      illegalChildren.map(i => [[i]])
-    )('illegal child %p', (provided: any[]) => {
-      const element = document.createElement('div');
-      expect(() => {
-        initChildren(element, provided);
-      }).toThrow(
-        new TypeError(`illegal child: ${stringify(provided[0])}`)
-      );
-    });
-
+  test.each([
+    ...cases,
+    ...cases.map(([p, e]) => [() => p, e]), // all dynamic
+  ])('init all cases %p toBe %p', (provided: any, expected: any) => {
+    const element = document.createElement('div');
+    initChildren(element, [provided]);
+    expect(element.childNodes[0].nodeValue).toBe(expected);
   });
 
-  describe('dynamic', () => {
+  test.each([
+    [['Hello World!'], ['Hello World!']],
+    [[42], ['42']],
+    [['Hi! ', 'I am ', 21, ' years old.'], ['Hi! ', 'I am ', '21', ' years old.']],
+    [[0], ['0']],
+    [[NaN], ['NaN']],
+    [[true, false, null, undefined], ['true', 'false', 'null', 'undefined']],
+    [[], []],
+    [[[], {}, Symbol()], ['[]', '{}', 'Symbol()']],
+    [[[1, 2, 3], {a: 1, b: 2}, Symbol('sym')], ['[1,2,3]', '{"a":1,"b":2}', 'Symbol(sym)']],
+    [[1, true, '2', false, 'x'], ['1', 'true', '2', 'false', 'x']],
+  ])('static random %p toBe %p', (provided: readonly any[], expected: any[]) => {
+    const element = document.createElement('div');
+    const updaters = initChildren(element, provided);
+    expect(updaters).toBeUndefined();
+    expect(element.childNodes.length).toBe(expected.length);
+    for (let i = 0, len = expected.length; i < len; i++) {
+      expect(element.childNodes[i].nodeValue).toBe(expected[i]);
+    }
+  });
+
+  describe('dynamic createUpdater', () => {
 
     describe('single child', () => {
 
@@ -51,24 +65,14 @@ describe('initChildren', () => {
       const element = document.createElement('div');
       const updaters = initChildren(element, [dynamicChild]);
       expect(updaters?.length).toBe(1);
-      const [updateElement] = updaters as [() => void];
-      expect(typeof updateElement).toBe('function');
+      updaters?.forEach(u => expect(typeof u).toBe('function'))
       expect(element.childNodes.length).toBe(1);
 
       describe('the same text node', () => {
 
         const theSameNode = element.childNodes[0];
         expect(theSameNode).toBeInstanceOf(Text);
-        expect(theSameNode.nodeValue).toBe('');
-
-        test.each(
-          emptyChildren.map(i => [i])
-        )('empty %p', (val: any) => {
-          dynamicValue = val;
-          updateElement();
-          expect(element.childNodes[0]).toBe(theSameNode);
-          expect(theSameNode.nodeValue).toBe('');
-        });
+        expect(theSameNode.nodeValue).toBe('undefined');
 
         test.each([
           ['aaa', 'aaa'],
@@ -77,39 +81,16 @@ describe('initChildren', () => {
           ['', ''],
           [NaN, 'NaN'],
           [42, '42'],
-          [true, ''],
+          [true, 'true'],
           [() => 1, '1'],
           [() => () => 2, '2'],
-          [() => () => () => 3, '3'],
-          [() => () => () => () => 4, '4'],
-          [() => () => () => () => () => 5, '5'],
         ])('%p toBe %p', (provided: any, expected: any) => {
           dynamicValue = provided;
-          updateElement();
+          updaters?.forEach(u => u());
           expect(element.childNodes[0]).toBe(theSameNode);
           expect(theSameNode.nodeValue).toBe(expected);
         });
 
-      });
-
-      test('preventing indefinite recursion', () => {
-        expect(() => {
-          dynamicValue = () => () => () => () => () => () => 6, '6';
-          updateElement();
-        }).toThrow(
-          new Error(`preventing indefinite recursion: 5`)
-        );
-      });
-
-      test.each(
-        illegalChildren.map(i => [[i]])
-      )('illegal child %p', (val: any[]) => {
-        expect(() => {
-          dynamicValue = val;
-          updateElement();
-        }).toThrow(
-          new TypeError(`illegal child: ${stringify(val)}; from: ${dynamicChild}`)
-        );
       });
 
       describe('switch nodes', () => {
@@ -127,7 +108,7 @@ describe('initChildren', () => {
           [elm2],
         ])('diferent nodes %p toBe %p', (val: any) => {
           dynamicValue = val;
-          updateElement();
+          updaters?.forEach(u => u());
           if (val instanceof Node) expect(element.childNodes[0]).toBe(val);
           else expect(element.childNodes[0].nodeValue).toBe(val);
         });

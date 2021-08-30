@@ -82,7 +82,7 @@ describe('initProps', () => {
   describe('dynamic', () => {
 
     const element = document.createElement('div');
-    let title: any, tabIndex: any, hidden: any, alfa: any, beta: any = 'bbb';
+    let title: any, tabIndex: any, hidden: any, alfa: any = () => () => 'aaa', beta: any = 'bbb';
     const updaters = initProps(element, {
       title: () => title, tabIndex: () => tabIndex, hidden: () => hidden, alfa: () => alfa, beta: () => beta
     });
@@ -91,7 +91,7 @@ describe('initProps', () => {
     expect(element.title).toBe('undefined');
     expect(element.tabIndex).toBe(0);
     expect(element.hidden).toBe(false);
-    expect(element['alfa' as 'id']).toBeUndefined();
+    expect(element['alfa' as 'id']).toBe('aaa');
     expect(element['beta' as 'id']).toBe('bbb');
 
     test.each([
@@ -108,23 +108,13 @@ describe('initProps', () => {
     });
 
     test.each([
-      [() => 2, 2],
-      [() => () => 3, 3],
-      [() => () => () => 4, 4],
-      [() => () => () => () => 5, 5],
+      [{title: () => () => () => 'wow'}, 'wow'],
     ])('%p toBe %p', (provided: any, expected: any) => {
-      alfa = provided;
+      ({title,  tabIndex, hidden, alfa, beta} = provided);
       updaters?.forEach(u => u());
-      expect(element['alfa' as keyof HTMLDivElement]).toBe(expected);
-    });
-
-    test('prevent 6 recursion', () => {
-      alfa = () => () => () => () => () => 6;
-      expect(() => {
-        updaters?.forEach(u => u());
-      }).toThrow(
-        new TypeError(`preventing indefinite recursion: 6`)
-      );
+      Object.entries(provided).forEach(([k, v]) => {
+        expect(element[k as keyof HTMLDivElement]).toBe(expected);
+      });
     });
 
   });

@@ -83,10 +83,12 @@ test('toggle button color', () => {
 
   const toggleRender = h(
     'button',
-    {onclick: () => {
-      toggle = !toggle;
-      toggleRender();
-    }},
+    {
+      onclick: () => {
+        toggle = ! toggle;
+        toggleRender();
+      }
+    },
     () => toggle ? 'On' : 'Off',
   );
 
@@ -114,7 +116,6 @@ test('toggle button color', () => {
   counterElement.click();
   counterElement.click();
 
-  expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe('<button style="">Clicked 2 times!</button>');
 
   toggleElement.click();
@@ -130,5 +131,9 @@ test('toggle button color', () => {
 
   expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe('<button style="">Clicked 6 times!</button>');
+
+  toggleElement.click();
+
+  expect(toggleElement.innerHTML).toBe('On');
 });
 

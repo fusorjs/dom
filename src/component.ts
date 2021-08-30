@@ -34,7 +34,7 @@ export const component: Component<Renderer> = (...args) => {
         }
 
         if (args.length > startIndex) {
-          childUpdaters = initChildren(element, args as Child<Renderer>[], startIndex);
+          childUpdaters = initChildren(element, args as Child[], startIndex);
         }
       }
     }
