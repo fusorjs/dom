@@ -2,14 +2,17 @@ import {stringify} from '@perform/common';
 import {initChildren} from './init';
 
 describe('initChildren', () => {
-  const cases = [
+  const allPosibleCases = [
     ['', ''],
     ['1', '1'],
     ['abc', 'abc'],
+    ['abc', 'abc'], // same
+    ['', ''],
     [0, '0'],
     [-0, '0'],
     [-1, '-1'],
     [123, '123'],
+    [123, '123'], // same
     [NaN, 'NaN'],
     [() => 222, '222'],
     [() => () => 333, '333'],
@@ -24,12 +27,12 @@ describe('initChildren', () => {
     [false, 'false'],
     [undefined, 'undefined'],
     [null, 'null'],
-  ];
+  ] as [a: any, b: any][];
 
   test.each([
-    ...cases,
-    ...cases.map(([p, e]) => [() => p, e]), // all dynamic
-  ])('init all cases %p toBe %p', (provided: any, expected: any) => {
+    ...allPosibleCases,
+    ...allPosibleCases.map(([p, e]) => [() => p, e]), // all dynamic
+  ])('init single child %p toBe %p', (provided: any, expected: any) => {
     const element = document.createElement('div');
     initChildren(element, [provided]);
     expect(element.childNodes[0].nodeValue).toBe(expected);
@@ -46,7 +49,7 @@ describe('initChildren', () => {
     [[[], {}, Symbol()], ['[]', '{}', 'Symbol()']],
     [[[1, 2, 3], {a: 1, b: 2}, Symbol('sym')], ['[1,2,3]', '{"a":1,"b":2}', 'Symbol(sym)']],
     [[1, true, '2', false, 'x'], ['1', 'true', '2', 'false', 'x']],
-  ])('static random %p toBe %p', (provided: readonly any[], expected: any[]) => {
+  ])('init multiple static children %p toBe %p', (provided: readonly any[], expected: any[]) => {
     const element = document.createElement('div');
     const updaters = initChildren(element, provided);
     expect(updaters).toBeUndefined();
@@ -55,6 +58,8 @@ describe('initChildren', () => {
       expect(element.childNodes[i].nodeValue).toBe(expected[i]);
     }
   });
+
+  // todo start here!
 
   describe('dynamic createUpdater', () => {
 
@@ -74,17 +79,9 @@ describe('initChildren', () => {
         expect(theSameNode).toBeInstanceOf(Text);
         expect(theSameNode.nodeValue).toBe('undefined');
 
-        test.each([
-          ['aaa', 'aaa'],
-          ['aaa', 'aaa'], // same
-          [0, '0'],
-          ['', ''],
-          [NaN, 'NaN'],
-          [42, '42'],
-          [true, 'true'],
-          [() => 1, '1'],
-          [() => () => 2, '2'],
-        ])('%p toBe %p', (provided: any, expected: any) => {
+        test.each(
+          allPosibleCases
+        )('update %p toBe %p', (provided: any, expected: any) => {
           dynamicValue = provided;
           updaters?.forEach(u => u());
           expect(element.childNodes[0]).toBe(theSameNode);
