@@ -1,2 +1,2 @@
 export * from './types';
-export {component} from './component';
+export {htmlComponent, svgComponent} from './component';

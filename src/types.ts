@@ -1,12 +1,13 @@
 
-export interface PropUpdater {
+export interface Updater {
   (): void;
 }
 
-export interface ChildUpdater { // ? it is Renderer ?
-  (): void;
-}
+// ? class Component extends Array & remove marker, check: performance, memory, compatibility
+export type ComponentInstance <T extends Element> = readonly [
+  element: T,
+  update: Updater | undefined,
+  __componentMarker: Symbol
+];
 
-export interface Renderer {
-  (): HTMLElement;
-}
+export const __componentMarker = Symbol();

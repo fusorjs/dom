@@ -1,44 +1,52 @@
-import {Component, Props, Child, isObject} from '@perform/common';
+import {TagPropsChildren, Props, Child} from '@perform/common';
 
-import {Renderer, PropUpdater, ChildUpdater} from './types';
-
+import {Updater, __componentMarker, ComponentInstance} from './types';
 import {initProps} from './prop/init';
 import {initChildren} from './child/init';
 
-export const component: Component<Renderer> = (...args) => {
-  let element: HTMLElement;
-  let propUpdaters: PropUpdater[] | undefined;
-  let childUpdaters: ChildUpdater[] | undefined;
+const createComponent = <T extends Element>(
+  namespaceURI?: string
+) => (
+  ...args: TagPropsChildren
+): ComponentInstance<T> => {
+  const [tagName, propsOrChild] = args;
 
-  // render
-  return () => {
-    // ? do we need to separate: creation and updating ?
+  const element = (
+    namespaceURI
+      ? document.createElementNS(namespaceURI, tagName)
+      : document.createElement(tagName)
+  ) as T;
 
-    // * All subsequent runs are just updating the rendered element:
-    if (element) {
-      propUpdaters?.forEach(u => u());
-      childUpdaters?.forEach(u => u());
+  let updaters: Updater[] | undefined;
+
+  if (args.length > 1) {
+    let startIndex = 1;
+
+    if (propsOrChild?.constructor === Object) {
+      startIndex = 2;
+
+      const propUpdaters = initProps(element, propsOrChild as Props);
+
+      if (propUpdaters) updaters = propUpdaters;
     }
-    // * The first run must be in render, as it is actually renders the element:
-    else {
-      const [tagName, propsOrChild] = args;
 
-      element = document.createElement(tagName);
+    if (args.length > startIndex) {
+      const childUpdaters = initChildren(element, args as Child[], startIndex);
 
-      if (propsOrChild != undefined) {
-        let startIndex = 1;
-
-        if (isObject(propsOrChild)) {
-          startIndex = 2;
-          propUpdaters = initProps(element, propsOrChild as Props);
-        }
-
-        if (args.length > startIndex) {
-          childUpdaters = initChildren(element, args as Child[], startIndex);
-        }
+      if (childUpdaters) {
+        if (updaters) updaters = updaters.concat(childUpdaters);
+        else updaters = childUpdaters;
       }
     }
+  }
 
-    return element;
-  };
+  return [
+    element,
+    updaters && (() => {for (const update of updaters!) update();}),
+    __componentMarker,
+  ] as const;
 };
+
+export const htmlComponent = createComponent<HTMLElement>();
+
+export const svgComponent = createComponent<SVGElement>('http://www.w3.org/2000/svg');

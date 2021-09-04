@@ -1,4 +1,3 @@
-import {stringify} from '@perform/common';
 import {initChildren} from './init';
 
 describe('initChildren', () => {
@@ -35,7 +34,9 @@ describe('initChildren', () => {
   ])('init single child %p toBe %p', (provided: any, expected: any) => {
     const element = document.createElement('div');
     initChildren(element, [provided]);
-    expect(element.childNodes[0].nodeValue).toBe(expected);
+    const node = element.childNodes[0];
+    expect(node).toBeInstanceOf(Text);
+    expect(node.nodeValue).toBe(expected);
   });
 
   test.each([
@@ -55,11 +56,11 @@ describe('initChildren', () => {
     expect(updaters).toBeUndefined();
     expect(element.childNodes.length).toBe(expected.length);
     for (let i = 0, len = expected.length; i < len; i++) {
-      expect(element.childNodes[i].nodeValue).toBe(expected[i]);
+      const node = element.childNodes[i];
+      expect(node).toBeInstanceOf(Text);
+      expect(node.nodeValue).toBe(expected[i]);
     }
   });
-
-  // todo start here!
 
   describe('dynamic createUpdater', () => {
 
@@ -90,25 +91,19 @@ describe('initChildren', () => {
 
       });
 
-      describe('switch nodes', () => {
-        const elm1 = document.createElement('div');
-        const elm2 = document.createElement('div');
-        test.each([
-          ['aaa'],
-          [elm1],
-          [elm2],
-          [elm2],
-          ['111'],
-          [elm1],
-          [elm1],
-          ['bbb'],
-          [elm2],
-        ])('diferent nodes %p toBe %p', (val: any) => {
-          dynamicValue = val;
-          updaters?.forEach(u => u());
-          if (val instanceof Node) expect(element.childNodes[0]).toBe(val);
-          else expect(element.childNodes[0].nodeValue).toBe(val);
-        });
+      test.each([
+        ['aaa'],
+        ['bbb'],
+        ['bbb'],
+        ['111'],
+        ['111'],
+        ['aaa'],
+      ])('switch nodes %p toBe %p', (val: any) => {
+        dynamicValue = val;
+        updaters?.forEach(u => u());
+        const node = element.childNodes[0];
+        expect(node).toBeInstanceOf(Text);
+        expect(node.nodeValue).toBe(val);
       });
 
     });

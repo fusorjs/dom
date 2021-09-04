@@ -1,199 +1,348 @@
-import {component as h} from './component';
+import {__componentMarker, ComponentInstance} from './types';
+import {htmlComponent, svgComponent} from './component';
 
-describe('component', () => {
+describe('htmlComponent', () => {
 
   test('empty div', () => {
-    const render = h('div');
-    expect(typeof render).toBe('function');
-    const element = render();
+    const [element, update] = htmlComponent('div');
     expect(element).toBeInstanceOf(HTMLDivElement);
+    expect(update).toBeUndefined();
     expect(element.attributes.length).toBe(0);
     expect(element.childNodes.length).toBe(0);
   });
 
-  test('static div with 3 props', () => {
-    const render = h('div', {title: 'hello', hidden: true, custom: [1, 2, 3]});
-    expect(typeof render).toBe('function');
-    const element = render();
-    expect(element).toBeInstanceOf(HTMLDivElement);
-    expect(element.attributes.length).toBe(2);
-    expect(element.childNodes.length).toBe(0);
-    expect(element.title).toBe('hello');
-    expect(element.hidden).toBe(true);
-    expect(element['custom' as 'id']).toEqual([1, 2, 3]);
+  describe('props', () => {
+
+    test('div with three static props', () => {
+      const [element, update] = htmlComponent('div', {title: 'hello', hidden: true, custom: [1, 2, 3]});
+      expect(element).toBeInstanceOf(HTMLDivElement);
+      expect(update).toBeUndefined();
+      expect(element.attributes.length).toBe(2);
+      expect(element.childNodes.length).toBe(0);
+      expect(element.title).toBe('hello');
+      expect(element.hidden).toBe(true);
+      expect(element['custom' as 'id']).toEqual([1, 2, 3]);
+    });
+
+    test('div with dynamic prop', () => {
+      let title = 'aaa';
+      const [element, update] = htmlComponent('div', {title: () => title});
+      expect(element).toBeInstanceOf(HTMLDivElement);
+      expect(typeof update).toBe('function');
+      expect(element.attributes.length).toBe(1);
+      expect(element.childNodes.length).toBe(0);
+      expect(element.title).toBe('aaa');
+      title = 'bbb';
+      update!();
+      expect(element.title).toBe('bbb');
+    });
+
   });
 
-  test('div with dynamic prop', () => {
-    let title = 0;
-    const render = h('div', {title: () => title});
-    const element = render();
-    expect(element.title).toBe('0');
-    title = 1;
-    render();
-    expect(element.title).toBe('1');
+  describe('children', () => {
+
+    test('div with falsy child', () => {
+      const [element, update] = htmlComponent('div', undefined);
+      expect(element).toBeInstanceOf(HTMLDivElement);
+      expect(update).toBeUndefined();
+      expect(element.attributes.length).toBe(0);
+      expect(element.childNodes.length).toBe(1);
+      expect(element.childNodes[0].nodeValue).toBe('undefined');
+    });
+
+    test('div with three static children', () => {
+      const [element, update] = htmlComponent('div', 'one', 2, 'three');
+      expect(element).toBeInstanceOf(HTMLDivElement);
+      expect(update).toBeUndefined();
+      expect(element.attributes.length).toBe(0);
+      expect(element.childNodes.length).toBe(3);
+      expect(element.childNodes[0].nodeValue).toBe('one');
+      expect(element.childNodes[1].nodeValue).toBe('2');
+      expect(element.childNodes[2].nodeValue).toBe('three');
+    });
+
+    test('div with dynamic child', () => {
+      let child = 123;
+      const [element, update] = htmlComponent('div', () => child);
+      expect(element).toBeInstanceOf(HTMLDivElement);
+      expect(typeof update).toBe('function');
+      expect(element.attributes.length).toBe(0);
+      expect(element.childNodes.length).toBe(1);
+      expect(element.childNodes[0].nodeValue).toBe('123');
+      child = 456;
+      update!();
+      expect(element.childNodes[0].nodeValue).toBe('456');
+    });
+
+    describe('nesting', () => {
+
+      test('static child', () => {
+        const [element, update] = htmlComponent('div', htmlComponent('p', 'Hi!'));
+        expect(element).toBeInstanceOf(HTMLDivElement);
+        expect(update).toBeUndefined();
+        expect(element.attributes.length).toBe(0);
+        expect(element.childNodes.length).toBe(1);
+        expect(element.outerHTML).toBe('<div><p>Hi!</p></div>');
+      });
+
+      test('child with updater', () => {
+        let count = 0;
+        const [element, update] = htmlComponent('div', htmlComponent('p', () => ++ count));
+        expect(element).toBeInstanceOf(HTMLDivElement);
+        expect(typeof update).toBe('function');
+        expect(element.attributes.length).toBe(0);
+        expect(element.childNodes.length).toBe(1);
+        expect(element.outerHTML).toBe('<div><p>1</p></div>');
+        update!();
+        expect(element.outerHTML).toBe('<div><p>2</p></div>');
+        update!();
+        expect(element.outerHTML).toBe('<div><p>3</p></div>');
+      });
+
+      // todo dynamic nested child
+      describe('switch children', () => {
+
+        let child = htmlComponent('p', 'Hi!');
+        const [element, update] = htmlComponent('div', () => child);
+        expect(element).toBeInstanceOf(HTMLDivElement);
+        expect(typeof update).toBe('function');
+        expect(element.attributes.length).toBe(0);
+        expect(element.childNodes.length).toBe(1);
+        const one = htmlComponent('p', 'one');
+        const two = htmlComponent('p', () => 'two');
+        test.each([
+          ['aaa'],
+          [one],
+          [two],
+          [two],
+          ['111'],
+          [htmlComponent('p', 'Hello!')],
+          [one],
+          [one],
+          ['bbb'],
+          ['bbb'],
+          [two],
+        ])('child %p toBe %p', (val: any) => {
+          child = val;
+          update!();
+          if (Array.isArray(val) && val[2] === __componentMarker) {
+            const [elm] = val as unknown as ComponentInstance<Element>;
+            expect(element.childNodes[0]).toBe(elm);
+          }
+          else expect(element.childNodes[0].nodeValue).toBe(val);
+        });
+
+      });
+
+      test('children with updaters', () => {
+        let count = 0;
+        const [element, update] = htmlComponent(
+          'div', htmlComponent('p', () => ++ count), ' ', htmlComponent('p', () => ++ count)
+        );
+        expect(element).toBeInstanceOf(HTMLDivElement);
+        expect(typeof update).toBe('function');
+        expect(element.attributes.length).toBe(0);
+        expect(element.childNodes.length).toBe(3);
+        expect(element.outerHTML).toBe('<div><p>1</p> <p>2</p></div>');
+        update!();
+        expect(element.outerHTML).toBe('<div><p>3</p> <p>4</p></div>');
+        update!();
+        expect(element.outerHTML).toBe('<div><p>5</p> <p>6</p></div>');
+      });
+
+      test.each([
+        ['aaa', 'aaa'],
+        [111, '111'],
+        [htmlComponent('p', 'one'), '<p>one</p>'],
+        [htmlComponent('p', () => 'two'), '<p>two</p>'],
+        [() => htmlComponent('p', 'three'), '<p>three</p>'],
+        [() => htmlComponent('p', () => 'four'), '<p>four</p>'],
+        ['bbb', 'bbb'],
+        ['bbb', 'bbb'],
+      ])('random child %p toBe %p', (provided: any, expected: any) => {
+        const [element, update] = htmlComponent('div', provided);
+        expect(element).toBeInstanceOf(HTMLDivElement);
+        expect(element.attributes.length).toBe(0);
+        expect(element.childNodes.length).toBe(1);
+        expect(element.innerHTML).toBe(expected);
+        update?.();
+        expect(element.innerHTML).toBe(expected);
+      });
+
+    });
+
   });
 
-  test('static div with 3 children', () => {
-    const render = h('div', 'one', 2, 'three');
-    expect(typeof render).toBe('function');
-    const element = render();
+  test('div with dynamic prop and child', () => {
+    let title = 'aaa';
+    let child = 123;
+    const [element, update] = htmlComponent('div', {title: () => title}, () => child);
     expect(element).toBeInstanceOf(HTMLDivElement);
+    expect(typeof update).toBe('function');
+    expect(element.attributes.length).toBe(1);
+    expect(element.childNodes.length).toBe(1);
+    expect(element.title).toBe('aaa');
+    expect(element.childNodes[0].nodeValue).toBe('123');
+    title = 'bbb';
+    child = 456;
+    update!();
+    expect(element.title).toBe('bbb');
+    expect(element.childNodes[0].nodeValue).toBe('456');
+  });
+
+});
+
+describe('svgComponent', () => {
+
+  test('empty svg', () => {
+    const [element, update] = svgComponent('svgComponent');
+    expect(element).toBeInstanceOf(SVGElement);
+    expect(update).toBeUndefined();
     expect(element.attributes.length).toBe(0);
-    expect(element.childNodes.length).toBe(3);
-    expect(element.childNodes[0].nodeValue).toBe('one');
-    expect(element.childNodes[1].nodeValue).toBe('2');
-    expect(element.childNodes[2].nodeValue).toBe('three');
+    expect(element.childNodes.length).toBe(0);
   });
 
-  test('div with dynamic child', () => {
-    let title = 0;
-    const render = h('div', () => title);
-    const element = render();
-    expect(element.childNodes[0].nodeValue).toBe('0');
-    title = 1;
-    render();
-    expect(element.childNodes[0].nodeValue).toBe('1');
+});
+
+describe('dynamic from POC', () => {
+
+  // 01.singleton
+
+  test('stateless button changes global counter onclick', () => {
+    let counter = 0;
+
+    const [element, update] = htmlComponent(
+      'button',
+      {onclick: () => {
+        counter += 1;
+        update!();
+      }},
+      () => `Clicked ${counter} times!`
+    );
+
+    expect(element).toBeInstanceOf(HTMLButtonElement);
+    expect(typeof update).toBe('function');
+    expect(element.innerHTML).toBe('Clicked 0 times!');
+
+    element.click();
+
+    expect(element.innerHTML).toBe('Clicked 1 times!');
+
+    element.click();
+    element.click();
+
+    expect(element.innerHTML).toBe('Clicked 3 times!');
   });
 
-  describe('dynamic from POC', () => {
+  // 02.multiple
 
-    // 01.singleton
+  test('stateful counter button instances are clicked', () => {
+    const CounterButton = (counter = 0) => {
+      let result: any; // ? remove
 
-    test('stateless button changes global counter onclick', () => {
-      let counter = 0;
-
-      const render = h(
+      const [, update] = result = htmlComponent(
         'button',
         {onclick: () => {
           counter += 1;
-          render();
+          update!();
         }},
         () => `Clicked ${counter} times!`
       );
 
-      const buttonElement = render();
+      return result;
+    };
 
-      expect(buttonElement.innerHTML).toBe('Clicked 0 times!');
+    const [buttonElement1] = CounterButton();
+    const [buttonElement2] = CounterButton();
+    const [buttonElement3] = CounterButton(333);
 
-      buttonElement.click();
+    expect(buttonElement1.innerHTML).toBe('Clicked 0 times!');
+    expect(buttonElement2.innerHTML).toBe('Clicked 0 times!');
+    expect(buttonElement3.innerHTML).toBe('Clicked 333 times!');
 
-      expect(buttonElement.innerHTML).toBe('Clicked 1 times!');
+    buttonElement1.click();
 
-      buttonElement.click();
-      buttonElement.click();
+    buttonElement2.click();
+    buttonElement2.click();
 
-      expect(buttonElement.innerHTML).toBe('Clicked 3 times!');
-    });
+    buttonElement3.click();
+    buttonElement3.click();
+    buttonElement3.click();
 
-    // 02.multiple
+    expect(buttonElement1.innerHTML).toBe('Clicked 1 times!');
+    expect(buttonElement2.innerHTML).toBe('Clicked 2 times!');
+    expect(buttonElement3.innerHTML).toBe('Clicked 336 times!');
+  });
 
-    test('stateful counter button instances are clicked', () => {
-      const counterButton = (counter = 0) => {
-        const render = h(
-          'button',
-          {onclick: () => {
-            counter += 1;
-            render();
-          }},
-          () => `Clicked ${counter} times!`
-        );
+  // 03.props
 
-        return render;
-      };
+  test('set color style of text', () => {
+    expect(
+      htmlComponent('p', {style: 'color:red'}, 'This text is red colored.')[0].outerHTML
+    ).toBe(
+      '<p style="color: red;">This text is red colored.</p>'
+    );
+  });
 
-      const buttonElement1 = counterButton()();
-      const buttonElement2 = counterButton()();
-      const buttonElement3 = counterButton(333)();
+  // 04.child
 
-      expect(buttonElement1.innerHTML).toBe('Clicked 0 times!');
-      expect(buttonElement2.innerHTML).toBe('Clicked 0 times!');
-      expect(buttonElement3.innerHTML).toBe('Clicked 333 times!');
+  test('toggle button color', () => {
+    let toggle = false;
 
-      buttonElement1.click();
+    const toggleRender = htmlComponent(
+      'button',
+      {
+        onclick: () => {
+          toggle = ! toggle;
+          toggleRender[1]!();
+        }
+      },
+      () => toggle ? 'On' : 'Off',
+    );
 
-      buttonElement2.click();
-      buttonElement2.click();
+    const [toggleElement] = toggleRender;
 
-      buttonElement3.click();
-      buttonElement3.click();
-      buttonElement3.click();
+    let counter = 0;
 
-      expect(buttonElement1.innerHTML).toBe('Clicked 1 times!');
-      expect(buttonElement2.innerHTML).toBe('Clicked 2 times!');
-      expect(buttonElement3.innerHTML).toBe('Clicked 336 times!');
-    });
-
-    // 03.props
-
-    test('set color style of text', () => {
-      expect(
-        h('p', {style: 'color:red'}, 'This text is red colored.')().outerHTML
-      ).toBe(
-        '<p style="color: red;">This text is red colored.</p>'
-      );
-    });
-
-    // 04.child
-
-    test('toggle button color', () => {
-      let toggle = false;
-
-      const toggleRender = h(
-        'button',
-        {
-          onclick: () => {
-            toggle = ! toggle;
-            toggleRender();
-          }
+    const counterRender = htmlComponent(
+      'button',
+      {
+        onclick: () => {
+          counter += 1;
+          counterRender[1]!();
         },
-        () => toggle ? 'On' : 'Off',
-      );
+        style: () => toggle ? 'color:green' : ''
+      },
+      () => `Clicked ${counter} times!`
+    );
 
-      const toggleElement = toggleRender();
+    const [counterElement] = counterRender;
 
-      let counter = 0;
+    expect(toggleElement.innerHTML).toBe('Off');
+    expect(counterElement.outerHTML).toBe('<button style="">Clicked 0 times!</button>');
 
-      const counterRender = h(
-        'button',
-        {
-          onclick: () => {
-            counter += 1;
-            counterRender();
-          },
-          style: () => toggle ? 'color:green' : ''
-        },
-        () => `Clicked ${counter} times!`
-      );
+    counterElement.click();
+    counterElement.click();
 
-      const counterElement = counterRender();
+    expect(counterElement.outerHTML).toBe('<button style="">Clicked 2 times!</button>');
 
-      expect(toggleElement.innerHTML).toBe('Off');
-      expect(counterElement.outerHTML).toBe('<button style="">Clicked 0 times!</button>');
+    toggleElement.click();
+    counterElement.click();
+    counterElement.click();
+    counterElement.click();
 
-      counterElement.click();
-      counterElement.click();
+    expect(toggleElement.innerHTML).toBe('On');
+    expect(counterElement.outerHTML).toBe('<button style="color: green;">Clicked 5 times!</button>');
 
-      expect(counterElement.outerHTML).toBe('<button style="">Clicked 2 times!</button>');
+    toggleElement.click();
+    counterElement.click();
 
-      toggleElement.click();
-      counterElement.click();
-      counterElement.click();
-      counterElement.click();
+    expect(toggleElement.innerHTML).toBe('Off');
+    expect(counterElement.outerHTML).toBe('<button style="">Clicked 6 times!</button>');
 
-      expect(toggleElement.innerHTML).toBe('On');
-      expect(counterElement.outerHTML).toBe('<button style="color: green;">Clicked 5 times!</button>');
+    toggleElement.click();
 
-      toggleElement.click();
-      counterElement.click();
-
-      expect(toggleElement.innerHTML).toBe('Off');
-      expect(counterElement.outerHTML).toBe('<button style="">Clicked 6 times!</button>');
-
-      toggleElement.click();
-
-      expect(toggleElement.innerHTML).toBe('On');
-    });
-
+    expect(toggleElement.innerHTML).toBe('On');
   });
 
 });
