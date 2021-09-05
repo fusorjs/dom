@@ -1,6 +1,6 @@
 import {TagPropsChildren, Props, Child} from '@perform/common';
 
-import {Updater, __componentMarker, ComponentInstance} from './types';
+import {Component, Updater} from './types';
 import {initProps} from './prop/init';
 import {initChildren} from './child/init';
 
@@ -8,7 +8,7 @@ const createComponent = <T extends Element>(
   namespaceURI?: string
 ) => (
   ...args: TagPropsChildren
-): ComponentInstance<T> => {
+): Component<T> => {
   const [tagName, propsOrChild] = args;
 
   const element = (
@@ -40,11 +40,10 @@ const createComponent = <T extends Element>(
     }
   }
 
-  return [
+  return new Component(
     element,
     updaters && (() => {for (const update of updaters!) update();}),
-    __componentMarker,
-  ] as const;
+  );
 };
 
 export const htmlComponent = createComponent<HTMLElement>();

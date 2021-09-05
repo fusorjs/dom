@@ -1,10 +1,10 @@
-import {__componentMarker, ComponentInstance} from './types';
+import {Component} from './types';
 import {htmlComponent, svgComponent} from './component';
 
 describe('htmlComponent', () => {
 
   test('empty div', () => {
-    const [element, update] = htmlComponent('div');
+    const {element, update} = htmlComponent('div');
     expect(element).toBeInstanceOf(HTMLDivElement);
     expect(update).toBeUndefined();
     expect(element.attributes.length).toBe(0);
@@ -14,7 +14,7 @@ describe('htmlComponent', () => {
   describe('props', () => {
 
     test('div with three static props', () => {
-      const [element, update] = htmlComponent('div', {title: 'hello', hidden: true, custom: [1, 2, 3]});
+      const {element, update} = htmlComponent('div', {title: 'hello', hidden: true, custom: [1, 2, 3]});
       expect(element).toBeInstanceOf(HTMLDivElement);
       expect(update).toBeUndefined();
       expect(element.attributes.length).toBe(2);
@@ -26,7 +26,7 @@ describe('htmlComponent', () => {
 
     test('div with dynamic prop', () => {
       let title = 'aaa';
-      const [element, update] = htmlComponent('div', {title: () => title});
+      const {element, update} = htmlComponent('div', {title: () => title});
       expect(element).toBeInstanceOf(HTMLDivElement);
       expect(typeof update).toBe('function');
       expect(element.attributes.length).toBe(1);
@@ -42,7 +42,7 @@ describe('htmlComponent', () => {
   describe('children', () => {
 
     test('div with falsy child', () => {
-      const [element, update] = htmlComponent('div', undefined);
+      const {element, update} = htmlComponent('div', undefined);
       expect(element).toBeInstanceOf(HTMLDivElement);
       expect(update).toBeUndefined();
       expect(element.attributes.length).toBe(0);
@@ -51,7 +51,7 @@ describe('htmlComponent', () => {
     });
 
     test('div with three static children', () => {
-      const [element, update] = htmlComponent('div', 'one', 2, 'three');
+      const {element, update} = htmlComponent('div', 'one', 2, 'three');
       expect(element).toBeInstanceOf(HTMLDivElement);
       expect(update).toBeUndefined();
       expect(element.attributes.length).toBe(0);
@@ -63,7 +63,7 @@ describe('htmlComponent', () => {
 
     test('div with dynamic child', () => {
       let child = 123;
-      const [element, update] = htmlComponent('div', () => child);
+      const {element, update} = htmlComponent('div', () => child);
       expect(element).toBeInstanceOf(HTMLDivElement);
       expect(typeof update).toBe('function');
       expect(element.attributes.length).toBe(0);
@@ -77,7 +77,7 @@ describe('htmlComponent', () => {
     describe('nesting', () => {
 
       test('static child', () => {
-        const [element, update] = htmlComponent('div', htmlComponent('p', 'Hi!'));
+        const {element, update} = htmlComponent('div', htmlComponent('p', 'Hi!'));
         expect(element).toBeInstanceOf(HTMLDivElement);
         expect(update).toBeUndefined();
         expect(element.attributes.length).toBe(0);
@@ -87,7 +87,7 @@ describe('htmlComponent', () => {
 
       test('child with updater', () => {
         let count = 0;
-        const [element, update] = htmlComponent('div', htmlComponent('p', () => ++ count));
+        const {element, update} = htmlComponent('div', htmlComponent('p', () => ++ count));
         expect(element).toBeInstanceOf(HTMLDivElement);
         expect(typeof update).toBe('function');
         expect(element.attributes.length).toBe(0);
@@ -103,7 +103,7 @@ describe('htmlComponent', () => {
       describe('switch children', () => {
 
         let child = htmlComponent('p', 'Hi!');
-        const [element, update] = htmlComponent('div', () => child);
+        const {element, update} = htmlComponent('div', () => child);
         expect(element).toBeInstanceOf(HTMLDivElement);
         expect(typeof update).toBe('function');
         expect(element.attributes.length).toBe(0);
@@ -125,10 +125,7 @@ describe('htmlComponent', () => {
         ])('child %p toBe %p', (val: any) => {
           child = val;
           update!();
-          if (Array.isArray(val) && val[2] === __componentMarker) {
-            const [elm] = val as unknown as ComponentInstance<Element>;
-            expect(element.childNodes[0]).toBe(elm);
-          }
+          if (val instanceof Component) expect(element.childNodes[0]).toBe(val.element);
           else expect(element.childNodes[0].nodeValue).toBe(val);
         });
 
@@ -136,7 +133,7 @@ describe('htmlComponent', () => {
 
       test('children with updaters', () => {
         let count = 0;
-        const [element, update] = htmlComponent(
+        const {element, update} = htmlComponent(
           'div', htmlComponent('p', () => ++ count), ' ', htmlComponent('p', () => ++ count)
         );
         expect(element).toBeInstanceOf(HTMLDivElement);
@@ -160,7 +157,7 @@ describe('htmlComponent', () => {
         ['bbb', 'bbb'],
         ['bbb', 'bbb'],
       ])('random child %p toBe %p', (provided: any, expected: any) => {
-        const [element, update] = htmlComponent('div', provided);
+        const {element, update} = htmlComponent('div', provided);
         expect(element).toBeInstanceOf(HTMLDivElement);
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(1);
@@ -176,7 +173,7 @@ describe('htmlComponent', () => {
   test('div with dynamic prop and child', () => {
     let title = 'aaa';
     let child = 123;
-    const [element, update] = htmlComponent('div', {title: () => title}, () => child);
+    const {element, update} = htmlComponent('div', {title: () => title}, () => child);
     expect(element).toBeInstanceOf(HTMLDivElement);
     expect(typeof update).toBe('function');
     expect(element.attributes.length).toBe(1);
@@ -195,7 +192,7 @@ describe('htmlComponent', () => {
 describe('svgComponent', () => {
 
   test('empty svg', () => {
-    const [element, update] = svgComponent('svgComponent');
+    const {element, update} = svgComponent('svgComponent');
     expect(element).toBeInstanceOf(SVGElement);
     expect(update).toBeUndefined();
     expect(element.attributes.length).toBe(0);
@@ -211,7 +208,7 @@ describe('dynamic from POC', () => {
   test('stateless button changes global counter onclick', () => {
     let counter = 0;
 
-    const [element, update] = htmlComponent(
+    const {element, update} = htmlComponent(
       'button',
       {onclick: () => {
         counter += 1;
@@ -238,9 +235,9 @@ describe('dynamic from POC', () => {
 
   test('stateful counter button instances are clicked', () => {
     const CounterButton = (counter = 0) => {
-      let result: any; // ? remove
+      let component: Component<HTMLElement>;
 
-      const [, update] = result = htmlComponent(
+      const {update} = component = htmlComponent(
         'button',
         {onclick: () => {
           counter += 1;
@@ -249,36 +246,36 @@ describe('dynamic from POC', () => {
         () => `Clicked ${counter} times!`
       );
 
-      return result;
+      return component;
     };
 
-    const [buttonElement1] = CounterButton();
-    const [buttonElement2] = CounterButton();
-    const [buttonElement3] = CounterButton(333);
+    const {element: element1} = CounterButton();
+    const {element: element2} = CounterButton();
+    const {element: element3} = CounterButton(333);
 
-    expect(buttonElement1.innerHTML).toBe('Clicked 0 times!');
-    expect(buttonElement2.innerHTML).toBe('Clicked 0 times!');
-    expect(buttonElement3.innerHTML).toBe('Clicked 333 times!');
+    expect(element1.innerHTML).toBe('Clicked 0 times!');
+    expect(element2.innerHTML).toBe('Clicked 0 times!');
+    expect(element3.innerHTML).toBe('Clicked 333 times!');
 
-    buttonElement1.click();
+    element1.click();
 
-    buttonElement2.click();
-    buttonElement2.click();
+    element2.click();
+    element2.click();
 
-    buttonElement3.click();
-    buttonElement3.click();
-    buttonElement3.click();
+    element3.click();
+    element3.click();
+    element3.click();
 
-    expect(buttonElement1.innerHTML).toBe('Clicked 1 times!');
-    expect(buttonElement2.innerHTML).toBe('Clicked 2 times!');
-    expect(buttonElement3.innerHTML).toBe('Clicked 336 times!');
+    expect(element1.innerHTML).toBe('Clicked 1 times!');
+    expect(element2.innerHTML).toBe('Clicked 2 times!');
+    expect(element3.innerHTML).toBe('Clicked 336 times!');
   });
 
   // 03.props
 
   test('set color style of text', () => {
     expect(
-      htmlComponent('p', {style: 'color:red'}, 'This text is red colored.')[0].outerHTML
+      htmlComponent('p', {style: 'color:red'}, 'This text is red colored.').element.outerHTML
     ).toBe(
       '<p style="color: red;">This text is red colored.</p>'
     );
@@ -289,34 +286,30 @@ describe('dynamic from POC', () => {
   test('toggle button color', () => {
     let toggle = false;
 
-    const toggleRender = htmlComponent(
+    const {element: toggleElement, update: toggleUpdate} = htmlComponent(
       'button',
       {
         onclick: () => {
           toggle = ! toggle;
-          toggleRender[1]!();
+          toggleUpdate!();
         }
       },
       () => toggle ? 'On' : 'Off',
     );
 
-    const [toggleElement] = toggleRender;
-
     let counter = 0;
 
-    const counterRender = htmlComponent(
+    const {element: counterElement, update: counterUpdate} = htmlComponent(
       'button',
       {
         onclick: () => {
           counter += 1;
-          counterRender[1]!();
+          counterUpdate!();
         },
         style: () => toggle ? 'color:green' : ''
       },
       () => `Clicked ${counter} times!`
     );
-
-    const [counterElement] = counterRender;
 
     expect(toggleElement.innerHTML).toBe('Off');
     expect(counterElement.outerHTML).toBe('<button style="">Clicked 0 times!</button>');

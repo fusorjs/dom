@@ -1,6 +1,6 @@
 import {Child} from '@perform/common';
 
-import {Updater, __componentMarker, ComponentInstance} from '../types';
+import {Component, Updater} from '../types';
 import {getValue} from '../utils';
 
 // pure inline
@@ -11,8 +11,8 @@ const createUpdater = (callback: Function, parentNode: Node) => {
   let child: Child = getValue(callback);
   let node: Node;
 
-  if (Array.isArray(child) && child[2] === __componentMarker) {
-    const [element] = child as unknown as ComponentInstance<Element>;
+  if (child instanceof Component) {
+    const {element} = child;
 
     parentNode.appendChild(element);
     node = element;
@@ -27,19 +27,15 @@ const createUpdater = (callback: Function, parentNode: Node) => {
     const nextChild: Child = getValue(callback);
 
     if (nextChild === child) {
-      if (Array.isArray(child) && child[2] === __componentMarker) {
-        const [, update] = nextChild as unknown as ComponentInstance<Element>;
-
-        update?.();
-      }
+      if (child instanceof Component) child.update?.();
 
       return;
     };
 
     child = nextChild;
 
-    if (Array.isArray(nextChild) && nextChild[2] === __componentMarker) {
-      const [element] = nextChild as unknown as ComponentInstance<Element>;
+    if (nextChild instanceof Component) {
+      const {element} = nextChild;
 
       parentNode.replaceChild(element, node);
       node = element;
@@ -62,8 +58,8 @@ export const initChildren = (parent: Element, children: readonly Child[], index 
     const child = children[index];
 
     // component
-    if (Array.isArray(child) && child[2] === __componentMarker) {
-      const [element, update] = child as unknown as ComponentInstance<Element>;
+    if (child instanceof Component) {
+      const {element, update} = child;
 
       parent.append(element);
 
