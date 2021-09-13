@@ -1,4 +1,4 @@
-import {initProps} from './init';
+import {initProps} from './props';
 
 describe('initProps', () => {
 
@@ -88,11 +88,11 @@ describe('initProps', () => {
     });
     expect(updaters?.length).toBe(5);
     updaters?.forEach(u => expect(typeof u).toBe('function'))
-    expect(element.title).toBe('undefined');
-    expect(element.tabIndex).toBe(0);
+    expect(element.title).toBe('');
+    expect(element.tabIndex).toBe(-1);
     expect(element.hidden).toBe(false);
-    expect(element['alfa' as 'id']).toBe('aaa');
-    expect(element['beta' as 'id']).toBe('bbb');
+    expect(element['alfa' as 'id']).toBeUndefined();
+    expect(element['beta' as 'id']).toBeUndefined();
 
     test.each([
       [{title: 'aaa', tabIndex: 42, hidden: true}],

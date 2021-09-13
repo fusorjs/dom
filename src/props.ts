@@ -1,16 +1,14 @@
-import {Props, stringify} from '@perform/common';
+import {Prop, Props, stringify} from '@perform/common';
 
-import {getValue} from '../utils';
+import {evaluate} from './utils';
 
 const createUpdater = (element: Element, key: string, callback: Function) => {
   // init
-  let prevValue = getValue(callback);
-
-  element[key as 'id'] = prevValue;
+  let prevValue: Prop;
 
   // update
   return () => {
-    const nextValue = getValue(callback);
+    const nextValue = evaluate(callback);
 
     if (prevValue === nextValue) return;
 

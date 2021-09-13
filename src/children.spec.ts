@@ -1,7 +1,8 @@
-import {initChildren} from './init';
+import {initChildren} from './children';
+import {evaluate} from './utils';
 
 describe('initChildren', () => {
-  const allPosibleCases = [
+  const allStaticCases = [
     ['', ''],
     ['1', '1'],
     ['abc', 'abc'],
@@ -13,9 +14,8 @@ describe('initChildren', () => {
     [123, '123'],
     [123, '123'], // same
     [NaN, 'NaN'],
-    [() => 222, '222'],
-    [() => () => 333, '333'],
-    [() => () => () => 444, '444'],
+    [document.createElement('div'), '<div></div>'],
+    [document.createElementNS('http://www.w3.org/2000/svg', 'svg'), '<svg></svg>'],
     [[], '[]'],
     [[1, 2, 3], '[1,2,3]'],
     [{}, '{}'],
@@ -28,15 +28,21 @@ describe('initChildren', () => {
     [null, 'null'],
   ] as [a: any, b: any][];
 
-  test.each([
-    ...allPosibleCases,
-    ...allPosibleCases.map(([p, e]) => [() => p, e]), // all dynamic
-  ])('init single child %p toBe %p', (provided: any, expected: any) => {
+  test.each(
+    allStaticCases
+  )('init single child %p toBe %p', (provided: any, expected: any) => {
     const element = document.createElement('div');
-    initChildren(element, [provided]);
+    const updaters = initChildren(element, [provided]);
     const node = element.childNodes[0];
-    expect(node).toBeInstanceOf(Text);
-    expect(node.nodeValue).toBe(expected);
+    expect(updaters).toBeUndefined();
+    if (provided instanceof Element) {
+      expect(node).toBe(provided);
+      expect(element.innerHTML).toBe(expected);
+    }
+    else {
+      expect(node).toBeInstanceOf(Text);
+      expect(node.nodeValue).toBe(expected);
+    }
   });
 
   test.each([
@@ -64,6 +70,32 @@ describe('initChildren', () => {
 
   describe('dynamic createUpdater', () => {
 
+    const allDynamicCases = [
+      ...allStaticCases.map(([p, e]) => [() => p, e]),
+      ...allStaticCases.map(([p, e]) => [() => () => p, e]),
+      ...allStaticCases.map(([p, e]) => [() => () => () => p, e]),
+    ];
+
+    test.each(
+      allDynamicCases
+    )('init single child %p toBe %p', (provided: any, expected: any) => {
+      const element = document.createElement('div');
+      const updaters = initChildren(element, [provided]);
+      expect(updaters?.length).toBe(1);
+      updaters?.forEach(u => expect(typeof u).toBe('function'));
+      updaters?.forEach(u => u());
+      const val = evaluate(provided);
+      if (val instanceof Element) {
+        expect(element.childNodes[0]).toBe(val);
+        expect(element.innerHTML).toBe(expected);
+      }
+      else {
+        const node = element.childNodes[0];
+        expect(node).toBeInstanceOf(Text);
+        expect(node.nodeValue).toBe(expected);
+      }
+    });
+
     describe('single child', () => {
 
       let dynamicValue: any;
@@ -78,11 +110,14 @@ describe('initChildren', () => {
 
         const theSameNode = element.childNodes[0];
         expect(theSameNode).toBeInstanceOf(Text);
-        expect(theSameNode.nodeValue).toBe('undefined');
+        expect(theSameNode.nodeValue).toBe('');
 
-        test.each(
-          allPosibleCases
-        )('update %p toBe %p', (provided: any, expected: any) => {
+        test.each([
+          ...allStaticCases,
+          ...allDynamicCases,
+        ].filter(
+          ([p]) => ! ((typeof p === 'function' ? evaluate(p) : p) instanceof Element)
+        ))('update %p toBe %p', (provided: any, expected: any) => {
           dynamicValue = provided;
           updaters?.forEach(u => u());
           expect(element.childNodes[0]).toBe(theSameNode);
@@ -91,20 +126,34 @@ describe('initChildren', () => {
 
       });
 
-      test.each([
-        ['aaa'],
-        ['bbb'],
-        ['bbb'],
-        ['111'],
-        ['111'],
-        ['aaa'],
-      ])('switch nodes %p toBe %p', (val: any) => {
-        dynamicValue = val;
-        updaters?.forEach(u => u());
-        const node = element.childNodes[0];
-        expect(node).toBeInstanceOf(Text);
-        expect(node.nodeValue).toBe(val);
-      });
+      {
+        const e = document.createElement('p');
+
+        test.each([
+          ['aaa'],
+          ['bbb'],
+          ['bbb'],
+          [document.createElement('div')],
+          ['111'],
+          [document.createElement('div')],
+          [document.createElement('p')],
+          ['222'],
+          [e],
+          [e],
+          ['zzz'],
+        ])('switch nodes %p toBe %p', (val: any) => {
+          dynamicValue = val;
+          updaters?.forEach(u => u());
+          if (val instanceof Element) {
+            expect(element.childNodes[0]).toBe(val);
+          }
+          else {
+            const node = element.childNodes[0];
+            expect(node).toBeInstanceOf(Text);
+            expect(node.nodeValue).toBe(val);
+          }
+        });
+      }
 
     });
 

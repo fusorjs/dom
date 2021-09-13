@@ -1,4 +1,4 @@
-import {getValue} from './utils';
+import {evaluate} from './utils';
 
 describe('getValue', ()  => {
 
@@ -9,12 +9,12 @@ describe('getValue', ()  => {
     [() => () => () => () => 4, 4],
     [() => () => () => () => () => 5, 5],
   ])('%p toBe %p', (provided: any, expected: any) => {
-    expect(getValue(provided)).toBe(expected);
+    expect(evaluate(provided)).toBe(expected);
   });
 
   test('exception', () => {
     expect(() => {
-      getValue(() => () => () => () => () => () => 6)
+      evaluate(() => () => () => () => () => () => 6)
     }).toThrow(
       new TypeError(`preventing indefinite callback: 6`)
     );

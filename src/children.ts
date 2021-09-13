@@ -1,44 +1,29 @@
 import {Child} from '@perform/common';
 
-import {Component, Updater} from '../types';
-import {getValue} from '../utils';
+import {Updater} from './types';
+import {evaluate} from './utils';
 
 // pure inline
 const getText = (val: any) => typeof val === 'object' ? JSON.stringify(val) : String(val);
 
 const createUpdater = (callback: Function, parentNode: Node) => {
   // init
-  let child: Child = getValue(callback);
-  let node: Node;
+  let child: Child = '';
+  let node: Node = document.createTextNode('');
 
-  if (child instanceof Component) {
-    const {element} = child;
-
-    parentNode.appendChild(element);
-    node = element;
-  }
-  else {
-    node = document.createTextNode(getText(child));
-    parentNode.appendChild(node);
-  }
+  parentNode.appendChild(node);
 
   // update
   return () => {
-    const nextChild: Child = getValue(callback);
+    const nextChild: Child = evaluate(callback);
 
-    if (nextChild === child) {
-      if (child instanceof Component) child.update?.();
-
-      return;
-    };
+    if (nextChild === child) return;
 
     child = nextChild;
 
-    if (nextChild instanceof Component) {
-      const {element} = nextChild;
-
-      parentNode.replaceChild(element, node);
-      node = element;
+    if (nextChild instanceof Element) {
+      parentNode.replaceChild(nextChild, node);
+      node = nextChild;
     }
     else if (node instanceof Text) {
       node.nodeValue = getText(nextChild);
@@ -57,23 +42,15 @@ export const initChildren = (parent: Element, children: readonly Child[], index 
   for (const {length} = children; index < length; index ++) {
     const child = children[index];
 
-    // component
-    if (child instanceof Component) {
-      const {element, update} = child;
-
-      parent.append(element);
-
-      if (update) {
-        updaters ??= [];
-        updaters.push(update);
-      }
-    }
     // dynamic
-    else if (typeof child === 'function') {
+    if (typeof child === 'function') {
       updaters ??= [];
       updaters.push(createUpdater(child, parent));
     }
     // static
+    else if (child instanceof Element) {
+      parent.append(child);
+    }
     else {
       parent.append(getText(child));
       // do not optimize by concatenating serial static values to a single node

@@ -1,6 +1,6 @@
 
 // pure inline
-export const getValue = (callback: Function): any => {
+export const evaluate = (callback: Function): any => {
   let value = callback();
 
   // faster than recursion

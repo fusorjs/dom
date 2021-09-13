@@ -7,7 +7,9 @@
   "author": "Igor Sukharev <imixaly4@gmail.com>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "jest src",
     "test-coverage": "jest src --coverage",
@@ -22,6 +24,6 @@
     "jest": "^27.0.6",
     "shx": "^0.3.3",
     "ts-jest": "^27.0.3",
-    "typescript": "^4.3.5"
+    "typescript": "^4.4.3"
   }
 }
