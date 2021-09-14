@@ -1,5 +1,6 @@
+import {evaluate} from '@perform/common';
+
 import {initChildren} from './children';
-import {evaluate} from './utils';
 
 describe('initChildren', () => {
   const allStaticCases = [

@@ -1,12 +1,11 @@
-import {Child} from '@perform/common';
+import {Child, Evaluable, evaluate} from '@perform/common';
 
 import {Updater} from './types';
-import {evaluate} from './utils';
 
 // pure inline
 const getText = (val: any) => typeof val === 'object' ? JSON.stringify(val) : String(val);
 
-const createUpdater = (callback: Function, parentNode: Node) => {
+const createUpdater = (callback: Evaluable<Child>, parentNode: Node) => {
   // init
   let child: Child = '';
   let node: Node = document.createTextNode('');

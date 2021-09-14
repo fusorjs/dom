@@ -1,8 +1,6 @@
-import {Prop, Props, stringify} from '@perform/common';
+import {Prop, Props, stringify, Evaluable, evaluate} from '@perform/common';
 
-import {evaluate} from './utils';
-
-const createUpdater = (element: Element, key: string, callback: Function) => {
+const createUpdater = (element: Element, key: string, callback: Evaluable<Prop>) => {
   // init
   let prevValue: Prop;
 
