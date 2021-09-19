@@ -1,4 +1,4 @@
-import {PropsChildren, Props, Child} from '@perform/common';
+import {PropsChildren, Props, Child, isDevelopment} from '@perform/common';
 
 import {Updater} from './types';
 import {initProps} from './props';
@@ -30,11 +30,18 @@ export const initElement = <E extends Element> (...args: [element: E, ...rest: P
   }
   else {
     // dynamic
-    return () => {
+    const update = () => {
       propUpdaters?.map(u => u());
       childUpdaters?.map(u => u());
 
       return element;
     };
+
+    if (isDevelopment) {
+      (update as any).propUpdaters = propUpdaters;
+      (update as any).childUpdaters = childUpdaters;
+    }
+
+    return update;
   }
 };
