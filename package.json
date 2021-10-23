@@ -1,5 +1,5 @@
 {
-  "name": "@perform/dom",
+  "name": "@perform/dom-element",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -17,7 +17,7 @@
     "prepublishOnly": "shx rm -rf dist/* && tsc -p tsconfig.dist.json"
   },
   "peerDependencies": {
-    "@perform/common": "link:../common/dist"
+    "@perform/common": "link:../common"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",

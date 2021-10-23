@@ -1,5 +1,13 @@
 
+# @perform/dom-element
 
+The generic components based on DOM Element. And HTML, SVG based on the generic component.
+
+## Rules
+
+- the Element never changes
+- use functions for dynamic props/children
+- you should use props for context (context should be explicit, not hidden)
 
 ## CHANGELOG
 
