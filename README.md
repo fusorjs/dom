@@ -1,13 +1,14 @@
 
 # @perform/dom-element
 
-The generic components based on DOM Element. And HTML, SVG based on the generic component.
+The generic @perform dom html, svg element components.
 
 ## Rules
 
 - the Element never changes
 - use functions for dynamic props/children
 - you should use props for context (context should be explicit, not hidden)
+- if component is dynamic, you should call it (update) to fully initialize its dynamic props/children
 
 ## CHANGELOG
 
@@ -29,3 +30,19 @@ The generic components based on DOM Element. And HTML, SVG based on the generic 
 - declare props in any argument, multiple times (not only in the first) optimization
 - convinience method for working with elements (body <- App)
 - implement style object, data-* object attributes,
+
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./svg": {
+      "default": "./dist/svg.js",
+      "types": "./dist/svg.d.ts"
+    },
+    "./html": {
+      "default": "./dist/html.js",
+      "types": "./dist/html.d.ts"
+    },
+    "./package.json": "./package.json"
+  },

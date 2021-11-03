@@ -38,7 +38,7 @@ export const initProps = (element: Element, attributes: Readonly<Props>) => {
     else {
       const _key =
         key === 'class' ? 'className' :
-        key === 'for'   ? 'htmlFor'   :
+        // key === 'for'   ? 'htmlFor'   : // ! deprecated as it for html only
         key;
 
       if (typeof val === 'function') {

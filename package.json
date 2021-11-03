@@ -1,12 +1,24 @@
 {
   "name": "@perform/dom-element",
   "version": "1.0.0",
-  "description": "",
-  "keywords": [],
+  "description": "The generic @perform dom html, svg element components.",
+  "keywords": ["perform", "dom", "element", "html", "svg", "component"],
   "license": "ISC",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./svg": "./dist/svg.js",
+    "./html": "./dist/html.js",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "svg": ["dist/svg.d.ts"],
+      "html": ["dist/html.d.ts"]
+    }
+  },
   "files": [
     "dist"
   ],

@@ -55,7 +55,7 @@ describe('initProps', () => {
 
     test.each([
       [{class: 'ccc'}, {className: 'ccc'}],
-      [{for: 'fff'}, {htmlFor: 'fff'}],
+      // [{for: 'fff'}, {htmlFor: 'fff'}], // ! deprecated as it for html only
     ])('%p toBe %p', (provided: any, expected: any) => {
       const element = document.createElement('div');
       const updaters = initProps(element, provided);
