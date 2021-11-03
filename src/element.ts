@@ -1,26 +1,30 @@
-import {PropsChildren, Props, Child, isDevelopment} from '@perform/common';
+import {PropsChildren, isDevelopment} from '@perform/common';
 
 import {Updater} from './types';
 import {initProps} from './props';
-import {initChildren} from './children';
+import {initChild} from './child';
 
-export const initElement = <E extends Element> (...args: [element: E, ...rest: PropsChildren]) => {
+export const initElement = <E extends Element> (element: E, ...propsChildren: PropsChildren) => {
   // init
-  const [element, propsOrChild] = args;
-
   let propUpdaters: Updater[] | undefined;
   let childUpdaters: Updater[] | undefined;
 
-  if (args.length > 1) {
-    let startIndex = 1;
+  for (const propsChild of propsChildren) {
+    if (propsChild?.constructor === Object) {
+      const updaters = initProps(element, propsChild);
 
-    if (propsOrChild?.constructor === Object) {
-      startIndex = 2;
-      propUpdaters = initProps(element, propsOrChild as Props);
+      if (updaters) {
+        if (propUpdaters) propUpdaters.push(...updaters);
+        else propUpdaters = updaters;
+      }
     }
-
-    if (args.length > startIndex) {
-      childUpdaters = initChildren(element, args as Child[], startIndex);
+    else {
+      const updater = initChild(element, propsChild);
+      
+      if (updater) {
+        if (childUpdaters) childUpdaters.push(updater);
+        else childUpdaters = [updater];
+      }
     }
   }
 

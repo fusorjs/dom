@@ -8,7 +8,7 @@ export const tagHtmlElement = (tagName: string) => (...propsChildren: PropsChild
 export const {
   a, abbr, acronym, address, applet, area, article, aside,
   audio, b, base, basefont, bdi, bdo, bgsound, big, blink,
-  blockquote, body, br, button, canvas, caption, center, cite,
+  blockquote, body, br, /*button,*/ canvas, caption, center, cite,
   code, col, colgroup, command, content, data, datalist, dd,
   del, details, dfn, dialog, dir, div, dl, dt, element, em,
   embed, fieldset, figcaption, figure, font, footer, form,
@@ -25,3 +25,8 @@ export const {
   tfoot, th, thead, time, title, tr, track, tt, u, ul,
   var: htmlVar, video, wbr, xmp
 } = tagComponents(htmlTagNames, tagHtmlElement);
+
+const defaultButtonProps = {type: 'button'} as const; // single instance
+
+export const button = (...propsChildren: PropsChildren) =>
+  initElement(document.createElement('button'), defaultButtonProps, ...propsChildren);

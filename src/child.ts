@@ -2,7 +2,7 @@ import {Child, Evaluable, evaluate, getChildString} from '@perform/common';
 
 import {Updater} from './types';
 
-const createUpdater = (callback: Evaluable<Child>, parentNode: Node) => {
+const createUpdater = (callback: Evaluable<Child>, parentNode: Node): Updater => {
   // init
   let child: Child = '';
   let node: Node = document.createTextNode('');
@@ -32,27 +32,18 @@ const createUpdater = (callback: Evaluable<Child>, parentNode: Node) => {
   };
 };
 
-export const initChildren = (parent: Element, children: readonly Child[], index = 0) => {
-  let updaters: Updater[] | undefined;
-
-  for (const {length} = children; index < length; index ++) {
-    const child = children[index];
-
-    // dynamic
-    if (typeof child === 'function') {
-      updaters ??= [];
-      updaters.push(createUpdater(child, parent));
-    }
-    // static
-    else if (child instanceof Element) {
-      parent.append(child);
-    }
-    else {
-      parent.append(getChildString(child));
-      // do not optimize by concatenating serial static values to a single node
-      // it should be done by the client code in upper scope
-    }
+export const initChild = (parent: Element, child: Child) => {
+  // dynamic
+  if (typeof child === 'function') {
+    return createUpdater(child, parent);
   }
-
-  return updaters;
+  // static
+  else if (child instanceof Element) {
+    parent.append(child);
+  }
+  else {
+    parent.append(getChildString(child));
+    // do not optimize by concatenating serial static values to a single node
+    // it should be done by the client code in upper scope
+  }
 };

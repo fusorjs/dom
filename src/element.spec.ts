@@ -23,6 +23,30 @@ describe('initElement', () => {
       expect(element['custom' as 'id']).toEqual([1, 2, 3]);
     });
 
+    test('button with two static props objects overrides', () => {
+      const element = document.createElement('button');
+      const result = initElement(element, {type: 'button', hidden: true}, {type: 'submit', class: 'btn'});
+      expect(result).toBe(element);
+      expect(element.attributes.length).toBe(3);
+      expect(element.childNodes.length).toBe(0);
+      expect(element.type).toBe('submit');
+      expect(element.hidden).toBe(true);
+      expect(element.className).toBe('btn');
+    });
+
+    test('button with two dynamic props objects overrides', () => {
+      const element = document.createElement('button');
+      const result = initElement(element, {type: () => 'button'}, {type: () => 'submit'}) as () => typeof element;
+      expect(typeof result).toBe('function');
+      expect(element.attributes.length).toBe(0);
+      expect(element.childNodes.length).toBe(0);
+
+      expect(result()).toBe(element);
+      expect(element.attributes.length).toBe(1);
+      expect(element.childNodes.length).toBe(0);
+      expect(element.type).toBe('submit');
+    });
+
     test('div with dynamic prop', () => {
       let title = 'aaa';
       const element = document.createElement('div');

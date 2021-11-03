@@ -9,6 +9,7 @@ The generic @perform dom html, svg element components.
 - use functions for dynamic props/children
 - you should use props for context (context should be explicit, not hidden)
 - if component is dynamic, you should call it (update) to fully initialize its dynamic props/children
+- props objects can be applied multiple times (for performance, see button in html.ts), please place them before children for readability
 
 ## CHANGELOG
 
