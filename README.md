@@ -11,6 +11,11 @@ The generic @perform dom html, svg element components.
 - if component is dynamic, you should call it (update) to fully initialize its dynamic props/children
 - props objects can be applied multiple times (for performance, see button in html.ts), please place them before children for readability
 
+## Naming Conventions
+
+- element component names are all lowercased, uppercase your components so you could instantiate them like this: `const unitSelector = UnitSelector()`
+- element event handlers are lovercase (e.g.: `onchange(Event)`). To distingush from your event handlers use camelCase (e.g.: `onChange(value)`)
+
 ## CHANGELOG
 
 - reactive state
