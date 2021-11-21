@@ -16,27 +16,25 @@ describe('initProps', () => {
       expect(result).toBe('111222');
     });
 
-    describe ('ref', () => {
-
-      test('object', () => {
-        const ref = {current: null};
-        const element = document.createElement('div');
-        const updaters = initProps(element, {ref});
-        expect(updaters).toBeUndefined();
-        expect(ref.current).toBe(element);
-      });
-
-      test('function', () => {
-        const r = {current: null};
-        const element = document.createElement('div');
-        const updaters = initProps(element, {
-          ref: (e: any) => r.current = e
-        });
-        expect(updaters).toBeUndefined();
-        expect(r.current).toBe(element);
-      });
-
-    });
+    // ! refs are deprecated
+    // describe ('ref', () => {
+    //   test('object', () => {
+    //     const ref = {current: null};
+    //     const element = document.createElement('div');
+    //     const updaters = initProps(element, {ref});
+    //     expect(updaters).toBeUndefined();
+    //     expect(ref.current).toBe(element);
+    //   });
+    //   test('function', () => {
+    //     const r = {current: null};
+    //     const element = document.createElement('div');
+    //     const updaters = initProps(element, {
+    //       ref: (e: any) => r.current = e
+    //     });
+    //     expect(updaters).toBeUndefined();
+    //     expect(r.current).toBe(element);
+    //   });
+    // });
 
     test.each([
       [{title: 'aaa'}],
@@ -67,7 +65,7 @@ describe('initProps', () => {
 
     test.each([
       [{onclick: 'str'}, new TypeError(`illegal property: "onclick" = "str"; expected function`)],
-      [{ref: 'str'}, new TypeError(`illegal property: "ref" = "str"; expected function or object`)],
+      // [{ref: 'str'}, new TypeError(`illegal property: "ref" = "str"; expected function or object`)], // ! deprecated
     ])('%p throws %p', (provided: any, expected: any) => {
       const element = document.createElement('div');
       expect(() => {

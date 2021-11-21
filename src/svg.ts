@@ -1,9 +1,9 @@
-import {PropsChildren, tagComponents, svgTagNames} from '@perform/common';
+import {tagComponents, svgTagNames} from '@perform/common';
 
-import {initElement} from './element';
+import {Creator, initElement} from './element';
 
-export const tagSvgElement = (tagName: string) => (...propsChildren: PropsChildren) =>
-  initElement(document.createElementNS('http://www.w3.org/2000/svg', tagName), ...propsChildren);
+export const tagSvgElement = (tagName: string): Creator => (...propsChildren) =>
+  initElement(document.createElementNS('http://www.w3.org/2000/svg', tagName), ...propsChildren) as any;
 
 export const {
   a, altGlyph, altGlyphDef, altGlyphItem, animate, animateColor,
@@ -25,4 +25,4 @@ export const {
   solidcolor, stop, style, svg, switch: svgSwitch, symbol, tbreak, text,
   textArea, textPath, title, tref, tspan, unknown, use, video,
   view, vkern,
-} = tagComponents(svgTagNames, tagSvgElement);
+} = tagComponents(svgTagNames, tagSvgElement) as unknown as {[k:string]: Creator}; // todo typings

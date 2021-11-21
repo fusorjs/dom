@@ -1,6 +1,6 @@
-import {Child, Evaluable, evaluate, getChildString} from '@perform/common';
+import {Evaluable, evaluate, getString} from '@perform/common';
 
-import {Updater} from './types';
+import {Child, Updater} from './types';
 
 const createUpdater = (callback: Evaluable<Child>, parentNode: Node): Updater => {
   // init
@@ -22,10 +22,10 @@ const createUpdater = (callback: Evaluable<Child>, parentNode: Node): Updater =>
       node = nextChild;
     }
     else if (node instanceof Text) {
-      node.nodeValue = getChildString(nextChild);
+      node.nodeValue = getString(nextChild);
     }
     else {
-      const nextNode = document.createTextNode(getChildString(nextChild));
+      const nextNode = document.createTextNode(getString(nextChild));
       parentNode.replaceChild(nextNode, node);
       node = nextNode;
     }
@@ -35,14 +35,14 @@ const createUpdater = (callback: Evaluable<Child>, parentNode: Node): Updater =>
 export const initChild = (parent: Element, child: Child) => {
   // dynamic
   if (typeof child === 'function') {
-    return createUpdater(child, parent);
+    return createUpdater(child as Evaluable<Child>, parent);
   }
   // static
   else if (child instanceof Element) {
     parent.append(child);
   }
   else {
-    parent.append(getChildString(child));
+    parent.append(getString(child));
     // do not optimize by concatenating serial static values to a single node
     // it should be done by the client code in upper scope
   }

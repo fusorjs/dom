@@ -1,17 +1,32 @@
-import {PropsChildren, isDevelopment} from '@perform/common';
+import {isDevelopment} from '@perform/common';
 
-import {Updater} from './types';
+import {StaticArg, Arg, Updater, Props, Child} from './types';
 import {initProps} from './props';
 import {initChild} from './child';
 
-export const initElement = <E extends Element> (element: E, ...propsChildren: PropsChildren) => {
+interface Initiator {
+  // <E extends Element> (element: E): E;
+  <E extends Element> (element: E, ...args: readonly StaticArg[]): E;
+  <E extends Element> (element: E, ...args: readonly Arg[]): () => E;
+}
+
+export interface Creator {
+  // (): HTMLElement;
+  (...args: readonly StaticArg[]): HTMLElement;
+  (...args: readonly Arg[]): () => HTMLElement;
+  // (...args: readonly any[]): HTMLElement | (() => HTMLElement);
+}
+
+// export const initElement = <E extends Element, T extends readonly StaticArg[] | readonly Arg[]> (element: E, ...args: T): (T extends readonly StaticArg[] ? E : () => E) => {
+export const initElement: Initiator = (element, ...args) => {
   // init
+  // todo just a single array of updaters
   let propUpdaters: Updater[] | undefined;
   let childUpdaters: Updater[] | undefined;
 
-  for (const propsChild of propsChildren) {
-    if (propsChild?.constructor === Object) {
-      const updaters = initProps(element, propsChild);
+  for (const arg of args) {
+    if (arg?.constructor === Object) {
+      const updaters = initProps(element, arg as Props); // todo init one by one in Object.entries
 
       if (updaters) {
         if (propUpdaters) propUpdaters.push(...updaters);
@@ -19,7 +34,7 @@ export const initElement = <E extends Element> (element: E, ...propsChildren: Pr
       }
     }
     else {
-      const updater = initChild(element, propsChild);
+      const updater = initChild(element, arg as Child);
       
       if (updater) {
         if (childUpdaters) childUpdaters.push(updater);
@@ -30,7 +45,7 @@ export const initElement = <E extends Element> (element: E, ...propsChildren: Pr
 
   if (! propUpdaters && ! childUpdaters) {
     // static
-    return element;
+    return element as any;
   }
   else {
     // dynamic
@@ -46,6 +61,6 @@ export const initElement = <E extends Element> (element: E, ...propsChildren: Pr
       (update as any).childUpdaters = childUpdaters;
     }
 
-    return update;
+    return update as any;
   }
 };

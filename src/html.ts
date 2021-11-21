@@ -1,9 +1,9 @@
-import {PropsChildren, tagComponents, htmlTagNames} from '@perform/common';
+import {tagComponents, htmlTagNames} from '@perform/common';
 
-import {initElement} from './element';
+import {Creator, initElement} from './element';
 
-export const tagHtmlElement = (tagName: string) => (...propsChildren: PropsChildren) =>
-  initElement(document.createElement(tagName), ...propsChildren);
+export const tagHtmlElement = (tagName: string): Creator => (...propsChildren) =>
+  initElement(document.createElement(tagName), ...propsChildren) as any;
 
 export const {
   a, abbr, acronym, address, applet, area, article, aside,
@@ -24,9 +24,9 @@ export const {
   summary, sup, svg, table, tbody, td, template, textarea,
   tfoot, th, thead, time, title, tr, track, tt, u, ul,
   var: htmlVar, video, wbr, xmp
-} = tagComponents(htmlTagNames, tagHtmlElement);
+} = tagComponents(htmlTagNames, tagHtmlElement) as unknown as {[k:string]: Creator}; // todo typings
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
-export const button = (...propsChildren: PropsChildren) =>
-  initElement(document.createElement('button'), defaultButtonProps, ...propsChildren);
+export const button: Creator = (...propsChildren) =>
+  initElement(document.createElement('button'), defaultButtonProps, ...propsChildren) as any;

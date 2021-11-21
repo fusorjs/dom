@@ -1,10 +1,33 @@
 import {div, button, p} from './html';
 
 test('empty div', () => {
-  const result = div() as HTMLDivElement;
+  const result = div();// as HTMLDivElement;
   expect(result).toBeInstanceOf(HTMLDivElement);
   expect(result.attributes.length).toBe(0);
   expect(result.childNodes.length).toBe(0);
+});
+
+test('staic div', () => {
+  const result = div({class: '111'}, 'bbb');
+  expect(result).toBeInstanceOf(HTMLDivElement);
+  expect(result.attributes.length).toBe(1);
+  expect(result.childNodes.length).toBe(1);
+});
+
+test('dynamic div', () => {
+  const result = div(() => 'bbb');
+  expect(typeof result).toBe('function');
+  const element = result();
+  expect(element).toBeInstanceOf(HTMLDivElement);
+  expect(element.attributes.length).toBe(0);
+  expect(element.childNodes.length).toBe(1);
+});
+
+test('static button', () => {
+  const result = button({aaa: '111'}, 'bbb');
+  expect(result).toBeInstanceOf(HTMLButtonElement);
+  expect(result.attributes.length).toBe(1);
+  expect(result.childNodes.length).toBe(1);
 });
 
 // 01.singleton
@@ -18,7 +41,7 @@ test('stateless button changes global counter onclick', () => {
       update();
     }},
     () => `Clicked ${counter} times!`
-  ) as () => HTMLButtonElement;
+  );// as () => HTMLButtonElement;
 
   const element = update();
 
@@ -46,7 +69,7 @@ test('stateful counter button instances are clicked', () => {
         update();
       }},
       () => `Clicked ${counter} times!`
-    ) as () => HTMLButtonElement;
+    );// as () => HTMLButtonElement;
 
     return update;
   };
@@ -77,7 +100,7 @@ test('stateful counter button instances are clicked', () => {
 
 test('set color style of text', () => {
   expect(
-    (p({style: 'color:red'}, 'This text is red colored.') as HTMLElement).outerHTML
+    (p({style: 'color:red'}, 'This text is red colored.')/* as HTMLElement*/).outerHTML
   ).toBe(
     '<p style="color: red;">This text is red colored.</p>'
   );
@@ -96,7 +119,7 @@ test('toggle button color', () => {
       }
     },
     () => toggle ? 'On' : 'Off',
-  ) as () => HTMLButtonElement;
+  );// as () => HTMLButtonElement;
 
   let counter = 0;
 
@@ -109,7 +132,7 @@ test('toggle button color', () => {
       style: () => toggle ? 'color:green' : ''
     },
     () => `Clicked ${counter} times!`
-  ) as () => HTMLButtonElement;
+  );// as () => HTMLButtonElement;
 
   const toggleElement = toggleUpdate();
   const counterElement = counterUpdate();

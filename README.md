@@ -32,6 +32,7 @@ The generic @perform dom html, svg element components.
 
 ## BACKLOG
 
+- elements with event handler callbacks (onclick) should be static
 - rename to: dom-element
 - declare props in any argument, multiple times (not only in the first) optimization
 - convinience method for working with elements (body <- App)

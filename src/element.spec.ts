@@ -6,37 +6,46 @@ describe('initElement', () => {
     const element = document.createElement('div');
     const result = initElement(element);
     expect(result).toBe(element);
-    expect(element.attributes.length).toBe(0);
-    expect(element.childNodes.length).toBe(0);
+    expect(result.attributes.length).toBe(0);
+    expect(result.childNodes.length).toBe(0);
   });
 
   describe('props', () => {
 
     test('div with three static props', () => {
       const element = document.createElement('div');
-      const result = initElement(element, {title: 'hello', hidden: true, custom: [1, 2, 3]});
+      const result = initElement(element, {title: 'hello', hidden: true, custom: 123});// [1, 2, 3]});
       expect(result).toBe(element);
-      expect(element.attributes.length).toBe(2);
-      expect(element.childNodes.length).toBe(0);
-      expect(element.title).toBe('hello');
-      expect(element.hidden).toBe(true);
-      expect(element['custom' as 'id']).toEqual([1, 2, 3]);
+      expect(result.attributes.length).toBe(2);
+      expect(result.childNodes.length).toBe(0);
+      expect(result.title).toBe('hello');
+      expect(result.hidden).toBe(true);
+      expect(result['custom' as 'id']).toEqual(123); //[1, 2, 3]); // ? should we support arrays
     });
+
+    // todo types check
+    // test('element with event props should be static', () => {
+    //   const element = document.createElement('button');
+    //   const result = initElement(element, {onclick: () => {}});
+    //   expect(result).toBe(element);
+    //   expect(result.attributes.length).toBe(1);
+    //   expect(result.childNodes.length).toBe(0);
+    // });
 
     test('button with two static props objects overrides', () => {
       const element = document.createElement('button');
       const result = initElement(element, {type: 'button', hidden: true}, {type: 'submit', class: 'btn'});
       expect(result).toBe(element);
-      expect(element.attributes.length).toBe(3);
-      expect(element.childNodes.length).toBe(0);
-      expect(element.type).toBe('submit');
-      expect(element.hidden).toBe(true);
-      expect(element.className).toBe('btn');
+      expect(result.attributes.length).toBe(3);
+      expect(result.childNodes.length).toBe(0);
+      expect(result.type).toBe('submit');
+      expect(result.hidden).toBe(true);
+      expect(result.className).toBe('btn');
     });
 
     test('button with two dynamic props objects overrides', () => {
       const element = document.createElement('button');
-      const result = initElement(element, {type: () => 'button'}, {type: () => 'submit'}) as () => typeof element;
+      const result = initElement(element, {type: () => 'button'}, {type: () => 'submit'});
       expect(typeof result).toBe('function');
       expect(element.attributes.length).toBe(0);
       expect(element.childNodes.length).toBe(0);
@@ -45,12 +54,14 @@ describe('initElement', () => {
       expect(element.attributes.length).toBe(1);
       expect(element.childNodes.length).toBe(0);
       expect(element.type).toBe('submit');
+
+      expect(result().type).toBe('submit'); // check typings
     });
 
     test('div with dynamic prop', () => {
       let title = 'aaa';
       const element = document.createElement('div');
-      const result = initElement(element, {title: () => title}) as () => typeof element;
+      const result = initElement(element, {title: () => title});
       expect(typeof result).toBe('function');
       expect(element.attributes.length).toBe(0);
       expect(element.childNodes.length).toBe(0);
@@ -65,6 +76,8 @@ describe('initElement', () => {
       expect(result()).toBe(element);
       expect(element.attributes.length).toBe(1);
       expect(element.title).toBe('bbb');
+
+      expect(result().title).toBe('bbb'); // check typings
     });
 
   });
@@ -75,26 +88,26 @@ describe('initElement', () => {
       const element = document.createElement('div');
       const result = initElement(element, undefined);
       expect(result).toBe(element);
-      expect(element.attributes.length).toBe(0);
-      expect(element.childNodes.length).toBe(1);
-      expect(element.childNodes[0].nodeValue).toBe('undefined');
+      expect(result.attributes.length).toBe(0);
+      expect(result.childNodes.length).toBe(1);
+      expect(result.childNodes[0].nodeValue).toBe('undefined');
     });
 
     test('div with three static children', () => {
       const element = document.createElement('div');
       const result = initElement(element, 'one', 2, 'three');
       expect(result).toBe(element);
-      expect(element.attributes.length).toBe(0);
-      expect(element.childNodes.length).toBe(3);
-      expect(element.childNodes[0].nodeValue).toBe('one');
-      expect(element.childNodes[1].nodeValue).toBe('2');
-      expect(element.childNodes[2].nodeValue).toBe('three');
+      expect(result.attributes.length).toBe(0);
+      expect(result.childNodes.length).toBe(3);
+      expect(result.childNodes[0].nodeValue).toBe('one');
+      expect(result.childNodes[1].nodeValue).toBe('2');
+      expect(result.childNodes[2].nodeValue).toBe('three');
     });
 
     test('div with dynamic child', () => {
       let child = 123;
       const element = document.createElement('div');
-      const result = initElement(element, () => child) as () => typeof element;
+      const result = initElement(element, () => child);
       expect(typeof result).toBe('function');
       expect(element.attributes.length).toBe(0);
       expect(element.childNodes.length).toBe(1);
@@ -107,6 +120,8 @@ describe('initElement', () => {
 
       expect(result()).toBe(element);
       expect(element.childNodes[0].nodeValue).toBe('456');
+
+      expect(result().childNodes[0].nodeValue).toBe('456'); // check typings
     });
 
     describe('nesting', () => {
@@ -115,15 +130,15 @@ describe('initElement', () => {
         const element = document.createElement('div');
         const result = initElement(element, initElement(document.createElement('p'), 'Hi!'));
         expect(result).toBe(element);
-        expect(element.attributes.length).toBe(0);
-        expect(element.childNodes.length).toBe(1);
-        expect(element.outerHTML).toBe('<div><p>Hi!</p></div>');
+        expect(result.attributes.length).toBe(0);
+        expect(result.childNodes.length).toBe(1);
+        expect(result.outerHTML).toBe('<div><p>Hi!</p></div>');
       });
 
       test('child with updater', () => {
         let count = 0;
         const element = document.createElement('div');
-        const result = initElement(element, initElement(document.createElement('p'), () => ++ count)) as () => typeof element;
+        const result = initElement(element, initElement(document.createElement('p'), () => ++ count));
         expect(typeof result).toBe('function');
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(1);
@@ -137,13 +152,15 @@ describe('initElement', () => {
 
         expect(result()).toBe(element);
         expect(element.outerHTML).toBe('<div><p>3</p></div>');
+
+        expect(result().outerHTML).toBe('<div><p>4</p></div>'); // check typings
       });
 
       describe('switch children', () => {
 
-        let child = initElement(document.createElement('p'), 'Hi!');
+        let child: any = initElement(document.createElement('p'), 'Hi!');
         const element = document.createElement('div');
-        const result = initElement(element, () => child) as () => typeof element;
+        const result = initElement(element, () => child);
         expect(typeof result).toBe('function');
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(1);
@@ -167,13 +184,15 @@ describe('initElement', () => {
           ['bbb'],
           ['bbb'],
           [two],
-        ])('child %p toBe %p', (val: any) => {
+        ])('child %p toBe %p', val => {
           child = val;
           expect(result()).toBe(element);
           if (val instanceof Element) expect(element.childNodes[0]).toBe(val);
           else expect(element.childNodes[0].nodeValue).toBe(val);
         });
 
+        child = 'last'
+        expect(result().childNodes[0].nodeValue).toBe('last'); // check typings
       });
 
       test('children with updaters', () => {
@@ -182,7 +201,7 @@ describe('initElement', () => {
         const result = initElement(element,
           initElement(document.createElement('p'), () => ++ count), ' ',
             initElement(document.createElement('p'), () => ++ count)
-        ) as () => typeof element;
+        );
         expect(typeof result).toBe('function');
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(3);
@@ -196,6 +215,8 @@ describe('initElement', () => {
 
         expect(result()).toBe(element);
         expect(element.outerHTML).toBe('<div><p>5</p> <p>6</p></div>');
+
+        expect(result().outerHTML).toBe('<div><p>7</p> <p>8</p></div>'); // check typings
       });
 
       test.each([
@@ -207,14 +228,14 @@ describe('initElement', () => {
         [() => initElement(document.createElement('p'), () => 'four'), '<p>four</p>'],
         ['bbb', 'bbb'],
         ['bbb', 'bbb'],
-      ])('random child %p toBe %p', (provided: any, expected: any) => {
+      ])('random child %p toBe %p', (provided, expected: any) => {
         const element = document.createElement('div');
         const result = initElement(element, provided);
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(1);
         if (typeof provided === 'function') {
           expect(typeof result).toBe('function');
-          expect((result as () => typeof element)()).toBe(element);
+          expect(result()).toBe(element);
         }
         else {
           expect(result).toBe(element);
@@ -230,7 +251,7 @@ describe('initElement', () => {
     let title = 'aaa';
     let child = 123;
     const element = document.createElement('div');
-    const result = initElement(element, {title: () => title}, () => child) as () => typeof element;
+    const result = initElement(element, {title: () => title}, () => child);
     expect(typeof result).toBe('function');
     expect(element.attributes.length).toBe(0);
     expect(element.childNodes.length).toBe(1);
@@ -251,6 +272,9 @@ describe('initElement', () => {
     expect(element.childNodes.length).toBe(1);
     expect(element.title).toBe('bbb');
     expect(element.childNodes[0].nodeValue).toBe('456');
+
+    expect(result().title).toBe('bbb'); // check typings
+    expect(result().childNodes[0].nodeValue).toBe('456'); // check typings
   });
 
   test('custom component can return different types of values', () => {
