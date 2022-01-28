@@ -80,17 +80,17 @@ describe('initProps', () => {
   describe('dynamic', () => {
 
     const element = document.createElement('div');
-    let title: any, tabIndex: any, hidden: any, alfa: any = () => () => 'aaa', beta: any = 'bbb';
+    let title: any = 'initial', tabIndex: any = 123, hidden: any, alfa: any = () => () => 'aaa', beta: any = 'bbb';
     const updaters = initProps(element, {
       title: () => title, tabIndex: () => tabIndex, hidden: () => hidden, alfa: () => alfa, beta: () => beta
     });
     expect(updaters?.length).toBe(5);
     updaters?.forEach(u => expect(typeof u).toBe('function'))
-    expect(element.title).toBe('');
-    expect(element.tabIndex).toBe(-1);
+    expect(element.title).toBe('initial');
+    expect(element.tabIndex).toBe(123);
     expect(element.hidden).toBe(false);
-    expect(element['alfa' as 'id']).toBeUndefined();
-    expect(element['beta' as 'id']).toBeUndefined();
+    expect(element['alfa' as 'id']).toBe('aaa');
+    expect(element['beta' as 'id']).toBe('bbb');
 
     test.each([
       [{title: 'aaa', tabIndex: 42, hidden: true}],

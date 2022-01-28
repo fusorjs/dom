@@ -76,7 +76,7 @@ describe('initChildren', () => {
 
     describe('single child', () => {
 
-      let dynamicValue: any;
+      let dynamicValue: any = 'initial';
       const dynamicChild = () => dynamicValue;
       const element = document.createElement('div');
       const updater = initChild(element, dynamicChild) as Updater;
@@ -87,7 +87,7 @@ describe('initChildren', () => {
 
         const theSameNode = element.childNodes[0];
         expect(theSameNode).toBeInstanceOf(Text);
-        expect(theSameNode.nodeValue).toBe('');
+        expect(theSameNode.nodeValue).toBe('initial');
 
         test.each([
           ...allStaticCases,

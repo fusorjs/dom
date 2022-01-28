@@ -1,48 +1,57 @@
 import {Evaluable, evaluate, getString} from '@perform/common';
 
-import {Child, Updater} from './types';
+import {Child, Updater, elementSymbol} from './types';
 
+// todo class
 const createUpdater = (callback: Evaluable<Child>, parentNode: Node): Updater => {
   // init
-  let child: Child = '';
-  let node: Node = document.createTextNode('');
 
-  parentNode.appendChild(node);
+  let prevValue = evaluate(callback);
+
+  let prevNode = prevValue instanceof Element
+    ? prevValue
+    : document.createTextNode(getString(prevValue));
+
+  parentNode.appendChild(prevNode);
 
   // update
   return () => {
-    const nextChild: Child = evaluate(callback);
+    const nextValue = evaluate(callback);
 
-    if (nextChild === child) return;
+    if (nextValue === prevValue) return;
 
-    child = nextChild;
+    prevValue = nextValue;
 
-    if (nextChild instanceof Element) {
-      parentNode.replaceChild(nextChild, node);
-      node = nextChild;
+    if (nextValue instanceof Element) {
+      parentNode.replaceChild(nextValue, prevNode);
+      prevNode = nextValue;
     }
-    else if (node instanceof Text) {
-      node.nodeValue = getString(nextChild);
+    else if (prevNode instanceof Text) {
+      prevNode.nodeValue = getString(nextValue);
     }
     else {
-      const nextNode = document.createTextNode(getString(nextChild));
-      parentNode.replaceChild(nextNode, node);
-      node = nextNode;
+      const nextNode = document.createTextNode(getString(nextValue));
+      parentNode.replaceChild(nextNode, prevNode);
+      prevNode = nextNode;
     }
   };
 };
 
-export const initChild = (parent: Element, child: Child) => {
+export const initChild = (parent: Element, value: Child) => {
   // dynamic
-  if (typeof child === 'function') {
-    return createUpdater(child as Evaluable<Child>, parent);
+  if (typeof value === 'function') {
+    if (elementSymbol in value) {
+      parent.append((value as any)[elementSymbol]);
+      return value as Updater;
+    }
+    else return createUpdater(value as Evaluable<Child>, parent);
   }
   // static
-  else if (child instanceof Element) {
-    parent.append(child);
+  else if (value instanceof Element) {
+    parent.append(value);
   }
   else {
-    parent.append(getString(child));
+    parent.append(getString(value));
     // do not optimize by concatenating serial static values to a single node
     // it should be done by the client code in upper scope
   }

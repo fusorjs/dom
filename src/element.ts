@@ -1,6 +1,6 @@
 import {isDevelopment} from '@perform/common';
 
-import {StaticArg, Arg, Updater, Props, Child} from './types';
+import {StaticArg, Arg, Updater, Props, Child, elementSymbol} from './types';
 import {initProps} from './props';
 import {initChild} from './child';
 
@@ -17,6 +17,7 @@ export interface Creator {
   // (...args: readonly any[]): HTMLElement | (() => HTMLElement);
 }
 
+// todo class
 // export const initElement = <E extends Element, T extends readonly StaticArg[] | readonly Arg[]> (element: E, ...args: T): (T extends readonly StaticArg[] ? E : () => E) => {
 export const initElement: Initiator = (element, ...args) => {
   // init
@@ -55,6 +56,8 @@ export const initElement: Initiator = (element, ...args) => {
 
       return element;
     };
+
+    (update as any)[elementSymbol] = element;
 
     if (isDevelopment) {
       (update as any).propUpdaters = propUpdaters;

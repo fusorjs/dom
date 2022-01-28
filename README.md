@@ -29,12 +29,15 @@ The generic @perform dom html, svg element components.
 - Maybe we should separete render to creation and updation phases? No we should not! Because we need to be able to return different elements or even text/number/etc on update.
 - set/get properties instead of (set/get)Attribute for maximum performace (use attributes in development maybe for visibility? - no, just props are enough)
 - 100% test coveragge
+- rename to: dom-element
+- declare props in any argument, multiple times (not only in the first) optimization
+- init dynamic props and children immidiately (now you have to call updater to set the dynamic values). For example in children initializer we create placeholder text node. And only after `update` we will swap it with real value. We should avoid it.
 
 ## BACKLOG
 
-- elements with event handler callbacks (onclick) should be static
-- rename to: dom-element
-- declare props in any argument, multiple times (not only in the first) optimization
+- migrate to classes
+- Create default behaviour for array child. It will make easier to use api for newcomers. It should be best optimized for most common cases.
+- elements with event handler callbacks (onclick) should be static in typescript
 - convinience method for working with elements (body <- App)
 - implement style object, data-* object attributes,
 

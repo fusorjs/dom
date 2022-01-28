@@ -1,10 +1,14 @@
 import {stringify, Evaluable, evaluate} from '@perform/common';
 
-import {Prop, Props} from './types';
+import {Prop, Props, elementSymbol} from './types';
 
+// todo class
 const createUpdater = (element: Element, key: string, callback: Evaluable<Prop>) => {
   // init
-  let prevValue: Prop;
+
+  let prevValue = evaluate(callback);
+
+  element[key as 'id'] = prevValue as string;
 
   // update
   return () => {
@@ -13,6 +17,7 @@ const createUpdater = (element: Element, key: string, callback: Evaluable<Prop>)
     if (prevValue === nextValue) return;
 
     prevValue = nextValue;
+
     element[key as 'id'] = nextValue as string;
   };
 };
@@ -21,7 +26,10 @@ export const initProps = (element: Element, attributes: Readonly<Props>) => {
   let updaters;
 
   for (const [key, val] of Object.entries(attributes)) {
-    if (key.startsWith('on')) { // event listeners are staic - do not have updaters
+    if (typeof val === 'function' && elementSymbol in val) {
+      throw new TypeError(`element cannot be a property value "${key}" = ${stringify(val)}`);
+    }
+    else if (key.startsWith('on')) { // event listeners are staic - do not have updaters
       if (typeof val === 'function') element.addEventListener(key.substring(2), val as any, false);
       else throw new TypeError(`illegal property: "${key}" = ${stringify(val)}; expected function`);
     }
@@ -38,6 +46,18 @@ export const initProps = (element: Element, attributes: Readonly<Props>) => {
     //     case 'object': (val as any).current = element; break;
     //     default: throw new TypeError(
     //       `illegal property: "${key}" = ${stringify(val)}; expected function or object`
+    //     );
+    //   }
+    // }
+
+    // todo tests
+    // else if (key === 'init') {
+    //   if (typeof val === 'function') {
+    //     val(element);
+    //   }
+    //   else {
+    //     throw new TypeError(
+    //       `illegal property: "${key}" = ${stringify(val)}; expected function`
     //     );
     //   }
     // }

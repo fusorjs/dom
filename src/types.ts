@@ -32,3 +32,5 @@ export interface Updater {
 export interface EventT <T extends EventTarget> extends Omit<Event, 'target'> {
   target: T;
 }
+
+export const elementSymbol = Symbol('elemetal');

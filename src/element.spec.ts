@@ -47,14 +47,10 @@ describe('initElement', () => {
       const element = document.createElement('button');
       const result = initElement(element, {type: () => 'button'}, {type: () => 'submit'});
       expect(typeof result).toBe('function');
-      expect(element.attributes.length).toBe(0);
-      expect(element.childNodes.length).toBe(0);
-
-      expect(result()).toBe(element);
       expect(element.attributes.length).toBe(1);
       expect(element.childNodes.length).toBe(0);
       expect(element.type).toBe('submit');
-
+      expect(result()).toBe(element);
       expect(result().type).toBe('submit'); // check typings
     });
 
@@ -63,18 +59,15 @@ describe('initElement', () => {
       const element = document.createElement('div');
       const result = initElement(element, {title: () => title});
       expect(typeof result).toBe('function');
-      expect(element.attributes.length).toBe(0);
-      expect(element.childNodes.length).toBe(0);
-      expect(element.title).toBe('');
-
-      expect(result()).toBe(element);
       expect(element.attributes.length).toBe(1);
+      expect(element.childNodes.length).toBe(0);
       expect(element.title).toBe('aaa');
 
       title = 'bbb';
 
       expect(result()).toBe(element);
       expect(element.attributes.length).toBe(1);
+      expect(element.childNodes.length).toBe(0);
       expect(element.title).toBe('bbb');
 
       expect(result().title).toBe('bbb'); // check typings
@@ -111,9 +104,6 @@ describe('initElement', () => {
       expect(typeof result).toBe('function');
       expect(element.attributes.length).toBe(0);
       expect(element.childNodes.length).toBe(1);
-      expect(element.childNodes[0].nodeValue).toBe('');
-
-      expect(result()).toBe(element);
       expect(element.childNodes[0].nodeValue).toBe('123');
 
       child = 456;
@@ -138,13 +128,10 @@ describe('initElement', () => {
       test('child with updater', () => {
         let count = 0;
         const element = document.createElement('div');
-        const result = initElement(element, initElement(document.createElement('p'), () => ++ count));
+        const result = initElement(element, initElement(document.createElement('p'), () => ++count));
         expect(typeof result).toBe('function');
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(1);
-        expect(element.outerHTML).toBe('<div></div>');
-
-        expect(result()).toBe(element);
         expect(element.outerHTML).toBe('<div><p>1</p></div>');
 
         expect(result()).toBe(element);
@@ -153,7 +140,10 @@ describe('initElement', () => {
         expect(result()).toBe(element);
         expect(element.outerHTML).toBe('<div><p>3</p></div>');
 
-        expect(result().outerHTML).toBe('<div><p>4</p></div>'); // check typings
+        expect(result()).toBe(element);
+        expect(element.outerHTML).toBe('<div><p>4</p></div>');
+
+        expect(result().outerHTML).toBe('<div><p>5</p></div>'); // check typings
       });
 
       describe('switch children', () => {
@@ -164,9 +154,6 @@ describe('initElement', () => {
         expect(typeof result).toBe('function');
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(1);
-        expect(element.innerHTML).toBe('');
-
-        expect(result()).toBe(element);
         expect(element.childNodes[0]).toBe(child);
 
         const one = initElement(document.createElement('h1'), 'one');
@@ -205,9 +192,7 @@ describe('initElement', () => {
         expect(typeof result).toBe('function');
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(3);
-        expect(element.outerHTML).toBe('<div> </div>');
 
-        expect(result()).toBe(element);
         expect(element.outerHTML).toBe('<div><p>1</p> <p>2</p></div>');
 
         expect(result()).toBe(element);
@@ -253,12 +238,7 @@ describe('initElement', () => {
     const element = document.createElement('div');
     const result = initElement(element, {title: () => title}, () => child);
     expect(typeof result).toBe('function');
-    expect(element.attributes.length).toBe(0);
-    expect(element.childNodes.length).toBe(1);
-    expect(element.title).toBe('');
-    expect(element.childNodes[0].nodeValue).toBe('');
 
-    expect(result()).toBe(element);
     expect(element.attributes.length).toBe(1);
     expect(element.childNodes.length).toBe(1);
     expect(element.title).toBe('aaa');
