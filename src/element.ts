@@ -1,7 +1,7 @@
 import {isDevelopment} from '@perform/common';
 
-import {StaticArg, Arg, Updater, Props, Child, elementSymbol} from './types';
-import {initProps} from './props';
+import {StaticArg, Arg, Updater, Prop, Child, elementSymbol} from './types';
+import {initProp} from './prop';
 import {initChild} from './child';
 
 interface Initiator {
@@ -26,14 +26,18 @@ export const initElement: Initiator = (element, ...args) => {
   let childUpdaters: Updater[] | undefined;
 
   for (const arg of args) {
+    // init props
     if (arg?.constructor === Object) {
-      const updaters = initProps(element, arg as Props); // todo init one by one in Object.entries
+      for (const [key, val] of Object.entries(arg)) {
+        const updater = initProp(element, key, val as Prop);
 
-      if (updaters) {
-        if (propUpdaters) propUpdaters.push(...updaters);
-        else propUpdaters = updaters;
+        if (updater) {
+          if (propUpdaters) propUpdaters.push(updater);
+          else propUpdaters = [updater];
+        }
       }
     }
+    // init child
     else {
       const updater = initChild(element, arg as Child);
       
@@ -67,3 +71,10 @@ export const initElement: Initiator = (element, ...args) => {
     return update as any;
   }
 };
+
+// class DomElement {
+//   private constructor () {}
+//   update () {
+
+//   }
+// }

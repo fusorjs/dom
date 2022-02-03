@@ -1,16 +1,14 @@
-import {initProps} from './props';
+import {initProp} from './prop';
 
-describe('initProps', () => {
+describe('initProp', () => {
 
   describe('static', () => {
 
-    test('event listeners', () => {
+    test('event listener', () => {
       let result = '';
       const element = document.createElement('div');
-      const updaters = initProps(element, {
-        onclick: () => result += '111'
-      });
-      expect(updaters).toBeUndefined();
+      const updater = initProp(element, 'onclick', () => result += '111');
+      expect(updater).toBeUndefined();
       element.addEventListener('click', () => result += '222')
       element.click();
       expect(result).toBe('111222');
@@ -37,41 +35,40 @@ describe('initProps', () => {
     // });
 
     test.each([
-      [{title: 'aaa'}],
-      [{tabIndex: 55}],
-      [{hidden: true}],
-      [{className: 'bbb'}],
-      [{aaa: 111, bbb: 222, ccc: 'CCC', ddd: true}],
-    ])('%p toBe same', (provided: any) => {
+      ['title', 'aaa'],
+      ['tabIndex', 55],
+      ['hidden', true],
+      ['className', 'bbb'],
+      ['aaa', 111],
+      ['bbb', 222],
+      ['ccc', 'CCC'],
+      ['ddd', true],
+    ])('key %p to be set to value %p', (key, val) => {
       const element = document.createElement('div');
-      const updaters = initProps(element, provided);
-      expect(updaters).toBeUndefined();
-      Object.entries(provided).forEach(([k, v]) => {
-        expect(element[k as keyof HTMLDivElement]).toBe(v);
-      });
+      const updater = initProp(element, key, val);
+      expect(updater).toBeUndefined();
+      expect(element[key as keyof HTMLDivElement]).toBe(val);
     });
 
     test.each([
-      [{class: 'ccc'}, {className: 'ccc'}],
-      // [{for: 'fff'}, {htmlFor: 'fff'}], // ! deprecated as it for html only
-    ])('%p toBe %p', (provided: any, expected: any) => {
+      ['class', 'className', 'ccc'],
+      // ['for', 'htmlFor', 'fff'], // ! deprecated as it for html only
+    ])('key %p to become key %p and set with value %p', (providedKey, expectedKey, value) => {
       const element = document.createElement('div');
-      const updaters = initProps(element, provided);
-      expect(updaters).toBeUndefined();
-      Object.entries(expected).forEach(([k, v]) => {
-        expect(element[k as keyof HTMLDivElement]).toBe(v);
-      });
+      const updater = initProp(element, providedKey, value);
+      expect(updater).toBeUndefined();
+      expect(element[expectedKey as keyof HTMLDivElement]).toBe(value);
     });
 
     test.each([
-      [{onclick: 'str'}, new TypeError(`illegal property: "onclick" = "str"; expected function`)],
-      // [{ref: 'str'}, new TypeError(`illegal property: "ref" = "str"; expected function or object`)], // ! deprecated
-    ])('%p throws %p', (provided: any, expected: any) => {
+      ['onclick', 'str', new TypeError(`illegal property: "onclick" = "str"; expected function`)],
+      // ['ref', 'str', new TypeError(`illegal property: "ref" = "str"; expected function or object`)], // ! deprecated
+    ])('setting key %p with value %p throws error %p', (key, value, error) => {
       const element = document.createElement('div');
       expect(() => {
-        initProps(element, provided);
+        initProp(element, key, value);
       }).toThrow(
-        expected
+        error
       );
     });
 
@@ -81,9 +78,13 @@ describe('initProps', () => {
 
     const element = document.createElement('div');
     let title: any = 'initial', tabIndex: any = 123, hidden: any, alfa: any = () => () => 'aaa', beta: any = 'bbb';
-    const updaters = initProps(element, {
-      title: () => title, tabIndex: () => tabIndex, hidden: () => hidden, alfa: () => alfa, beta: () => beta
-    });
+    const updaters = [
+      initProp(element, 'title', () => title),
+      initProp(element, 'tabIndex', () => tabIndex),
+      initProp(element, 'hidden', () => hidden),
+      initProp(element, 'alfa', () => alfa),
+      initProp(element, 'beta', () => beta),
+    ];
     expect(updaters?.length).toBe(5);
     updaters?.forEach(u => expect(typeof u).toBe('function'))
     expect(element.title).toBe('initial');
@@ -99,7 +100,7 @@ describe('initProps', () => {
       [{alfa: {a: 1}, beta: null}],
     ])('%p toBe same', (provided: any) => {
       ({title,  tabIndex, hidden, alfa, beta} = provided);
-      updaters?.forEach(u => u());
+      updaters?.forEach(u => u!());
       Object.entries(provided).forEach(([k, v]) => {
         expect(element[k as keyof HTMLDivElement]).toBe(v);
       });
@@ -109,7 +110,7 @@ describe('initProps', () => {
       [{title: () => () => () => 'wow'}, 'wow'],
     ])('%p toBe %p', (provided: any, expected: any) => {
       ({title,  tabIndex, hidden, alfa, beta} = provided);
-      updaters?.forEach(u => u());
+      updaters?.forEach(u => u!());
       Object.entries(provided).forEach(([k, v]) => {
         expect(element[k as keyof HTMLDivElement]).toBe(expected);
       });
