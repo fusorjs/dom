@@ -2,9 +2,15 @@ import {tagComponents, svgTagNames} from '@perform/common';
 
 import {Creator, initElement} from './element';
 
-export const tagSvgElement = (tagName: string): Creator => (...propsChildren) =>
-  initElement(document.createElementNS('http://www.w3.org/2000/svg', tagName), ...propsChildren) as any;
+export const tagSvgElement =
+  (tagName: string): Creator<SVGElement> =>
+  (...propsChildren) =>
+    initElement(
+      document.createElementNS('http://www.w3.org/2000/svg', tagName),
+      ...propsChildren,
+    ) as any;
 
+// prettier-ignore
 export const {
   a, altGlyph, altGlyphDef, altGlyphItem, animate, animateColor,
   animateMotion, animateTransform, animation, audio, canvas,
@@ -25,4 +31,4 @@ export const {
   solidcolor, stop, style, svg, switch: svgSwitch, symbol, tbreak, text,
   textArea, textPath, title, tref, tspan, unknown, use, video,
   view, vkern,
-} = tagComponents(svgTagNames, tagSvgElement) as unknown as {[k:string]: Creator}; // todo typings
+} = tagComponents(svgTagNames, tagSvgElement) as unknown as {[k:string]: Creator<SVGElement>}; // todo typings

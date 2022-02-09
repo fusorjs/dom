@@ -1,4 +1,3 @@
-
 # @perform/dom-element
 
 The generic @perform dom html, svg element components.
@@ -39,8 +38,9 @@ The generic @perform dom html, svg element components.
 - Create default behaviour for array child. It will make easier to use api for newcomers. It should be best optimized for most common cases.
 - elements with event handler callbacks (onclick) should be static in typescript
 - convinience method for working with elements (body <- App)
-- implement style object, data-* object attributes,
+- implement style object, data-\* object attributes,
 
+```json
   "exports": {
     ".": {
       "default": "./dist/index.js",
@@ -56,3 +56,4 @@ The generic @perform dom html, svg element components.
     },
     "./package.json": "./package.json"
   },
+```

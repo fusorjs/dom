@@ -1,9 +1,13 @@
 import {stringify, Evaluable, evaluate} from '@perform/common';
 
-import {Prop, elementSymbol, Updater} from './types';
+import {Prop, Updater} from './types';
 
 // todo class
-const createUpdater = (element: Element, key: string, callback: Evaluable<Prop>): Updater => {
+const createUpdater = (
+  element: Element,
+  key: string,
+  callback: Evaluable<Prop>,
+): Updater => {
   // init
 
   let prevValue = evaluate(callback);
@@ -23,16 +27,20 @@ const createUpdater = (element: Element, key: string, callback: Evaluable<Prop>)
 };
 
 export const initProp = (element: Element, key: string, value: Prop) => {
-  if (typeof value === 'function' && elementSymbol in value) {
-    throw new TypeError(`element cannot be a property value "${key}" = ${stringify(value)}`);
-  }
-  else if (key.startsWith('on')) { // event listeners are staic - do not have updaters
-    if (typeof value === 'function') element.addEventListener(key.substring(2), value as any, false);
-    else throw new TypeError(`illegal property: "${key}" = ${stringify(value)}; expected function`);
+  if (key.startsWith('on')) {
+    // event listeners are staic - do not have updaters
+
+    if (typeof value !== 'function')
+      throw new TypeError(
+        `illegal property: "${key}" = ${stringify(value)}; expected function`,
+      );
+
+    element.addEventListener(key.substring(2), value as EventListener, false);
   }
   // todo data-
   // todo style...
   // todo area-
+  // todo classList - init
 
   // ! ref deprecated
   // ! as you should get the reference by simply calling the function
@@ -58,16 +66,21 @@ export const initProp = (element: Element, key: string, value: Prop) => {
   //     );
   //   }
   // }
-
   else {
-    const _key =
-      key === 'class' ? 'className' :
-      // key === 'for'   ? 'htmlFor'   : // ! deprecated as it for html only, not svg
-      key;
+    // todo check types
+    // if (typeof value === 'function' && elementSymbol in value) {
+    //   throw new TypeError(`element cannot be a property value "${key}" = ${stringify(value)}`);
+    // }
 
-    if (typeof value === 'function') {
+    const _key =
+      key === 'class'
+        ? 'className'
+        : // key === 'for'   ? 'htmlFor'   : // ! deprecated as it for html only, not svg
+          key;
+
+    if (typeof value === 'function')
       return createUpdater(element, _key, value as Evaluable<Prop>);
-    }
-    else element[_key as 'id'] = value as string;
+
+    element[_key as 'id'] = value as string;
   }
 };

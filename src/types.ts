@@ -1,14 +1,11 @@
-import {Primitive} from '@perform/common';
-
-// export namespace Static {
-// }
+type Primitive = string | number | boolean | symbol | null | undefined;
 
 export type StaticProp = Primitive;
 
 export type StaticChild = Primitive | Element;
 
 export interface StaticProps {
-  // [key: `on${string}`]: Function; // todo event handlers are should be static
+  // [key: `on${string}`]: Function; // todo event handlers should be static
   [key: string]: StaticProp;
 }
 
@@ -16,21 +13,48 @@ export type StaticArg = StaticProps | StaticChild;
 
 export type Prop = StaticProp | Function;
 
-export type Child = StaticChild | Function;
+export type Child<E extends Element> = StaticChild | Function | Component<E>;
 
 export interface Props {
   [key: string]: Prop;
 }
 
-export type Arg = Props | Child;
+export type Arg<E extends Element> = Props | Child<E>;
 
-/** Prop/Child updater */
 export interface Updater {
   (): void;
 }
 
-export interface EventT <T extends EventTarget> extends Omit<Event, 'target'> {
-  target: T;
-}
+export type ChildUpdater<E extends Element> = Updater | Component<E>;
 
-export const elementSymbol = Symbol('elemetal');
+// elementary-js/dom-component
+// dom-element-component
+// DomElementUpdater
+export class Component<E extends Element> {
+  constructor(
+    private element: E,
+    private propUpdaters?: readonly Updater[],
+    private childUpdaters?: readonly ChildUpdater<E>[],
+  ) {}
+
+  getElement() {
+    return this.element;
+  }
+
+  update() {
+    const {propUpdaters, childUpdaters} = this;
+
+    if (propUpdaters) {
+      for (const u of propUpdaters) {
+        u();
+      }
+    }
+
+    if (childUpdaters) {
+      for (const u of childUpdaters) {
+        if (u instanceof Component) u.update();
+        else u();
+      }
+    }
+  }
+}
