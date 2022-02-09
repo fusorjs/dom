@@ -13,13 +13,13 @@ export type StaticArg = StaticProps | StaticChild;
 
 export type Prop = StaticProp | Function;
 
-export type Child<E extends Element> = StaticChild | Function | Component<E>;
+export type Child = StaticChild | Function | Component<Element>;
 
 export interface Props {
   [key: string]: Prop;
 }
 
-export type Arg<E extends Element> = Props | Child<E>;
+export type Arg = Props | Child;
 
 export interface Updater {
   (): void;
@@ -30,6 +30,7 @@ export type ChildUpdater<E extends Element> = Updater | Component<E>;
 // elementary-js/dom-component
 // dom-element-component
 // DomElementUpdater
+// DynamicElement
 export class Component<E extends Element> {
   constructor(
     private element: E,

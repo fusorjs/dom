@@ -11,13 +11,13 @@ import {initProp} from './prop';
 import {initChild} from './child';
 
 interface Initiator {
-  <E extends Element>(elm: E, ...args: readonly StaticArg[]): E;
-  <E extends Element>(elm: E, ...args: readonly Arg<E>[]): Component<E>;
+  <E extends Element>(elem: E, ...args: readonly StaticArg[]): E;
+  <E extends Element>(elem: E, ...args: readonly Arg[]): Component<E>;
 }
 
 export interface Creator<E extends Element> {
   (...args: readonly StaticArg[]): E;
-  (...args: readonly Arg<E>[]): Component<E>;
+  (...args: readonly Arg[]): Component<E>;
 }
 
 export const initElement: Initiator = (element, ...args) => {
@@ -40,7 +40,7 @@ export const initElement: Initiator = (element, ...args) => {
     }
     // init child
     else {
-      const updater = initChild(element, arg as Child<Element>);
+      const updater = initChild(element, arg as Child);
 
       if (updater) {
         if (childUpdaters) childUpdaters.push(updater);

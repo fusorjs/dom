@@ -1,6 +1,7 @@
-import {tagComponents, svgTagNames} from '@perform/common';
+import {svgTagNames} from '@perform/common';
 
 import {Creator, initElement} from './element';
+import {tagComponents} from './utils';
 
 export const tagSvgElement =
   (tagName: string): Creator<SVGElement> =>
@@ -31,4 +32,4 @@ export const {
   solidcolor, stop, style, svg, switch: svgSwitch, symbol, tbreak, text,
   textArea, textPath, title, tref, tspan, unknown, use, video,
   view, vkern,
-} = tagComponents(svgTagNames, tagSvgElement) as unknown as {[k:string]: Creator<SVGElement>}; // todo typings
+} = tagComponents(svgTagNames, tagSvgElement);

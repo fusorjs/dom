@@ -1,17 +1,18 @@
-import {tagComponents, htmlTagNames} from '@perform/common';
+import {htmlTagNames} from '@perform/common';
 
 import {Creator, initElement} from './element';
+import {tagComponents} from './utils';
 
 export const tagHtmlElement =
   (tagName: string): Creator<HTMLElement> =>
-  (...propsChildren) =>
-    initElement(document.createElement(tagName), ...propsChildren) as any;
+  (...args) =>
+    initElement(document.createElement(tagName), ...args) as any;
 
 // prettier-ignore
 export const {
   a, abbr, acronym, address, applet, area, article, aside,
   audio, b, base, basefont, bdi, bdo, bgsound, big, blink,
-  blockquote, body, br, /*button,*/ canvas, caption, center, cite,
+  blockquote, body, br, /* button, */ canvas, caption, center, cite,
   code, col, colgroup, command, content, data, datalist, dd,
   del, details, dfn, dialog, dir, div, dl, dt, element, em,
   embed, fieldset, figcaption, figure, font, footer, form,
@@ -27,13 +28,13 @@ export const {
   summary, sup, svg, table, tbody, td, template, textarea,
   tfoot, th, thead, time, title, tr, track, tt, u, ul,
   var: htmlVar, video, wbr, xmp
-} = tagComponents(htmlTagNames, tagHtmlElement) as unknown as {[k:string]: Creator<HTMLElement>}; // todo typings
+} = tagComponents(htmlTagNames, tagHtmlElement);
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
-export const button: Creator<HTMLButtonElement> = (...propsChildren) =>
+export const button: Creator<HTMLButtonElement> = (...args) =>
   initElement(
     document.createElement('button'),
     defaultButtonProps,
-    ...propsChildren,
+    ...args,
   ) as any;

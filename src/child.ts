@@ -3,7 +3,7 @@ import {Evaluable, evaluate, getString} from '@perform/common';
 import {Child, Updater, Component} from './types';
 
 const createUpdater = (
-  callback: Evaluable<Child<Element>>,
+  callback: Evaluable<Child>,
   parentNode: Node,
 ): Updater => {
   // init
@@ -58,7 +58,7 @@ const createUpdater = (
   };
 };
 
-export const initChild = (parent: Element, value: Child<Element>) => {
+export const initChild = (parent: Element, value: Child) => {
   // todo optimize branch order:
 
   // dynamic component
@@ -69,7 +69,7 @@ export const initChild = (parent: Element, value: Child<Element>) => {
   }
   // dynamic updater
   else if (typeof value === 'function') {
-    return createUpdater(value as Evaluable<Child<Element>>, parent);
+    return createUpdater(value as Evaluable<Child>, parent);
   }
   // static element
   else if (value instanceof Element) {
