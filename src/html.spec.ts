@@ -1,5 +1,5 @@
 import {Component} from './types';
-import {div, button, p} from './html';
+import {div, button, p, form, select, option, textarea, a, img} from './html';
 
 test('empty div', () => {
   const result = div();
@@ -35,6 +35,17 @@ test('static button', () => {
   expect(result).toBeInstanceOf(HTMLButtonElement);
   expect(result.attributes.length).toBe(1);
   expect(result.childNodes.length).toBe(1);
+});
+
+test('correct typescript typings', () => {
+  expect(button().type).toBe('button'); // default override
+  expect(form().enctype).toBe('application/x-www-form-urlencoded');
+  expect(form().method).toBe('get');
+  expect(select().multiple).toBe(false);
+  expect(option().selected).toBe(false);
+  expect(textarea().rows).toBe(2);
+  expect(a().href).toBe('');
+  expect(img().src).toBe('');
 });
 
 // 01.singleton

@@ -20,6 +20,7 @@ export interface Creator<E extends Element> {
   (...args: readonly Arg[]): Component<E>;
 }
 
+// todo ...args -> args maybe performace?
 export const initElement: Initiator = (element, ...args) => {
   // init
 

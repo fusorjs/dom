@@ -1,12 +1,8 @@
-import {Creator} from './element';
-
-export const tagComponents = <Key extends string, E extends Element>(
-  tagNames: readonly Key[],
-  tagComponent: (tagName: string) => Creator<E>,
+export const createTaggedMap = <M, K extends keyof M>(
+  tagNames: readonly K[],
+  tagComponent: (tagName: K) => M[K],
 ) => {
-  type Tags = Record<Key, Creator<E>>;
-
-  const tags: Tags = {} as Tags;
+  const tags: M = {} as M;
 
   for (const name of tagNames) {
     tags[name] = tagComponent(name);

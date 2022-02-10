@@ -1,4 +1,4 @@
-import {Component} from '.';
+import {Component} from './types';
 import {path, svg} from './svg';
 
 test('empty svg', () => {
@@ -24,7 +24,13 @@ test('dynamic div', () => {
 
   const element = result.getElement();
 
-  expect(element).toBeInstanceOf(SVGElement);
+  expect(element).toBeInstanceOf(SVGSVGElement);
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(1);
 });
+
+// test('correct typescript typings', () => {
+//   expect(svg().x).toBe('');
+//   expect(path().ariaPlaceholder).toBe('');
+//   expect(text().fontSize).toBe('');
+// });
