@@ -1,6 +1,5 @@
-import {stringify, Evaluable, evaluate} from '@perform/common';
-
 import {Prop, Updater} from './types';
+import {stringify, Evaluable, evaluate} from './utils';
 
 // todo class
 const createUpdater = (

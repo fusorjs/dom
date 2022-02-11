@@ -31,13 +31,14 @@ The generic @perform dom html, svg element components.
 - rename to: dom-element
 - declare props in any argument, multiple times (not only in the first) optimization
 - init dynamic props and children immidiately (now you have to call updater to set the dynamic values). For example in children initializer we create placeholder text node. And only after `update` we will swap it with real value. We should avoid it.
+- Create default behaviour for array child. It will make easier to use api for newcomers. It should be best optimized for most common cases. After some thoughts, the default behaviour should be to construct new element out of array on each update. Whe should not manipulate/mutate element's children!
+- remove external dependencies (common)
 
 ## BACKLOG
 
 - migrate to classes
-- remove external dependencies (common)
 
-- Create default behaviour for array child. It will make easier to use api for newcomers. It should be best optimized for most common cases.
+- implement attribute setters for svg
 - elements with event handler callbacks (onclick) should be static in typescript
 - convinience method for working with elements (body <- App)
 - implement style object, data-\* object attributes,

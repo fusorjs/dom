@@ -39,9 +39,6 @@
     "start": "shx rm -rf dist/* && tsc -p tsconfig.dist.json --watch",
     "prepublishOnly": "shx rm -rf dist/* && tsc -p tsconfig.dist.json"
   },
-  "peerDependencies": {
-    "@perform/common": "link:../common"
-  },
   "devDependencies": {
     "@types/jest": "^27.4.0",
     "jest": "^27.5.1",

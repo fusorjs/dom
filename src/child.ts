@@ -1,6 +1,5 @@
-import {Evaluable, evaluate, getString} from '@perform/common';
-
 import {Child, Updater, Component} from './types';
+import {Evaluable, evaluate, getString} from './utils';
 
 const createUpdater = (
   callback: Evaluable<Child>,
