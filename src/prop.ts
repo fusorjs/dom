@@ -77,9 +77,26 @@ export const initProp = (element: Element, key: string, value: Prop) => {
         : // key === 'for'   ? 'htmlFor'   : // ! deprecated as it for html only, not svg
           key;
 
+    // https://www.drupal.org/node/1420706#comment-6423420
+    // tabindex: "tabIndex",
+    // readonly: "readOnly",
+    // "for": "htmlFor",
+    // "class": "className",
+    // maxlength: "maxLength",
+    // cellspacing: "cellSpacing",
+    // cellpadding: "cellPadding",
+    // rowspan: "rowSpan",
+    // colspan: "colSpan",
+    // usemap: "useMap",
+    // frameborder: "frameBorder",
+    // contenteditable: "contentEditable"
+
     if (typeof value === 'function')
       return createUpdater(element, _key, value as Evaluable<Prop>);
 
     element[_key as 'id'] = value as string;
   }
 };
+
+// https://stackoverflow.com/questions/3919291/when-to-use-setattribute-vs-attribute-in-javascript
+// https://quirksmode.org/dom/core/#attributes

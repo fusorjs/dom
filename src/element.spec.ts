@@ -195,6 +195,7 @@ describe('initElement', () => {
           [two],
           ['111'],
           [initElement(document.createElement('p'), 'Hello!')],
+          [initElement(document.createElement('p'), () => 'Hello!')],
           [one],
           [one],
           ['bbb'],
@@ -206,6 +207,8 @@ describe('initElement', () => {
           result.update();
 
           if (val instanceof Element) expect(element.childNodes[0]).toBe(val);
+          else if (val instanceof Component)
+            expect(element.childNodes[0]).toBe(val.getElement());
           else expect(element.childNodes[0].nodeValue).toBe(val);
         });
       });
@@ -217,7 +220,9 @@ describe('initElement', () => {
           element,
           initElement(document.createElement('p'), () => ++count),
           ' ',
-          initElement(document.createElement('p'), () => ++count),
+          initElement(document.createElement('p'), () =>
+            initElement(document.createElement('span'), () => ++count),
+          ),
         );
 
         expect(result).toBeInstanceOf(Component);
@@ -225,15 +230,21 @@ describe('initElement', () => {
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(3);
 
-        expect(element.outerHTML).toBe('<div><p>1</p> <p>2</p></div>');
+        expect(element.outerHTML).toBe(
+          '<div><p>1</p> <p><span>2</span></p></div>',
+        );
 
         result.update();
 
-        expect(element.outerHTML).toBe('<div><p>3</p> <p>4</p></div>');
+        expect(element.outerHTML).toBe(
+          '<div><p>3</p> <p><span>4</span></p></div>',
+        );
 
         result.update();
 
-        expect(element.outerHTML).toBe('<div><p>5</p> <p>6</p></div>');
+        expect(element.outerHTML).toBe(
+          '<div><p>5</p> <p><span>6</span></p></div>',
+        );
       });
 
       test.each([

@@ -2,7 +2,7 @@ import {Updater} from './types';
 import {initChild} from './child';
 import {evaluate} from './utils';
 
-describe('initChildren', () => {
+describe('initChild', () => {
   const allStaticCases = [
     ['', ''],
     ['1', '1'],

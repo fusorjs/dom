@@ -1,3 +1,6 @@
+// export type some = string | number | boolean | symbol | object;
+// export type StaticValue <T> = T extends Function ? never : T;
+
 type Primitive = string | number | boolean | symbol | null | undefined;
 
 export type StaticProp = Primitive;
