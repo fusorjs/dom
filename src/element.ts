@@ -11,8 +11,8 @@ import {initProp} from './prop';
 import {initChild} from './child';
 
 interface Initiator {
-  <E extends Element>(elem: E, ...args: readonly StaticArg[]): E;
-  <E extends Element>(elem: E, ...args: readonly Arg[]): Component<E>;
+  <E extends Element>(elem: E, args: readonly StaticArg[]): E;
+  <E extends Element>(elem: E, args: readonly Arg[]): Component<E>;
 }
 
 export interface Creator<E extends Element> {
@@ -20,8 +20,7 @@ export interface Creator<E extends Element> {
   (...args: readonly Arg[]): Component<E>;
 }
 
-// todo ...args -> args maybe performace?
-export const initElement: Initiator = (element, ...args) => {
+export const initElement: Initiator = (element, args) => {
   // init
 
   let propUpdaters: Updater[] | undefined;

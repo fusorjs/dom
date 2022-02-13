@@ -4,7 +4,7 @@ import {initElement} from './element';
 describe('initElement', () => {
   test('empty div', () => {
     const element = document.createElement('div');
-    const result = initElement(element);
+    const result = initElement(element, []);
 
     expect(result).toBe(element);
     expect(result.attributes.length).toBe(0);
@@ -14,11 +14,13 @@ describe('initElement', () => {
   describe('props', () => {
     test('div with three static props', () => {
       const element = document.createElement('div');
-      const result = initElement(element, {
-        title: 'hello',
-        hidden: true,
-        custom: 123,
-      }); // [1, 2, 3]});
+      const result = initElement(element, [
+        {
+          title: 'hello',
+          hidden: true,
+          custom: 123,
+        },
+      ]); // [1, 2, 3]});
 
       expect(result).toBe(element);
       expect(result.attributes.length).toBe(2);
@@ -39,11 +41,10 @@ describe('initElement', () => {
 
     test('button with two static props objects overrides', () => {
       const element = document.createElement('button');
-      const result = initElement(
-        element,
+      const result = initElement(element, [
         {type: 'button', hidden: true},
         {type: 'submit', class: 'btn'},
-      );
+      ]);
 
       expect(result).toBe(element);
       expect(result.attributes.length).toBe(3);
@@ -55,11 +56,10 @@ describe('initElement', () => {
 
     test('button with two dynamic props objects overrides', () => {
       const element = document.createElement('button');
-      const result = initElement(
-        element,
+      const result = initElement(element, [
         {type: () => 'button'},
         {type: () => 'submit'},
-      );
+      ]);
 
       expect(result).toBeInstanceOf(Component);
       expect(result.getElement()).toBe(element);
@@ -71,7 +71,7 @@ describe('initElement', () => {
     test('div with dynamic prop', () => {
       let title = 'aaa';
       const element = document.createElement('div');
-      const result = initElement(element, {title: () => title});
+      const result = initElement(element, [{title: () => title}]);
 
       expect(result).toBeInstanceOf(Component);
       expect(result.getElement()).toBe(element);
@@ -91,7 +91,7 @@ describe('initElement', () => {
   describe('children', () => {
     test('div with falsy child', () => {
       const element = document.createElement('div');
-      const result = initElement(element, undefined);
+      const result = initElement(element, [undefined]);
 
       expect(result).toBe(element);
       expect(result.attributes.length).toBe(0);
@@ -102,7 +102,7 @@ describe('initElement', () => {
 
     test('div with three static children', () => {
       const element = document.createElement('div');
-      const result = initElement(element, 'one', 2, 'three');
+      const result = initElement(element, ['one', 2, 'three']);
 
       expect(result).toBe(element);
       expect(result.attributes.length).toBe(0);
@@ -116,7 +116,7 @@ describe('initElement', () => {
     test('div with dynamic child', () => {
       let child = 123;
       const element = document.createElement('div');
-      const result = initElement(element, () => child);
+      const result = initElement(element, [() => child]);
 
       expect(result).toBeInstanceOf(Component);
       expect(result.getElement()).toBe(element);
@@ -134,10 +134,9 @@ describe('initElement', () => {
     describe('nesting', () => {
       test('static child', () => {
         const element = document.createElement('div');
-        const result = initElement(
-          element,
-          initElement(document.createElement('p'), 'Hi!'),
-        );
+        const result = initElement(element, [
+          initElement(document.createElement('p'), ['Hi!']),
+        ]);
 
         expect(result).toBe(element);
         expect(result.attributes.length).toBe(0);
@@ -149,10 +148,9 @@ describe('initElement', () => {
       test('child with updater', () => {
         let count = 0;
         const element = document.createElement('div');
-        const result = initElement(
-          element,
-          initElement(document.createElement('p'), () => ++count),
-        );
+        const result = initElement(element, [
+          initElement(document.createElement('p'), [() => ++count]),
+        ]);
 
         expect(result).toBeInstanceOf(Component);
         expect(result.getElement()).toBe(element);
@@ -175,9 +173,9 @@ describe('initElement', () => {
       });
 
       describe('switch children', () => {
-        let child: any = initElement(document.createElement('p'), 'Hi!');
+        let child: any = initElement(document.createElement('p'), ['Hi!']);
         const element = document.createElement('div');
-        const result = initElement(element, () => child);
+        const result = initElement(element, [() => child]);
 
         expect(result).toBeInstanceOf(Component);
         expect(result.getElement()).toBe(element);
@@ -185,8 +183,8 @@ describe('initElement', () => {
         expect(element.childNodes.length).toBe(1);
         expect(element.childNodes[0]).toBe(child);
 
-        const one = initElement(document.createElement('h1'), 'one');
-        const two = initElement(document.createElement('h2'), 'two');
+        const one = initElement(document.createElement('h1'), ['one']);
+        const two = initElement(document.createElement('h2'), ['two']);
 
         test.each([
           ['aaa'],
@@ -194,8 +192,8 @@ describe('initElement', () => {
           [two],
           [two],
           ['111'],
-          [initElement(document.createElement('p'), 'Hello!')],
-          [initElement(document.createElement('p'), () => 'Hello!')],
+          [initElement(document.createElement('p'), ['Hello!'])],
+          [initElement(document.createElement('p'), [() => 'Hello!'])],
           [one],
           [one],
           ['bbb'],
@@ -216,14 +214,13 @@ describe('initElement', () => {
       test('children with updaters', () => {
         let count = 0;
         const element = document.createElement('div');
-        const result = initElement(
-          element,
-          initElement(document.createElement('p'), () => ++count),
+        const result = initElement(element, [
+          initElement(document.createElement('p'), [() => ++count]),
           ' ',
-          initElement(document.createElement('p'), () =>
-            initElement(document.createElement('span'), () => ++count),
-          ),
-        );
+          initElement(document.createElement('p'), [
+            () => initElement(document.createElement('span'), [() => ++count]),
+          ]),
+        ]);
 
         expect(result).toBeInstanceOf(Component);
         expect(result.getElement()).toBe(element);
@@ -250,21 +247,21 @@ describe('initElement', () => {
       test.each([
         ['aaa', 'aaa'],
         [111, '111'],
-        [initElement(document.createElement('p'), 'one'), '<p>one</p>'],
-        [initElement(document.createElement('p'), () => 'two'), '<p>two</p>'],
+        [initElement(document.createElement('p'), ['one']), '<p>one</p>'],
+        [initElement(document.createElement('p'), [() => 'two']), '<p>two</p>'],
         [
-          () => initElement(document.createElement('p'), 'three'),
+          () => initElement(document.createElement('p'), ['three']),
           '<p>three</p>',
         ],
         [
-          () => initElement(document.createElement('p'), () => 'four'),
+          () => initElement(document.createElement('p'), [() => 'four']),
           '<p>four</p>',
         ],
         ['bbb', 'bbb'],
         ['bbb', 'bbb'],
       ])('random child %p toBe %p', (provided, expected) => {
         const element = document.createElement('div');
-        const result = initElement(element, provided);
+        const result = initElement(element, [provided]);
 
         expect(element.attributes.length).toBe(0);
         expect(element.childNodes.length).toBe(1);
@@ -285,7 +282,7 @@ describe('initElement', () => {
     let title = 'aaa';
     let child = 123;
     const element = document.createElement('div');
-    const result = initElement(element, {title: () => title}, () => child);
+    const result = initElement(element, [{title: () => title}, () => child]);
 
     expect(result).toBeInstanceOf(Component);
     expect(result.getElement()).toBe(element);
@@ -305,21 +302,21 @@ describe('initElement', () => {
     expect(element.childNodes[0].nodeValue).toBe('456');
   });
 
-  test('custom component can return different types of values', () => {
-    // todo
-    const custom = (v: any) => {
-      switch (v) {
-        case 'div':
-          return initElement(document.createElement('div'));
-        case 'p':
-          return initElement(document.createElement('p'));
-        case 'fun':
-          return () => 'fun';
-        case 'text':
-          return 'text';
-        case 'num':
-          return 123;
-      }
-    };
-  });
+  // todo
+  // test('custom component can return different types of values', () => {
+  //   const custom = (v: any) => {
+  //     switch (v) {
+  //       case 'div':
+  //         return initElement(document.createElement('div'),[]);
+  //       case 'p':
+  //         return initElement(document.createElement('p'),[]);
+  //       case 'fun':
+  //         return () => 'fun';
+  //       case 'text':
+  //         return 'text';
+  //       case 'num':
+  //         return 123;
+  //     }
+  //   };
+  // });
 });

@@ -4,16 +4,15 @@ import {createTaggedMap} from './utils';
 export const tagHtmlElement =
   (tagName: string): Creator<HTMLElement> =>
   (...args) =>
-    initElement(document.createElement(tagName), ...args) as any;
+    initElement(document.createElement(tagName), args) as any;
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
 export const button: Creator<HTMLButtonElement> = (...args) =>
-  initElement(
-    document.createElement('button'),
+  initElement(document.createElement('button'), [
     defaultButtonProps,
     ...args,
-  ) as any;
+  ]) as any;
 
 type Result = {
   [K in keyof HTMLElementTagNameMap]: Creator<HTMLElementTagNameMap[K]>;
