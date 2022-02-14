@@ -39,6 +39,7 @@ The generic @perform dom html, svg element components.
 - migrate to classes
 
 - implement attribute setters for svg
+- init multiple children from dynamic array (usinng node indexes range for updater).
 - elements with event handler callbacks (onclick) should be static in typescript
 - convinience method for working with elements (body <- App)
 - implement style object, data-\* object attributes,

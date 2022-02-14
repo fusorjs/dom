@@ -320,3 +320,41 @@ describe('initElement', () => {
   //   };
   // });
 });
+
+// todo make all tests like this
+
+test('init multiple static children from array', () => {
+  const element = document.createElement('div');
+  const result = initElement(element, [
+    'one',
+    [111, 'aaa', 333],
+    'two',
+    [],
+    ['three'],
+  ]);
+
+  expect(result).toBe(element);
+  expect(element.attributes.length).toBe(0);
+  expect(element.childNodes.length).toBe(6);
+  expect(element.childNodes[0].nodeValue).toBe('one');
+  expect(element.childNodes[1].nodeValue).toBe('111');
+  expect(element.childNodes[2].nodeValue).toBe('aaa');
+  expect(element.childNodes[3].nodeValue).toBe('333');
+  expect(element.childNodes[4].nodeValue).toBe('two');
+  expect(element.childNodes[5].nodeValue).toBe('three');
+});
+
+test('init multiple children from array', () => {
+  const element = document.createElement('div');
+  const result = initElement(element, [
+    [111, () => 'dynamic', () => [1, 2, 3]],
+  ]);
+
+  expect(result).toBeInstanceOf(Component);
+  expect(result.getElement()).toBe(element);
+  expect(element.attributes.length).toBe(0);
+  expect(element.childNodes.length).toBe(3);
+  expect(element.childNodes[0].nodeValue).toBe('111');
+  expect(element.childNodes[1].nodeValue).toBe('dynamic');
+  expect(element.childNodes[2].nodeValue).toBe('[1,2,3]'); // todo dynamic array updater
+});

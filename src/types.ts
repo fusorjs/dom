@@ -3,11 +3,13 @@
 
 type Primitive = string | number | boolean | symbol | null | undefined;
 
-export type StaticProp = Primitive;
+type StaticProp = Primitive;
 
-export type StaticChild = Primitive | Element;
+type SingleStaticChild = Primitive | Element;
 
-export interface StaticProps {
+type StaticChild = SingleStaticChild | Array<SingleStaticChild>;
+
+interface StaticProps {
   // [key: `on${string}`]: Function; // todo event handlers should be static
   [key: string]: StaticProp;
 }
@@ -16,9 +18,11 @@ export type StaticArg = StaticProps | StaticChild;
 
 export type Prop = StaticProp | Function;
 
-export type Child = StaticChild | Function | Component<Element>;
+type SingleChild = SingleStaticChild | Function | Component<Element>;
 
-export interface Props {
+export type Child = SingleChild | Array<SingleChild>;
+
+interface Props {
   [key: string]: Prop;
 }
 

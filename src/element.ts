@@ -38,6 +38,17 @@ export const initElement: Initiator = (element, args) => {
         }
       }
     }
+    // init children
+    else if (Array.isArray(arg)) {
+      for (const a of arg) {
+        const updater = initChild(element, a as Child);
+
+        if (updater) {
+          if (childUpdaters) childUpdaters.push(updater);
+          else childUpdaters = [updater];
+        }
+      }
+    }
     // init child
     else {
       const updater = initChild(element, arg as Child);
