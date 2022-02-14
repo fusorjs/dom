@@ -2,10 +2,10 @@ import {
   StaticArg,
   Arg,
   Component,
-  Updater,
   ChildUpdater,
   Prop,
   Child,
+  PropsUpdaters,
 } from './types';
 import {initProp} from './prop';
 import {initChild} from './child';
@@ -23,7 +23,7 @@ export interface Creator<E extends Element> {
 export const initElement: Initiator = (element, args) => {
   // init
 
-  let propUpdaters: Updater[] | undefined;
+  let propUpdaters: PropsUpdaters | undefined;
   let childUpdaters: ChildUpdater<Element>[] | undefined;
 
   for (const arg of args) {
@@ -33,8 +33,8 @@ export const initElement: Initiator = (element, args) => {
         const updater = initProp(element, key, val as Prop);
 
         if (updater) {
-          if (propUpdaters) propUpdaters.push(updater);
-          else propUpdaters = [updater];
+          if (propUpdaters) propUpdaters[key] = updater;
+          else propUpdaters = {[key]: updater};
         }
       }
     }

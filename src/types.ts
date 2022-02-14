@@ -28,8 +28,10 @@ interface Props {
 
 export type Arg = Props | Child;
 
-export interface Updater {
-  (): void;
+export type Updater = () => void;
+
+export interface PropsUpdaters {
+  [key: string]: Updater;
 }
 
 export type ChildUpdater<E extends Element> = Updater | Component<E>;
@@ -41,7 +43,7 @@ export type ChildUpdater<E extends Element> = Updater | Component<E>;
 export class Component<E extends Element> {
   constructor(
     private element: E,
-    private propUpdaters?: readonly Updater[],
+    private propsUpdaters?: PropsUpdaters,
     private childUpdaters?: readonly ChildUpdater<E>[],
   ) {}
 
@@ -50,10 +52,10 @@ export class Component<E extends Element> {
   }
 
   update() {
-    const {propUpdaters, childUpdaters} = this;
+    const {propsUpdaters, childUpdaters} = this;
 
-    if (propUpdaters) {
-      for (const u of propUpdaters) {
+    if (propsUpdaters) {
+      for (const u of Object.values(propsUpdaters)) {
         u();
       }
     }

@@ -1,35 +1,77 @@
 import {Component} from './types';
 import {initElement} from './element';
 
+test('init empty', () => {
+  const element = document.createElement('div');
+  const result = initElement(element, []);
+
+  expect(result).toBe(element);
+
+  expect(element.attributes.length).toBe(0);
+  expect(element.childNodes.length).toBe(0);
+});
+
+test('init static props', () => {
+  const element = document.createElement('div');
+  const result = initElement(element, [
+    {
+      title: 'hello',
+      hidden: true,
+      custom: 123,
+    },
+    {},
+  ]);
+
+  expect(result).toBe(element);
+
+  expect(element.attributes.length).toBe(2);
+  expect(element.childNodes.length).toBe(0);
+  expect(element.title).toBe('hello');
+  expect(element.hidden).toBe(true);
+  expect(element['custom' as 'id']).toEqual(123);
+});
+
+test('init static prop override', () => {
+  const element = document.createElement('id');
+  const result = initElement(element, [{id: 'one'}, {id: 'two'}]);
+
+  expect(result).toBe(element);
+
+  expect(element.attributes.length).toBe(1);
+  expect(element.childNodes.length).toBe(0);
+  expect(element.id).toBe('two');
+});
+
+test('init dynamic prop override', () => {
+  let dynamic1 = 111;
+  let dynamic2 = 222;
+
+  const element = document.createElement('id');
+  const result = initElement(element, [
+    {id: () => dynamic1++},
+    {id: () => dynamic2++},
+  ]);
+
+  expect(result).toBeInstanceOf(Component);
+  expect(result.getElement()).toBe(element);
+
+  expect(element.attributes.length).toBe(1);
+  expect(element.childNodes.length).toBe(0);
+  expect(element.id).toBe('222');
+
+  expect(dynamic1).toBe(112);
+  expect(dynamic2).toBe(223);
+
+  result.update();
+
+  expect(element.id).toBe('223');
+  expect(dynamic1).toBe(112); // did not increment
+  expect(dynamic2).toBe(224);
+});
+
+// todo refactor start:
 describe('initElement', () => {
-  test('empty div', () => {
-    const element = document.createElement('div');
-    const result = initElement(element, []);
-
-    expect(result).toBe(element);
-    expect(result.attributes.length).toBe(0);
-    expect(result.childNodes.length).toBe(0);
-  });
-
   describe('props', () => {
-    test('div with three static props', () => {
-      const element = document.createElement('div');
-      const result = initElement(element, [
-        {
-          title: 'hello',
-          hidden: true,
-          custom: 123,
-        },
-      ]); // [1, 2, 3]});
-
-      expect(result).toBe(element);
-      expect(result.attributes.length).toBe(2);
-      expect(result.childNodes.length).toBe(0);
-      expect(result.title).toBe('hello');
-      expect(result.hidden).toBe(true);
-      expect(result['custom' as 'id']).toEqual(123); //[1, 2, 3]); // ? should we support arrays
-    });
-
     // todo types check
     // test('element with event props should be static', () => {
     //   const element = document.createElement('button');
@@ -38,21 +80,6 @@ describe('initElement', () => {
     //   expect(result.attributes.length).toBe(1);
     //   expect(result.childNodes.length).toBe(0);
     // });
-
-    test('button with two static props objects overrides', () => {
-      const element = document.createElement('button');
-      const result = initElement(element, [
-        {type: 'button', hidden: true},
-        {type: 'submit', class: 'btn'},
-      ]);
-
-      expect(result).toBe(element);
-      expect(result.attributes.length).toBe(3);
-      expect(result.childNodes.length).toBe(0);
-      expect(result.type).toBe('submit');
-      expect(result.hidden).toBe(true);
-      expect(result.className).toBe('btn');
-    });
 
     test('button with two dynamic props objects overrides', () => {
       const element = document.createElement('button');
@@ -320,8 +347,7 @@ describe('initElement', () => {
   //   };
   // });
 });
-
-// todo make all tests like this
+// todo refactor end
 
 test('init multiple static children from array', () => {
   const element = document.createElement('div');
