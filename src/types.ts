@@ -10,9 +10,20 @@ type SingleStaticChild = Primitive | Element;
 type StaticChild = SingleStaticChild | Array<SingleStaticChild>;
 
 interface StaticProps {
-  // [key: `on${string}`]: Function; // todo event handlers should be static
   [key: string]: StaticProp;
 }
+// todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
+// type EventName = `on${string}`;
+// interface StaticProps2 {
+//   // [key: string]: StaticProp;
+//   // [key: `on${string}`]: Function;
+//   [K: EventName | string]: typeof K extends EventName ? Function : StaticProp;
+//   // [K: string]: typeof K extends EventName ? Function : StaticProp;
+// }
+// const xxx: StaticProps2 = {
+//   asd: true,
+//   onasd: () => {},
+// };
 
 export type StaticArg = StaticProps | StaticChild;
 

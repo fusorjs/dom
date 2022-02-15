@@ -1,15 +1,5 @@
-export const createTaggedMap = <M, K extends keyof M>(
-  tagNames: readonly K[],
-  tagComponent: (tagName: K) => M[K],
-) => {
-  const tags: M = {} as M;
-
-  for (const name of tagNames) {
-    tags[name] = tagComponent(name);
-  }
-
-  return tags;
-};
+export const isDevelopment =
+  process?.env?.NODE_ENV?.trim().toLowerCase() === 'development';
 
 export type Evaluable<T> = () => T | (() => Evaluable<T>);
 
@@ -27,8 +17,9 @@ export const evaluate = <T>(callback: Evaluable<T>): T => {
   return value;
 };
 
-export const isDevelopment =
-  process?.env?.NODE_ENV?.trim().toLowerCase() === 'development';
+/** Get string value of anything. */
+export const getString = (value: any) =>
+  typeof value === 'object' ? JSON.stringify(value) : String(value);
 
 /** human readable representation of any value
  *
@@ -44,6 +35,15 @@ export const stringify = (value: any): string => {
   }
 };
 
-/** Get string value of anything. */
-export const getString = (value: any) =>
-  typeof value === 'object' ? JSON.stringify(value) : String(value);
+export const createTaggedMap = <M, K extends keyof M>(
+  tagNames: readonly K[],
+  tagComponent: (tagName: K) => M[K],
+) => {
+  const tags: M = {} as M;
+
+  for (const name of tagNames) {
+    tags[name] = tagComponent(name);
+  }
+
+  return tags;
+};
