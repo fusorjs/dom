@@ -3,7 +3,7 @@
 
 type Primitive = string | number | boolean | symbol | null | undefined;
 
-type StaticProp = Primitive;
+export type StaticProp = Primitive;
 
 type SingleStaticChild = Primitive | Element;
 

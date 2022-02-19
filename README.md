@@ -26,13 +26,14 @@ The generic @perform dom html, svg element components.
 - Declarative logical control structures? No, we do not need them. The javascript control flow operators/expressions are enough.
 - refactor init children
 - Maybe we should separete render to creation and updation phases? No we should not! Because we need to be able to return different elements or even text/number/etc on update.
-- set/get properties instead of (set/get)Attribute for maximum performace (use attributes in development maybe for visibility? - no, just props are enough)
+- Set property instead of setAttribute for maximum performace. (Use attributes in development maybe for visibility? - No, just props are enough.) After a while: the performance difference is neglible. But the important thing is: not all attributes are mapped to props (area), non standard attributes aren't mapped (custom elements), svg attributes aren't mapped. Reverting back for the time being.
 - 100% test coveragge
 - rename to: dom-element
 - declare props in any argument, multiple times (not only in the first) optimization
 - init dynamic props and children immidiately (now you have to call updater to set the dynamic values). For example in children initializer we create placeholder text node. And only after `update` we will swap it with real value. We should avoid it.
 - Create default behaviour for array child. It will make easier to use api for newcomers. It should be best optimized for most common cases. After some thoughts, the default behaviour should be to construct new element out of array on each update. Whe should not manipulate/mutate element's children!
 - remove external dependencies (common)
+- init children from array, multiple times (spread/rest optimization)
 
 ## BACKLOG
 

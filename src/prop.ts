@@ -1,40 +1,52 @@
-import {Prop, Updater} from './types';
-import {stringify, Evaluable, evaluate} from './utils';
+import {getString} from './utils';
+import {Prop, StaticProp, Updater} from './types';
+import {Evaluable, evaluate, stringify} from './utils';
 
-// todo class
-const createUpdater = (
-  element: Element,
-  key: string,
-  callback: Evaluable<Prop>,
-): Updater => {
-  // init
-
-  let prevValue = evaluate(callback);
-
-  element[key as 'id'] = prevValue as string;
-
-  // update
-  return () => {
-    const nextValue = evaluate(callback);
-
-    if (prevValue === nextValue) return;
-
-    prevValue = nextValue;
-
-    element[key as 'id'] = nextValue as string;
-  };
+export const prepareProp = (value: any) => {
+  switch (value) {
+    case '': // ? maybe not
+    case null:
+    case false:
+    case undefined:
+      return undefined;
+    case true:
+      return '';
+    default:
+      return getString(value);
+  }
 };
 
-export const initProp = (element: Element, key: string, value: Prop) => {
-  if (key.startsWith('on')) {
-    // event listeners are staic - do not have updaters
+export interface PropData {
+  readonly callback: Evaluable<StaticProp>;
+  value: string | undefined;
+}
 
+export const updateProp = (element: Element, key: string, data: PropData) => {
+  const value = prepareProp(evaluate(data.callback));
+
+  if (value === data.value) return;
+
+  data.value = value;
+
+  if (value === undefined) element.removeAttribute(key);
+  else element.setAttribute(key, value);
+};
+
+export const useCapture = false;
+
+export const initProp = (element: Element, key: string, value: Prop) => {
+  // static event listener
+  if (key.startsWith('on')) {
     if (typeof value !== 'function')
       throw new TypeError(
         `illegal property: "${key}" = ${stringify(value)}; expected function`,
       );
 
-    element.addEventListener(key.substring(2), value as EventListener, false);
+    element.addEventListener(
+      key.substring(2),
+      value as EventListener,
+      useCapture,
+    );
   }
   // todo data-
   // todo style...
@@ -65,38 +77,58 @@ export const initProp = (element: Element, key: string, value: Prop) => {
   //     );
   //   }
   // }
+
+  // dynamic property
+  else if (typeof value === 'function') {
+    const prop = prepareProp(evaluate(value as Evaluable<StaticProp>));
+
+    if (prop !== undefined) element.setAttribute(key, prop);
+
+    const data: PropData = {
+      callback: value as Evaluable<StaticProp>,
+      value: prop,
+    };
+
+    return data;
+  }
+  // static property
   else {
-    // todo check types
-    // if (typeof value === 'function' && elementSymbol in value) {
-    //   throw new TypeError(`element cannot be a property value "${key}" = ${stringify(value)}`);
-    // }
+    const prop = prepareProp(value);
 
-    const _key =
-      key === 'class'
-        ? 'className'
-        : // key === 'for'   ? 'htmlFor'   : // ! deprecated as it for html only, not svg
-          key;
-
-    // https://www.drupal.org/node/1420706#comment-6423420
-    // tabindex: "tabIndex",
-    // readonly: "readOnly",
-    // "for": "htmlFor",
-    // "class": "className",
-    // maxlength: "maxLength",
-    // cellspacing: "cellSpacing",
-    // cellpadding: "cellPadding",
-    // rowspan: "rowSpan",
-    // colspan: "colSpan",
-    // usemap: "useMap",
-    // frameborder: "frameBorder",
-    // contenteditable: "contentEditable"
-
-    if (typeof value === 'function')
-      return createUpdater(element, _key, value as Evaluable<Prop>);
-
-    element[_key as 'id'] = value as string;
+    if (prop !== undefined) element.setAttribute(key, prop);
   }
 };
 
 // https://stackoverflow.com/questions/3919291/when-to-use-setattribute-vs-attribute-in-javascript
 // https://quirksmode.org/dom/core/#attributes
+
+// https://www.drupal.org/node/1420706#comment-6423420
+// tabindex: "tabIndex",
+// readonly: "readOnly",
+// "for": "htmlFor",
+// "class": "className",
+// maxlength: "maxLength",
+// cellspacing: "cellSpacing",
+// cellpadding: "cellPadding",
+// rowspan: "rowSpan",
+// colspan: "colSpan",
+// usemap: "useMap",
+// frameborder: "frameBorder",
+// contenteditable: "contentEditable"
+
+// Attributes vs Properties
+// https://stackoverflow.com/questions/22151560/what-is-happening-behind-setattribute-vs-attribute
+// input.value - does not change Attribute
+// asetAttribute('href', '/abc') - a.href === 'http://domain/abc
+// a.href = '/abc' - a.getAttribute('href') === '/abc'
+
+/*
+element  | attribute | property
+---------+-----------+----------------
+option   | selected  | defaultSelected (bool)
+label    | for       | htmlFor
+input    | checked   | defaultChecked (bool)
+input    | value     | defaultValue (string)
+select   | multiple  | multiple (bool)
+li       | value     | value (int)
+*/

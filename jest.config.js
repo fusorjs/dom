@@ -4,4 +4,5 @@ module.exports = {
   transform: {
     '^.+\\.[tj]s$': 'ts-jest', // fix unexpected export
   },
+  clearMocks: true,
 };
