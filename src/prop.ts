@@ -1,6 +1,6 @@
 import {getString} from './utils';
-import {Prop, StaticProp, Updater} from './types';
-import {Evaluable, evaluate, stringify} from './utils';
+import {Evaluable, Prop, PropData, StaticProp} from './types';
+import {evaluate, stringify} from './utils';
 
 export const prepareProp = (value: any) => {
   switch (value) {
@@ -16,13 +16,8 @@ export const prepareProp = (value: any) => {
   }
 };
 
-export interface PropData {
-  readonly callback: Evaluable<StaticProp>;
-  value: string | undefined;
-}
-
 export const updateProp = (element: Element, key: string, data: PropData) => {
-  const value = prepareProp(evaluate(data.callback));
+  const value = prepareProp(evaluate(data.updater));
 
   if (value === data.value) return;
 
@@ -85,7 +80,7 @@ export const initProp = (element: Element, key: string, value: Prop) => {
     if (prop !== undefined) element.setAttribute(key, prop);
 
     const data: PropData = {
-      callback: value as Evaluable<StaticProp>,
+      updater: value as Evaluable<StaticProp>,
       value: prop,
     };
 

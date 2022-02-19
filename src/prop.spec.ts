@@ -1,6 +1,7 @@
+import {Evaluable, PropData} from './types';
 import {getStringTestData} from './test-data.spec';
-import {prepareProp, PropData, updateProp, initProp, useCapture} from './prop';
-import {Evaluable, evaluate} from './utils';
+import {prepareProp, updateProp, initProp, useCapture} from './prop';
+import {evaluate} from './utils';
 
 const preparePropTestData = (convert =>
   getStringTestData.map(
@@ -44,7 +45,7 @@ describe('update', () => {
   let dynamic: any = undefined;
 
   const data: PropData = {
-    callback: () => dynamic,
+    updater: () => dynamic,
     value: dynamic,
   };
 
@@ -128,7 +129,7 @@ test.each(
   const data = initProp(element, key, provided as any);
 
   expect(data).toEqual({
-    callback: provided,
+    updater: provided,
     value: expected,
   });
 

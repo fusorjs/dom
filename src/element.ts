@@ -5,7 +5,7 @@ import {
   ChildUpdater,
   Prop,
   Child,
-  PropsUpdaters,
+  PropsDatas,
 } from './types';
 import {initProp} from './prop';
 import {initChild} from './child';
@@ -23,7 +23,7 @@ export interface Creator<E extends Element> {
 export const initElement: Initiator = (element, args) => {
   // init
 
-  let propUpdaters: PropsUpdaters | undefined;
+  let propsDatas: PropsDatas | undefined;
   let childUpdaters: ChildUpdater<Element>[] | undefined;
 
   for (const arg of args) {
@@ -33,8 +33,8 @@ export const initElement: Initiator = (element, args) => {
         const updater = initProp(element, key, val as Prop);
 
         if (updater) {
-          if (propUpdaters) propUpdaters[key] = updater;
-          else propUpdaters = {[key]: updater};
+          if (propsDatas) propsDatas[key] = updater;
+          else propsDatas = {[key]: updater};
         }
       }
     }
@@ -60,7 +60,7 @@ export const initElement: Initiator = (element, args) => {
     }
   }
 
-  return propUpdaters || childUpdaters
-    ? new Component(element, propUpdaters, childUpdaters) // dynamic
+  return propsDatas || childUpdaters
+    ? new Component(element, propsDatas, childUpdaters) // dynamic
     : element; // static
 };

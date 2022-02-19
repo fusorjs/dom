@@ -13,7 +13,7 @@ test('staic svg', () => {
   const result = path({width: 100}, 'bbb');
 
   expect(result).toBeInstanceOf(SVGElement);
-  expect(result.attributes.length).toBe(0); // todo check why no attrs
+  expect(result.attributes.length).toBe(1);
   expect(result.childNodes.length).toBe(1);
 });
 

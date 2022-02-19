@@ -24,11 +24,11 @@ test('init static props', () => {
 
   expect(result).toBe(element);
 
-  expect(element.attributes.length).toBe(2);
+  expect(element.attributes.length).toBe(3);
   expect(element.childNodes.length).toBe(0);
   expect(element.title).toBe('hello');
   expect(element.hidden).toBe(true);
-  expect(element['custom' as 'id']).toEqual(123);
+  expect(element.getAttribute('custom')).toEqual('123');
 });
 
 test('init static prop override', () => {

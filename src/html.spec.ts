@@ -33,8 +33,9 @@ test('static button', () => {
   const result = button({aaa: '111'}, 'bbb');
 
   expect(result).toBeInstanceOf(HTMLButtonElement);
-  expect(result.attributes.length).toBe(1);
+  expect(result.attributes.length).toBe(2);
   expect(result.childNodes.length).toBe(1);
+  expect(result.outerHTML).toBe('<button type="button" aaa="111">bbb</button>');
 });
 
 test('correct typescript typings', () => {
@@ -124,7 +125,7 @@ test('stateful counter button instances are clicked', () => {
 
 test('set color style of text', () => {
   expect(p({style: 'color:red'}, 'This text is red colored.').outerHTML).toBe(
-    '<p style="color: red;">This text is red colored.</p>',
+    '<p style="color:red">This text is red colored.</p>',
   );
 });
 
@@ -161,14 +162,14 @@ test('toggle button color', () => {
 
   expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="">Clicked 0 times!</button>',
+    '<button type="button">Clicked 0 times!</button>',
   );
 
   counterElement.click();
   counterElement.click();
 
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="">Clicked 2 times!</button>',
+    '<button type="button">Clicked 2 times!</button>',
   );
 
   toggleElement.click();
@@ -178,7 +179,7 @@ test('toggle button color', () => {
 
   expect(toggleElement.innerHTML).toBe('On');
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="color: green;">Clicked 5 times!</button>',
+    '<button type="button" style="color:green">Clicked 5 times!</button>',
   );
 
   toggleElement.click();
@@ -186,7 +187,7 @@ test('toggle button color', () => {
 
   expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="">Clicked 6 times!</button>',
+    '<button type="button">Clicked 6 times!</button>',
   );
 
   toggleElement.click();

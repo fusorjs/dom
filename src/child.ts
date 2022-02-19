@@ -1,5 +1,5 @@
-import {Child, Updater, Component} from './types';
-import {Evaluable, evaluate, getString} from './utils';
+import {Child, Updater, Component, Evaluable} from './types';
+import {evaluate, getString} from './utils';
 
 const createUpdater = (
   callback: Evaluable<Child>,

@@ -1,7 +1,7 @@
+import {Evaluable} from './types';
+
 export const isDevelopment =
   process?.env?.NODE_ENV?.trim().toLowerCase() === 'development';
-
-export type Evaluable<T> = () => T | (() => Evaluable<T>);
 
 /** evaluate functional expression (conditions, dynamic) */
 export const evaluate = <T>(callback: Evaluable<T>): T => {

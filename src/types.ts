@@ -1,3 +1,5 @@
+import {updateProp} from './prop';
+
 // export type some = string | number | boolean | symbol | object;
 // export type StaticValue <T> = T extends Function ? never : T;
 
@@ -41,8 +43,15 @@ export type Arg = Props | Child;
 
 export type Updater = () => void;
 
-export interface PropsUpdaters {
-  [key: string]: Updater;
+export type Evaluable<T> = () => T | (() => Evaluable<T>);
+
+export interface PropData {
+  readonly updater: Evaluable<StaticProp>;
+  value: string | undefined;
+}
+
+export interface PropsDatas {
+  [key: string]: PropData;
 }
 
 export type ChildUpdater<E extends Element> = Updater | Component<E>;
@@ -54,7 +63,7 @@ export type ChildUpdater<E extends Element> = Updater | Component<E>;
 export class Component<E extends Element> {
   constructor(
     private element: E,
-    private propsUpdaters?: PropsUpdaters,
+    private propsDatas?: PropsDatas,
     private childUpdaters?: readonly ChildUpdater<E>[],
   ) {}
 
@@ -63,11 +72,11 @@ export class Component<E extends Element> {
   }
 
   update() {
-    const {propsUpdaters, childUpdaters} = this;
+    const {element, propsDatas, childUpdaters} = this;
 
-    if (propsUpdaters) {
-      for (const u of Object.values(propsUpdaters)) {
-        u();
+    if (propsDatas) {
+      for (const [key, data] of Object.entries(propsDatas)) {
+        updateProp(element, key, data);
       }
     }
 
