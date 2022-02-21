@@ -1,4 +1,4 @@
-import {Evaluable} from './types';
+import {Component, Evaluable} from './types';
 
 export const isDevelopment =
   process?.env?.NODE_ENV?.trim().toLowerCase() === 'development';
@@ -18,21 +18,20 @@ export const evaluate = <T>(callback: Evaluable<T>): T => {
 };
 
 /** Get string value of anything. */
-export const getString = (value: any) =>
-  typeof value === 'object' ? JSON.stringify(value) : String(value);
-
-/** human readable representation of any value
- *
- * should not be fast as it is used in throw for error messages
- */
-export const stringify = (value: any): string => {
-  switch (typeof value) {
-    case 'string':
-    case 'object':
-      return JSON.stringify(value);
-    default:
-      return String(value);
+export const getString = (value: any) => {
+  if (typeof value === 'object') {
+    if (value instanceof Element) return value.outerHTML;
+    else if (value instanceof Component) return value.getElement().outerHTML;
+    else return JSON.stringify(value);
   }
+
+  return String(value);
+};
+
+/** Human readable representation of any value */
+export const stringify = (value: any) => {
+  if (typeof value == 'string') return `"${value}"`;
+  else return getString(value);
 };
 
 export const createTaggedMap = <M, K extends keyof M>(
