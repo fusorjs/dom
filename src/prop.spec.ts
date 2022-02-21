@@ -1,55 +1,91 @@
-import {Evaluable, PropData} from './types';
+import {PropData} from './types';
+import {convertProp, updateProp, initProp, useCapture, emptyProp} from './prop';
+import {evaluate, getString} from './utils';
 import {getStringTestData} from './test-data.spec';
-import {prepareProp, updateProp, initProp, useCapture} from './prop';
-import {evaluate} from './utils';
 
-const preparePropTestData = (convert =>
-  getStringTestData.map(
-    // convert some values
-    ([p, e]) =>
-      (found => (found ? ([p, found[1]] as const) : ([p, e] as const)))(
-        convert.find(([pp]) => p === pp),
-      ),
-  ))([
-  ['', undefined],
-  [null, undefined],
-  [false, undefined],
-  [undefined, undefined],
+test.each([
+  ['', emptyProp],
+  [null, emptyProp],
+  [false, emptyProp],
+  [emptyProp, emptyProp],
   [true, ''],
-] as const);
+  ['other', 'other'],
+])('convert prop provided %p expected %p', (provided, expected) => {
+  expect(convertProp(provided)).toBe(expected);
+});
 
-test.each(preparePropTestData)(
-  'prepare provided %p expected %p',
-  (provided, expected) => {
-    expect(prepareProp(provided)).toBe(expected);
-  },
-);
+describe('init prop event listener', () => {
+  const element = {
+    addEventListener: jest.fn(),
+  } as unknown as Element;
 
-const updatePropTestData = preparePropTestData.map(
-  // evaluate provided functions and prepare their expected values
-  ([p, e]) =>
-    typeof p === 'function'
-      ? (p => [p, prepareProp(p)] as const)(evaluate(p as Evaluable<typeof p>))
-      : ([p, e] as const),
-);
+  test('init event listener prop', () => {
+    const name = 'click';
+    const callback = () => {};
+    const updater = initProp(element, `on${name}`, callback);
+
+    expect(updater).toBeUndefined();
+
+    expect(element.addEventListener).toHaveBeenCalledTimes(1);
+    expect(element.addEventListener).toHaveBeenCalledWith(
+      name,
+      callback,
+      useCapture,
+    );
+  });
+});
 
 const key = 'myprop';
 
-const element = {
-  setAttribute: jest.fn(),
-  removeAttribute: jest.fn(),
-  addEventListener: jest.fn(),
-} as unknown as Element;
+const propTestData = getStringTestData.map(([p]) => [
+  p,
+  convertProp(typeof p === 'function' ? evaluate(p) : p),
+]);
+
+describe('init prop', () => {
+  const element = {
+    setAttribute: jest.fn(),
+  } as unknown as Element;
+
+  test.each(propTestData)(
+    `init prop provided %p expected %p`,
+    (provided, expected) => {
+      const result = initProp(element, key, provided as any);
+
+      if (expected === emptyProp) {
+        expect(element.setAttribute).not.toHaveBeenCalled();
+      } else {
+        expect(element.setAttribute).toHaveBeenCalledTimes(1);
+        expect(element.setAttribute).toHaveBeenCalledWith(
+          key,
+          getString(expected),
+        );
+      }
+
+      if (typeof provided === 'function')
+        expect(result).toEqual<PropData>({
+          update: provided,
+          value: expected,
+        });
+      else expect(result).toBeUndefined();
+    },
+  );
+});
 
 describe('update', () => {
+  const element = {
+    setAttribute: jest.fn(),
+    removeAttribute: jest.fn(),
+  } as unknown as Element;
+
   let dynamic: any = undefined;
 
   const data: PropData = {
-    updater: () => dynamic,
+    update: () => dynamic,
     value: dynamic,
   };
 
-  test.each(updatePropTestData)(
+  test.each(propTestData)(
     'update provided %p expected %p',
     (provided, expected) => {
       const isSame = expected === data.value;
@@ -67,81 +103,14 @@ describe('update', () => {
         expect(element.removeAttribute).toHaveBeenCalledWith(key);
       } else {
         expect(element.setAttribute).toHaveBeenCalledTimes(1);
-        expect(element.setAttribute).toHaveBeenCalledWith(key, expected);
+        expect(element.setAttribute).toHaveBeenCalledWith(
+          key,
+          getString(expected),
+        );
         expect(element.removeAttribute).not.toHaveBeenCalled();
       }
-
-      expect(element.addEventListener).not.toHaveBeenCalled();
     },
   );
-});
-
-test('init event listener', () => {
-  const name = 'click';
-  const callback = () => {};
-  const updater = initProp(element, `on${name}`, callback);
-
-  expect(updater).toBeUndefined();
-
-  expect(element.setAttribute).not.toHaveBeenCalled();
-  expect(element.removeAttribute).not.toHaveBeenCalled();
-  expect(element.addEventListener).toHaveBeenCalledTimes(1);
-  expect(element.addEventListener).toHaveBeenCalledWith(
-    name,
-    callback,
-    useCapture,
-  );
-});
-
-test.each(updatePropTestData)(
-  `init static provided %p expected %p`,
-  (provided, expected) => {
-    const isRemoved = expected === undefined;
-    const updater = initProp(element, key, provided as any);
-
-    expect(updater).toBeUndefined();
-
-    if (isRemoved) {
-      expect(element.setAttribute).not.toHaveBeenCalled();
-    } else {
-      expect(element.setAttribute).toHaveBeenCalledTimes(1);
-      expect(element.setAttribute).toHaveBeenCalledWith(key, expected);
-    }
-
-    expect(element.removeAttribute).not.toHaveBeenCalled();
-    expect(element.addEventListener).not.toHaveBeenCalled();
-  },
-);
-
-test.each(
-  preparePropTestData.map(
-    // wrap provided in function
-    ([p, e]) =>
-      [
-        () => p,
-        typeof p === 'function'
-          ? prepareProp(evaluate(p as Evaluable<typeof p>))
-          : e,
-      ] as const,
-  ),
-)(`init dynamic provided %p expected %p`, (provided, expected) => {
-  const isRemoved = expected === undefined;
-  const data = initProp(element, key, provided as any);
-
-  expect(data).toEqual({
-    updater: provided,
-    value: expected,
-  });
-
-  if (isRemoved) {
-    expect(element.setAttribute).not.toHaveBeenCalled();
-  } else {
-    expect(element.setAttribute).toHaveBeenCalledTimes(1);
-    expect(element.setAttribute).toHaveBeenCalledWith(key, expected);
-  }
-
-  expect(element.removeAttribute).not.toHaveBeenCalled();
-  expect(element.addEventListener).not.toHaveBeenCalled();
 });
 
 // ! refs are deprecated
@@ -173,6 +142,6 @@ test.each([
   // ['ref', 'str', new TypeError(`illegal property: "ref" = "str"; expected function or object`)], // ! deprecated
 ])('init key %p provided %p error %p', (key, provided, error) => {
   expect(() => {
-    initProp(element, key, provided);
+    initProp(document.createElement('div'), key, provided);
   }).toThrow(error);
 });
