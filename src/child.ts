@@ -1,83 +1,97 @@
-import {Child, Updater, Component, Evaluable} from './types';
+import {StaticChild, Child, Component, Evaluable, ChildData} from './types';
 import {evaluate, getString} from './utils';
 
-const createUpdater = (
-  callback: Evaluable<Child>,
-  parentNode: Node,
-): Updater => {
-  // init
+export const emptyChild = '';
 
-  let prevValue = evaluate(callback);
-
-  let prevNode: Element | Text;
-
-  if (prevValue instanceof Element) {
-    prevNode = prevValue;
-  } else if (prevValue instanceof Component) {
-    prevNode = prevValue.getElement();
-  } else {
-    prevNode = document.createTextNode(getString(prevValue));
+export const convertChild = (value: any) => {
+  switch (value) {
+    case null:
+    case undefined:
+    case emptyChild:
+      return emptyChild;
+    default:
+      return value;
   }
-
-  parentNode.appendChild(prevNode);
-
-  // update // todo class
-  return () => {
-    const nextValue = evaluate(callback);
-
-    if (nextValue === prevValue) return;
-
-    prevValue = nextValue;
-
-    // todo optimize branch order:
-
-    // replace with different element
-    if (nextValue instanceof Element) {
-      parentNode.replaceChild(nextValue, prevNode);
-      prevNode = nextValue;
-    }
-    // replace with different component's element
-    else if (nextValue instanceof Component) {
-      const elm = nextValue.getElement();
-
-      parentNode.replaceChild(elm, prevNode);
-      prevNode = elm;
-    }
-    // replace text within the same text node
-    else if (prevNode instanceof Text) {
-      prevNode.nodeValue = getString(nextValue);
-    }
-    // replace element with text node
-    else {
-      const nextNode = document.createTextNode(getString(nextValue));
-
-      parentNode.replaceChild(nextNode, prevNode);
-      prevNode = nextNode;
-    }
-  };
 };
 
-export const initChild = (parent: Element, value: Child) => {
-  // todo optimize branch order:
+export const getChildNode = (value: any): Element | Text => {
+  if (value instanceof Element) {
+    return value;
+  } else if (value instanceof Component) {
+    return value.getElement();
+  } else {
+    return document.createTextNode(getString(value));
+  }
+};
 
+export const initChild = (parent: Node, value: Child) => {
+  value = convertChild(value);
+
+  // do nothing
+  if (value === emptyChild) {
+    return;
+  }
+  // static element
+  else if (value instanceof Element) {
+    parent.appendChild(value);
+  }
   // dynamic component
-  if (value instanceof Component) {
-    parent.append(value.getElement());
+  else if (value instanceof Component) {
+    parent.appendChild(value.getElement());
 
     return value;
   }
   // dynamic updater
   else if (typeof value === 'function') {
-    return createUpdater(value as Evaluable<Child>, parent);
-  }
-  // static element
-  else if (value instanceof Element) {
-    parent.append(value);
+    const val = convertChild(evaluate(value as Evaluable<StaticChild>));
+    const node = getChildNode(val);
+
+    parent.appendChild(node);
+
+    const data: ChildData = {
+      update: value as Evaluable<StaticChild>,
+      value: val,
+      node: node,
+    };
+
+    return data;
   }
   // static value
   else {
-    parent.append(getString(value));
+    parent.appendChild(document.createTextNode(getString(value)));
     // do not optimize by concatenating serial static values to a single node
     // it should be done by the client code in upper scope
+  }
+};
+
+export const updateChild = (parent: Node, data: ChildData) => {
+  const value = convertChild(evaluate(data.update));
+
+  if (value === data.value) return;
+
+  data.value = value;
+
+  // replace with different element
+  if (value instanceof Element) {
+    parent.replaceChild(value, data.node);
+    data.node = value;
+  }
+  // replace with different component's element
+  else if (value instanceof Component) {
+    const element = value.getElement();
+
+    parent.replaceChild(element, data.node);
+    data.node = element;
+  }
+  // replace text reusing node
+  else if (data.node instanceof Text) {
+    data.node.nodeValue = getString(value);
+  }
+  // replace text creating node
+  else {
+    const node = document.createTextNode(getString(value));
+
+    parent.replaceChild(node, data.node);
+    data.node = node;
   }
 };

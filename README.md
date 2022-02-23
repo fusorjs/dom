@@ -34,16 +34,14 @@ The generic @perform dom html, svg element components.
 - Create default behaviour for array child. It will make easier to use api for newcomers. It should be best optimized for most common cases. After some thoughts, the default behaviour should be to construct new element out of array on each update. Whe should not manipulate/mutate element's children!
 - remove external dependencies (common)
 - init children from array, multiple times (spread/rest optimization)
+- implement attribute setters for svg
+- migrate to component class and prop/child instance data instead of closures (memory optimization)
 
 ## BACKLOG
 
-- migrate to classes
-
-- implement attribute setters for svg
 - init multiple children from dynamic array (usinng node indexes range for updater).
+- implement style, object, data attributes,
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
-- convinience method for working with elements (body <- App)
-- implement style object, data-\* object attributes,
 
 ```json
   "exports": {

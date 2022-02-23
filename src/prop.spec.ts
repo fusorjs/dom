@@ -17,12 +17,12 @@ test.each([
 describe('init prop event listener', () => {
   const element = {
     addEventListener: jest.fn(),
-  } as unknown as Element;
+  };
 
-  test('init event listener prop', () => {
+  test('init prop event listener', () => {
     const name = 'click';
     const callback = () => {};
-    const updater = initProp(element, `on${name}`, callback);
+    const updater = initProp(element as any as Element, `on${name}`, callback);
 
     expect(updater).toBeUndefined();
 
@@ -37,21 +37,21 @@ describe('init prop event listener', () => {
 
 const key = 'myprop';
 
-const propTestData = getStringTestData.map(([p]) => [
-  p,
-  convertProp(typeof p === 'function' ? evaluate(p) : p),
-]);
+const propTestData = getStringTestData.map(
+  ([p]) => [p, convertProp(typeof p === 'function' ? evaluate(p) : p)] as const,
+);
 
 describe('init prop', () => {
   const element = {
     setAttribute: jest.fn(),
-  } as unknown as Element;
+  };
 
   test.each(propTestData)(
     `init prop provided %p expected %p`,
     (provided, expected) => {
-      const result = initProp(element, key, provided as any);
+      const result = initProp(element as any as Element, key, provided as any);
 
+      // prop
       if (expected === emptyProp) {
         expect(element.setAttribute).not.toHaveBeenCalled();
       } else {
@@ -62,6 +62,7 @@ describe('init prop', () => {
         );
       }
 
+      // updater
       if (typeof provided === 'function')
         expect(result).toEqual<PropData>({
           update: provided,
@@ -72,11 +73,11 @@ describe('init prop', () => {
   );
 });
 
-describe('update', () => {
+describe('update prop', () => {
   const element = {
     setAttribute: jest.fn(),
     removeAttribute: jest.fn(),
-  } as unknown as Element;
+  };
 
   let dynamic: any = undefined;
 
@@ -86,13 +87,13 @@ describe('update', () => {
   };
 
   test.each(propTestData)(
-    'update provided %p expected %p',
+    'update prop provided %p expected %p',
     (provided, expected) => {
-      const isSame = expected === data.value;
+      const isSame = expected === data.value; // before updater
       const isRemoved = expected === undefined;
 
       dynamic = provided;
-      updateProp(element, key, data);
+      updateProp(element as any as Element, key, data);
 
       if (isSame) {
         expect(element.setAttribute).not.toHaveBeenCalled();
@@ -140,7 +141,7 @@ test.each([
     new TypeError(`illegal property: "onclick" = "str"; expected function`),
   ],
   // ['ref', 'str', new TypeError(`illegal property: "ref" = "str"; expected function or object`)], // ! deprecated
-])('init key %p provided %p error %p', (key, provided, error) => {
+])('init prop key %p provided %p expected %p', (key, provided, error) => {
   expect(() => {
     initProp(document.createElement('div'), key, provided);
   }).toThrow(error);
