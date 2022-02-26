@@ -2,10 +2,10 @@ import {
   StaticArg,
   Arg,
   Component,
-  ChildUpdater,
+  DynamicChild,
   Prop,
   Child,
-  PropsDatas,
+  DynamicProps,
 } from './types';
 import {initProp} from './prop';
 import {initChild} from './child';
@@ -23,29 +23,29 @@ export interface Creator<E extends Element> {
 export const initElement: Initiator = (element, args) => {
   // init
 
-  let propsDatas: PropsDatas | undefined;
-  let childUpdaters: ChildUpdater<Element>[] | undefined;
+  let props: DynamicProps | undefined;
+  let children: DynamicChild<Element>[] | undefined;
 
   for (const arg of args) {
     // init props
     if (arg?.constructor === Object) {
       for (const [key, val] of Object.entries(arg)) {
-        const updater = initProp(element, key, val as Prop);
+        const dynamic = initProp(element, key, val as Prop);
 
-        if (updater) {
-          if (propsDatas) propsDatas[key] = updater;
-          else propsDatas = {[key]: updater};
+        if (dynamic) {
+          if (props) props[key] = dynamic;
+          else props = {[key]: dynamic};
         }
       }
     }
     // init children
     else if (Array.isArray(arg)) {
       for (const a of arg) {
-        const updater = initChild(element, a as Child);
+        const dynamic = initChild(element, a as Child);
 
-        if (updater) {
-          if (childUpdaters) childUpdaters.push(updater);
-          else childUpdaters = [updater];
+        if (dynamic) {
+          if (children) children.push(dynamic);
+          else children = [dynamic];
         }
       }
     }
@@ -54,13 +54,13 @@ export const initElement: Initiator = (element, args) => {
       const updater = initChild(element, arg as Child);
 
       if (updater) {
-        if (childUpdaters) childUpdaters.push(updater);
-        else childUpdaters = [updater];
+        if (children) children.push(updater);
+        else children = [updater];
       }
     }
   }
 
-  return propsDatas || childUpdaters
-    ? new Component(element, propsDatas, childUpdaters) // dynamic
+  return props || children
+    ? new Component(element, props, children) // dynamic
     : element; // static
 };

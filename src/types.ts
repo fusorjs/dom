@@ -1,3 +1,4 @@
+import {updateChild} from './child';
 import {updateProp} from './prop';
 
 // export type some = string | number | boolean | symbol | object;
@@ -9,7 +10,7 @@ export type StaticProp = Primitive;
 
 type SingleStaticChild = Primitive | Element;
 
-type StaticChild = SingleStaticChild | Array<SingleStaticChild>;
+export type StaticChild = SingleStaticChild | Array<SingleStaticChild>;
 
 interface StaticProps {
   [key: string]: StaticProp;
@@ -43,18 +44,26 @@ export type Arg = Props | Child;
 
 export type Updater = () => void;
 
-export type Evaluable<T> = () => T | (() => Evaluable<T>);
+export type Evaluable<T> = () => T | (() => Evaluable<T>); // todo remove function from result
 
 export interface PropData {
-  readonly updater: Evaluable<StaticProp>;
-  value: string | undefined;
+  readonly update: Evaluable<StaticProp>;
+  value: StaticProp;
 }
 
-export interface PropsDatas {
+export interface DynamicProps {
   [key: string]: PropData;
 }
 
-export type ChildUpdater<E extends Element> = Updater | Component<E>;
+// todo type EvaluatedChild = SingleStaticChild | Component<Element>
+
+export interface ChildData {
+  readonly update: Evaluable<StaticChild>; // todo EvaluatedChild
+  value: StaticChild;
+  node: Element | Text;
+}
+
+export type DynamicChild<E extends Element> = ChildData | Component<E>;
 
 // elementary-js/dom-component
 // dom-element-component
@@ -63,8 +72,8 @@ export type ChildUpdater<E extends Element> = Updater | Component<E>;
 export class Component<E extends Element> {
   constructor(
     private element: E,
-    private propsDatas?: PropsDatas,
-    private childUpdaters?: readonly ChildUpdater<E>[],
+    private props?: DynamicProps,
+    private children?: readonly DynamicChild<E>[],
   ) {}
 
   getElement() {
@@ -72,18 +81,18 @@ export class Component<E extends Element> {
   }
 
   update() {
-    const {element, propsDatas, childUpdaters} = this;
+    const {element, props, children} = this;
 
-    if (propsDatas) {
-      for (const [key, data] of Object.entries(propsDatas)) {
+    if (props) {
+      for (const [key, data] of Object.entries(props)) {
         updateProp(element, key, data);
       }
     }
 
-    if (childUpdaters) {
-      for (const u of childUpdaters) {
-        if (u instanceof Component) u.update();
-        else u();
+    if (children) {
+      for (const i of children) {
+        if (i instanceof Component) i.update();
+        else updateChild(element, i);
       }
     }
   }
