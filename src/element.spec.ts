@@ -336,9 +336,20 @@ test('init element with dynamic array of children', () => {
   expect(result.getElement()).toBe(element);
 
   expect(element.attributes.length).toBe(0);
-  expect(element.childNodes.length).toBe(3);
+  expect(element.childNodes.length).toBe(5);
 
   expect(element.childNodes[0].nodeValue).toBe('111');
   expect(element.childNodes[1].nodeValue).toBe('dynamic');
-  expect(element.childNodes[2].nodeValue).toBe('[1,2,3]'); // todo dynamic array updater
+  expect(element.childNodes[2].nodeValue).toBe('1');
+  expect(element.childNodes[3].nodeValue).toBe('2');
+  expect(element.childNodes[4].nodeValue).toBe('3');
+
+  result.update();
+
+  expect(element.attributes.length).toBe(0);
+  expect(element.childNodes.length).toBe(3);
+
+  expect(element.childNodes[0].nodeValue).toBe('1');
+  expect(element.childNodes[1].nodeValue).toBe('2');
+  expect(element.childNodes[2].nodeValue).toBe('3');
 });

@@ -1,17 +1,17 @@
 import {getString} from './utils';
-import {Evaluable, Prop, PropData, StaticProp} from './types';
+import {Evaluable, Prop, UpdatableProp, StaticProp} from './types';
 import {evaluate, stringify} from './utils';
 
 export const emptyProp = undefined;
 
-export const convertProp = (value: any) => {
+export const convertProp = <T>(value: T): T | typeof emptyProp | '' => {
   switch (value) {
-    case '': // ? maybe not
+    case '' as any: // ? maybe not
     case null:
-    case false:
+    case false as any:
     case emptyProp:
       return emptyProp;
-    case true:
+    case true as any:
       return '';
     default:
       return value;
@@ -21,13 +21,13 @@ export const convertProp = (value: any) => {
 export const useCapture = false;
 
 export const initProp = (element: Element, key: string, value: Prop) => {
-  value = convertProp(value);
+  value = convertProp(value); // todo except (typeof value === 'function')
 
   // do nothing
   if (value === emptyProp) {
     return;
   }
-  // static event listener
+  // init static event listener
   else if (key.startsWith('on')) {
     if (typeof value !== 'function')
       throw new TypeError(
@@ -58,26 +58,30 @@ export const initProp = (element: Element, key: string, value: Prop) => {
   //   }
   // }
 
-  // dynamic property
+  // init dynamic property
   else if (typeof value === 'function') {
     const val = convertProp(evaluate(value as Evaluable<StaticProp>));
 
     if (val !== emptyProp) element.setAttribute(key, getString(val));
 
-    const data: PropData = {
+    const data: UpdatableProp = {
       update: value as Evaluable<StaticProp>,
       value: val,
     };
 
     return data;
   }
-  // static property
+  // init static property
   else {
     element.setAttribute(key, getString(value));
   }
 };
 
-export const updateProp = (element: Element, key: string, data: PropData) => {
+export const updateProp = (
+  element: Element,
+  key: string,
+  data: UpdatableProp,
+) => {
   const value = convertProp(evaluate(data.update));
 
   if (value === data.value) return;
@@ -121,3 +125,5 @@ input    | value     | defaultValue (string)
 select   | multiple  | multiple (bool)
 li       | value     | value (int)
 */
+
+// https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#reflecting-content-attributes-in-idl-attributes

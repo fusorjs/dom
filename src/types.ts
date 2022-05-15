@@ -4,15 +4,15 @@ import {updateProp} from './prop';
 // export type some = string | number | boolean | symbol | object;
 // export type StaticValue <T> = T extends Function ? never : T;
 
-type Primitive = string | number | boolean | symbol | null | undefined;
+export type Primitive = string | number | boolean | symbol | null | undefined;
 
 export type StaticProp = Primitive;
 
-type SingleStaticChild = Primitive | Element;
+export type SingleStaticChild = Primitive | Element;
 
 export type StaticChild = SingleStaticChild | Array<SingleStaticChild>;
 
-interface StaticProps {
+export interface StaticProps {
   [key: string]: StaticProp;
 }
 // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
@@ -32,11 +32,11 @@ export type StaticArg = StaticProps | StaticChild;
 
 export type Prop = StaticProp | Function;
 
-type SingleChild = SingleStaticChild | Function | Component<Element>;
+export type SingleChild = SingleStaticChild | Function | Component<Element>;
 
 export type Child = SingleChild | Array<SingleChild>;
 
-interface Props {
+export interface Props {
   [key: string]: Prop;
 }
 
@@ -44,26 +44,46 @@ export type Arg = Props | Child;
 
 export type Updater = () => void;
 
-export type Evaluable<T> = () => T | (() => Evaluable<T>); // todo remove function from result
+export type Evaluable<T> = () => T | (() => Evaluable<T>);
 
-export interface PropData {
-  readonly update: Evaluable<StaticProp>;
-  value: StaticProp;
+export type Evaluated<T> = Exclude<T, Function>;
+
+export interface UpdatableProp {
+  readonly update: Evaluable<Prop>;
+  value: Evaluated<Prop>;
 }
 
 export interface DynamicProps {
-  [key: string]: PropData;
+  [key: string]: UpdatableProp;
 }
 
-// todo type EvaluatedChild = SingleStaticChild | Component<Element>
+export type ValueNode = Text | Element;
 
-export interface ChildData {
-  readonly update: Evaluable<StaticChild>; // todo EvaluatedChild
-  value: StaticChild;
-  node: Element | Text;
+export interface ChildCache {
+  value: Evaluated<SingleChild>;
+  node: ValueNode;
 }
 
-export type DynamicChild<E extends Element> = ChildData | Component<E>;
+export interface UpdatableChild {
+  readonly update: Evaluable<Child>;
+  cache: ChildCache | ChildCache[];
+}
+
+// todo
+// export type UpdatableChild = {
+//   readonly update: Evaluable<Child>;
+// } & (
+//   | {
+//       value: Evaluated<SingleChild>;
+//       node: ValueNode;
+//     }
+//   | {
+//       value: Evaluated<SingleChild[]>;
+//       node: ValueNode[];
+//     }
+// );
+
+export type DynamicChild<E extends Element> = UpdatableChild | Component<E>;
 
 // elementary-js/dom-component
 // dom-element-component
@@ -84,15 +104,15 @@ export class Component<E extends Element> {
     const {element, props, children} = this;
 
     if (props) {
-      for (const [key, data] of Object.entries(props)) {
-        updateProp(element, key, data);
+      for (const [key, prop] of Object.entries(props)) {
+        updateProp(element, key, prop);
       }
     }
 
     if (children) {
-      for (const i of children) {
-        if (i instanceof Component) i.update();
-        else updateChild(element, i);
+      for (const child of children) {
+        if (child instanceof Component) child.update();
+        else updateChild(element, child);
       }
     }
   }

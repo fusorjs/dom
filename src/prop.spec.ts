@@ -1,4 +1,4 @@
-import {PropData} from './types';
+import {UpdatableProp} from './types';
 import {convertProp, updateProp, initProp, useCapture, emptyProp} from './prop';
 import {evaluate, getString} from './utils';
 import {getStringTestData} from './test-data.spec';
@@ -47,7 +47,7 @@ describe('init prop', () => {
   };
 
   test.each(propTestData)(
-    `init prop provided %p expected %p`,
+    `init prop provided %p expected %p <<< %p <<< %p`,
     (provided, expected) => {
       const result = initProp(element as any as Element, key, provided as any);
 
@@ -64,7 +64,7 @@ describe('init prop', () => {
 
       // updater
       if (typeof provided === 'function')
-        expect(result).toEqual<PropData>({
+        expect(result).toEqual<UpdatableProp>({
           update: provided,
           value: expected,
         });
@@ -79,21 +79,21 @@ describe('update prop', () => {
     removeAttribute: jest.fn(),
   };
 
-  let dynamic: any = undefined;
+  let dynamic: any;
 
-  const data: PropData = {
+  const updatable: UpdatableProp = {
     update: () => dynamic,
     value: dynamic,
   };
 
   test.each(propTestData)(
-    'update prop provided %p expected %p',
+    'update prop provided %p expected %p <<< %p <<< %p',
     (provided, expected) => {
-      const isSame = expected === data.value; // before updater
+      const isSame = expected === updatable.value; // before updater
       const isRemoved = expected === undefined;
 
       dynamic = provided;
-      updateProp(element as any as Element, key, data);
+      updateProp(element as any as Element, key, updatable);
 
       if (isSame) {
         expect(element.setAttribute).not.toHaveBeenCalled();

@@ -7,8 +7,9 @@ The generic @perform dom html, svg element components.
 - the Element never changes
 - use functions for dynamic props/children
 - you should use props for context (context should be explicit, not hidden)
-- if component is dynamic, you should call it (update) to fully initialize its dynamic props/children
-- props objects can be applied multiple times (for performance, see button in html.ts), please place them before children for readability
+- props objects can be applied multiple times (spread/rest optimization, see button in html.ts), please place them before children for readability
+- children arrays could be appended/updated multiple times (spread/rest optimization)
+- dynamic children arrays cannot have dynamic elements (as it ruins the declarative predictability)
 
 ## Naming Conventions
 
@@ -29,17 +30,24 @@ The generic @perform dom html, svg element components.
 - Set property instead of setAttribute for maximum performace. (Use attributes in development maybe for visibility? - No, just props are enough.) After a while: the performance difference is neglible. But the important thing is: not all attributes are mapped to props (area), non standard attributes aren't mapped (custom elements), svg attributes aren't mapped. Reverting back for the time being.
 - 100% test coveragge
 - rename to: dom-element
-- declare props in any argument, multiple times (not only in the first) optimization
+- declare props in any argument, multiple times (not only in the first, spread/rest optimization)
 - init dynamic props and children immidiately (now you have to call updater to set the dynamic values). For example in children initializer we create placeholder text node. And only after `update` we will swap it with real value. We should avoid it.
 - Create default behaviour for array child. It will make easier to use api for newcomers. It should be best optimized for most common cases. After some thoughts, the default behaviour should be to construct new element out of array on each update. Whe should not manipulate/mutate element's children!
 - remove external dependencies (common)
 - init children from array, multiple times (spread/rest optimization)
 - implement attribute setters for svg
 - migrate to component class and prop/child instance data instead of closures (memory optimization)
+- init children from static array (spread/rest optimization)
+- replace all children from dynamic array (spread/rest optimization)
 
 ## BACKLOG
 
-- init multiple children from dynamic array (usinng node indexes range for updater).
+- todo UpdatableChild
+
+- add possibility to set property (ex: input.value) instead of always setting attribute (probably by using prefix "$" or by defining all cases)
+
+- replace only range of children from dynamic array (usinng node start/end indexes)
+
 - implement style, object, data attributes,
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
 

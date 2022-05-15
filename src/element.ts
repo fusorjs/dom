@@ -4,8 +4,8 @@ import {
   Component,
   DynamicChild,
   Prop,
-  Child,
   DynamicProps,
+  SingleChild,
 } from './types';
 import {initProp} from './prop';
 import {initChild} from './child';
@@ -21,8 +21,6 @@ export interface Creator<E extends Element> {
 }
 
 export const initElement: Initiator = (element, args) => {
-  // init
-
   let props: DynamicProps | undefined;
   let children: DynamicChild<Element>[] | undefined;
 
@@ -30,32 +28,32 @@ export const initElement: Initiator = (element, args) => {
     // init props
     if (arg?.constructor === Object) {
       for (const [key, val] of Object.entries(arg)) {
-        const dynamic = initProp(element, key, val as Prop);
+        const prop = initProp(element, key, val as Prop);
 
-        if (dynamic) {
-          if (props) props[key] = dynamic;
-          else props = {[key]: dynamic};
+        if (prop) {
+          if (props) props[key] = prop;
+          else props = {[key]: prop};
         }
       }
     }
     // init children
     else if (Array.isArray(arg)) {
       for (const a of arg) {
-        const dynamic = initChild(element, a as Child);
+        const child = initChild(element, a as SingleChild);
 
-        if (dynamic) {
-          if (children) children.push(dynamic);
-          else children = [dynamic];
+        if (child) {
+          if (children) children.push(child);
+          else children = [child];
         }
       }
     }
     // init child
     else {
-      const updater = initChild(element, arg as Child);
+      const child = initChild(element, arg as SingleChild);
 
-      if (updater) {
-        if (children) children.push(updater);
-        else children = [updater];
+      if (child) {
+        if (children) children.push(child);
+        else children = [child];
       }
     }
   }

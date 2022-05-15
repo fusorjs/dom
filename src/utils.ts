@@ -1,20 +1,23 @@
-import {Component, Evaluable} from './types';
+import {Component, Evaluable, Evaluated} from './types';
+
+export const ObjectIs = Object.is;
 
 export const isDevelopment =
   process?.env?.NODE_ENV?.trim().toLowerCase() === 'development';
 
 /** evaluate functional expression (conditions, dynamic) */
-export const evaluate = <T>(callback: Evaluable<T>): T => {
+export const evaluate = <T>(callback: Evaluable<T>): Evaluated<T> => {
   let value = callback();
 
   // faster than recursion
   for (let i = 1; typeof value === 'function'; i++) {
     if (i === 5)
       throw new TypeError(`preventing indefinite callback: ${i + 1}`);
+
     value = (value as Evaluable<T>)();
   }
 
-  return value;
+  return value as Evaluated<T>;
 };
 
 /** Get string value of anything. */

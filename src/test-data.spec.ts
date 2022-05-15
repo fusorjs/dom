@@ -1,8 +1,17 @@
 import {Component} from './types';
 
-type TestItem = [any, string];
+type TestItem = [any, string, string?];
 
-export const getStringTestData = (a => [...a, ...a] as const)([
+export const getStringTestData = (all => {
+  return [
+    // repeat all items
+    ...all,
+    ...all,
+    ...[...all].reverse(),
+    ...all,
+    ...all,
+  ] as const;
+})([
   // numbers
   [0, '0'],
   [-0, '0'],
@@ -33,10 +42,14 @@ export const getStringTestData = (a => [...a, ...a] as const)([
   // arrays
   [[], '[]'],
   [[1, 2, 3], '[1,2,3]'],
+  [[1, 2, 4], '[1,2,4]'],
+  [['a', 'b'], '["a","b"]'],
 
   // objects
   [{}, '{}'],
+  [{a: 1}, '{"a":1}'],
   [{a: 1, b: 2}, '{"a":1,"b":2}'],
+  [{a: 1, b: 3}, '{"a":1,"b":3}'],
 
   // functions
   [() => {}, '() => { }'],
@@ -45,15 +58,23 @@ export const getStringTestData = (a => [...a, ...a] as const)([
   [(x: any) => x + x, '(x) => x + x'],
 
   // elements
-  [document.createElement('div'), '<div></div>'],
+  [document.createElement('span'), '<span></span>'],
   [
     (() => {
       const e = document.createElement('div');
+      e.append('monna');
+      return e;
+    })(),
+    '<div>monna</div>',
+  ],
+  [
+    (() => {
+      const e = document.createElement('article');
       e.setAttribute('id', 'abba');
       e.append('contra');
       return e;
     })(),
-    '<div id="abba">contra</div>',
+    '<article id="abba">contra</article>',
   ],
   [
     document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
@@ -72,10 +93,18 @@ export const getStringTestData = (a => [...a, ...a] as const)([
     ),
     '<p>zabba</p>',
   ],
-] as TestItem[]).reduce((acc, i) => {
-  const [p] = i;
+] as TestItem[]).reduce((acc, one) => {
+  const [p, e] = one;
 
-  acc.push(i, [() => p, '() => p'], [() => () => p, '() => () => p'], i, i);
+  acc.push(
+    // repeat one item
+    one,
+    one,
+    [() => p, '() => p', e],
+    [() => () => p, '() => () => p'],
+    one,
+    one,
+  );
 
   return acc;
 }, [] as TestItem[]);
