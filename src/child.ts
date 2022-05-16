@@ -2,10 +2,8 @@ import {
   StaticChild,
   Component,
   Evaluable,
-  Evaluated,
   UpdatableChild,
   ValueNode,
-  ChildCache,
   SingleChild,
 } from './types';
 import {evaluate, getString, ObjectIs} from './utils';
@@ -33,51 +31,49 @@ export const getChildNode = (value: any): ValueNode => {
   }
 };
 
-/** @deprecated */
-export const getChildCache = (value: any): ChildCache => {
-  const converted = convertChild(value);
-
-  return {
-    value: converted,
-    node: getChildNode(converted),
-  };
-};
-
 export const initDynamicChild = (
   parent: Node,
   update: Evaluable<StaticChild>,
 ): UpdatableChild => {
-  const result = evaluate(update);
-  let cache: ChildCache | ChildCache[];
+  const value = evaluate(update);
+  let node: ValueNode | ValueNode[];
 
   // init dynamic array
-  if (Array.isArray(result)) {
-    cache = [];
+  if (Array.isArray(value)) {
+    node = [];
 
-    for (let value of result) {
-      value = convertChild(value);
+    for (let v of value) {
+      v = convertChild(v);
 
-      if (value === emptyChild) continue;
+      if (v === emptyChild) continue;
 
-      const node = getChildNode(value);
+      const n = getChildNode(v);
 
-      parent.appendChild(node);
-      cache.push({value, node});
+      parent.appendChild(n);
+      node.push(n);
     }
+
+    return {
+      update,
+      value,
+      node,
+    };
   }
+
   // init dynamic value
   else {
-    const value = convertChild(result);
-    const node = getChildNode(value);
+    const v = convertChild(value);
+
+    node = getChildNode(v);
 
     parent.appendChild(node);
-    cache = {value, node};
-  }
 
-  return {
-    update,
-    cache,
-  };
+    return {
+      update,
+      value,
+      node,
+    };
+  }
 };
 
 export const initChild = (parent: Node, value: SingleChild) => {
@@ -85,16 +81,19 @@ export const initChild = (parent: Node, value: SingleChild) => {
   if (value instanceof Element) {
     parent.appendChild(value);
   }
+
   // init dynamic component
   else if (value instanceof Component) {
     parent.appendChild(value.getElement());
 
     return value;
   }
+
   // init dynamic value
   else if (typeof value === 'function') {
     return initDynamicChild(parent, value as Evaluable<StaticChild>);
   }
+
   // init static value
   else {
     value = convertChild(value);
@@ -102,87 +101,86 @@ export const initChild = (parent: Node, value: SingleChild) => {
     if (value === emptyChild) return; // do nothing
 
     parent.appendChild(document.createTextNode(getString(value)));
-    // do not optimize by concatenating serial static values to a single node
-    // it should be done by the client code in upper scope
   }
 };
 
-export const updateSingleChild = (
-  parent: Node,
-  value: Evaluated<SingleChild>,
-  cache: ChildCache,
-) => {
-  // if (value === cache.value) return;
-  if (ObjectIs(value, cache.value)) return;
-
-  cache.value = value;
-
-  // replace with different element
-  if (value instanceof Element) {
-    parent.replaceChild(value, cache.node);
-    cache.node = value;
-  }
-  // replace with different component's element
-  else if (value instanceof Component) {
-    const element = value.getElement();
-
-    parent.replaceChild(element, cache.node);
-    cache.node = element;
-  }
-  // replace text reusing node
-  else if (cache.node instanceof Text) {
-    cache.node.nodeValue = getString(value);
-  }
-  // replace text creating node
-  else {
-    const node = document.createTextNode(getString(value));
-
-    parent.replaceChild(node, cache.node);
-    cache.node = node;
-  }
-};
-
-const getNode = ({node}: ChildCache) => node;
+export const convertChildNode = <T>(value: T) =>
+  getChildNode(convertChild(value));
 
 export const updateChild = (parent: Node, updatable: UpdatableChild) => {
-  const {update, cache} = updatable;
-  const value = evaluate(update);
-  const isValueArray = Array.isArray(value);
-  const isCacheArray = Array.isArray(cache);
+  const {update, value: prevValue, node: prevNode} = updatable;
+  const nextValue = evaluate(update);
 
-  // update children with children
-  if (isValueArray && isCacheArray) {
-    const cache = value.map(getChildCache);
+  if (ObjectIs(nextValue, prevValue)) return;
 
-    updatable.cache = cache;
+  updatable.value = nextValue;
+
+  const isNextArray = Array.isArray(nextValue);
+  const isPrevArray = Array.isArray(prevValue);
+
+  // -- MULTIPLE --
+
+  // replace children with children
+  if (isNextArray && isPrevArray) {
+    const nextNode = nextValue.map(convertChildNode);
+
+    updatable.node = nextNode;
 
     // todo range, maybe diff
-    (parent as any).replaceChildren(...cache.map(getNode));
+    (parent as any).replaceChildren(...nextNode);
   }
-  // update child with children
-  else if (isValueArray) {
-    const cache = value.map(getChildCache);
 
-    updatable.cache = cache;
+  // replace child with children
+  else if (isNextArray) {
+    const nextNode = nextValue.map(convertChildNode);
+
+    updatable.node = nextNode;
 
     // todo range
-    (parent as any).replaceChildren(...cache.map(getNode));
+    (parent as any).replaceChildren(...nextNode);
   }
-  // update children with child
-  else if (isCacheArray) {
-    const v = convertChild(value);
-    const n = getChildNode(v);
 
-    updatable.cache = {
-      value: v,
-      node: n,
-    };
+  // replace children with child
+  else if (isPrevArray) {
+    const nextNode = convertChildNode(nextValue);
+
+    updatable.node = nextNode;
 
     // todo range
-    (parent as any).replaceChildren(n);
+    (parent as any).replaceChildren(nextNode);
   }
-  // update child with child
+
+  // -- SINGLE --
+
+  // replace with different element
+  else if (nextValue instanceof Element) {
+    updatable.node = nextValue;
+
+    parent.replaceChild(nextValue, prevNode as ValueNode);
+  }
+
+  // replace with different component's element
+  else if (nextValue instanceof Component) {
+    const nextNode = nextValue.getElement();
+
+    updatable.node = nextNode;
+
+    parent.replaceChild(nextNode, prevNode as ValueNode);
+  }
+
+  // replace text reusing node
+  else if (prevNode instanceof Text) {
+    prevNode.nodeValue = getString(convertChild(nextValue));
+  }
+
+  // replace text creating node
   else {
-    updateSingleChild(parent, convertChild(value), cache);
+    const nextNode = document.createTextNode(
+      getString(convertChild(nextValue)),
+    );
+
+    updatable.node = nextNode;
+
+    parent.replaceChild(nextNode, prevNode as ValueNode);
   }
 };

@@ -93,6 +93,7 @@ describe('update prop', () => {
       const isRemoved = expected === undefined;
 
       dynamic = provided;
+
       updateProp(element as any as Element, key, updatable);
 
       if (isSame) {

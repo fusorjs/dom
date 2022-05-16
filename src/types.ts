@@ -59,29 +59,18 @@ export interface DynamicProps {
 
 export type ValueNode = Text | Element;
 
-export interface ChildCache {
-  value: Evaluated<SingleChild>;
-  node: ValueNode;
-}
-
-export interface UpdatableChild {
+export type UpdatableChild = {
   readonly update: Evaluable<Child>;
-  cache: ChildCache | ChildCache[];
-}
-
-// todo
-// export type UpdatableChild = {
-//   readonly update: Evaluable<Child>;
-// } & (
-//   | {
-//       value: Evaluated<SingleChild>;
-//       node: ValueNode;
-//     }
-//   | {
-//       value: Evaluated<SingleChild[]>;
-//       node: ValueNode[];
-//     }
-// );
+} & (
+  | {
+      value: Evaluated<SingleChild>;
+      node: ValueNode;
+    }
+  | {
+      value: Evaluated<SingleChild[]>;
+      node: ValueNode[];
+    }
+);
 
 export type DynamicChild<E extends Element> = UpdatableChild | Component<E>;
 
@@ -89,6 +78,8 @@ export type DynamicChild<E extends Element> = UpdatableChild | Component<E>;
 // dom-element-component
 // DomElementUpdater
 // DynamicElement
+// Turbik
+// Fusor
 export class Component<E extends Element> {
   constructor(
     private element: E,

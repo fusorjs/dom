@@ -10,6 +10,12 @@ The generic @perform dom html, svg element components.
 - props objects can be applied multiple times (spread/rest optimization, see button in html.ts), please place them before children for readability
 - children arrays could be appended/updated multiple times (spread/rest optimization)
 - dynamic children arrays cannot have dynamic elements (as it ruins the declarative predictability)
+- same (by ref) dynamic arrays will not trigger updates
+
+## Guides
+
+- Do not mutate props objects or children arrays that you pass to components.
+- Do not spread join props objects or children array, just pass them separately to components.
 
 ## Naming Conventions
 
@@ -39,10 +45,9 @@ The generic @perform dom html, svg element components.
 - migrate to component class and prop/child instance data instead of closures (memory optimization)
 - init children from static array (spread/rest optimization)
 - replace all children from dynamic array (spread/rest optimization)
+- same (by ref) dynamic arrays will not trigger updates
 
 ## BACKLOG
-
-- todo UpdatableChild
 
 - add possibility to set property (ex: input.value) instead of always setting attribute (probably by using prefix "$" or by defining all cases)
 
