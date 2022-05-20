@@ -1,4 +1,5 @@
-import {Component} from './types';
+import {emptyChild} from './child';
+import {Component} from './element';
 
 type TestItem = [any, string, string?];
 
@@ -44,6 +45,7 @@ export const getStringTestData = (all => {
   [[1, 2, 3], '[1,2,3]'],
   [[1, 2, 4], '[1,2,4]'],
   [['a', 'b'], '["a","b"]'],
+  [['a', emptyChild, 'b'], '["a","","b"]'],
 
   // objects
   [{}, '{}'],

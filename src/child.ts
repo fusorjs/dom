@@ -1,6 +1,6 @@
+import {Component} from './element';
 import {
   StaticChild,
-  Component,
   Evaluable,
   UpdatableChild,
   ValueNode,

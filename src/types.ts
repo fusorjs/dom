@@ -1,5 +1,6 @@
-import {updateChild} from './child';
-import {updateProp} from './prop';
+import {Component} from './element';
+
+// -- ARGS --
 
 // export type some = string | number | boolean | symbol | object;
 // export type StaticValue <T> = T extends Function ? never : T;
@@ -14,6 +15,7 @@ export type StaticChild = SingleStaticChild | Array<SingleStaticChild>;
 
 export interface StaticProps {
   [key: string]: StaticProp;
+  // [kkey: `on${string}`]: Function;
 }
 // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
 // type EventName = `on${string}`;
@@ -42,15 +44,45 @@ export interface Props {
 
 export type Arg = Props | Child;
 
-export type Updater = () => void;
+// -- INIT --
+
+export const enum PropType {
+  ATTRIBUTE,
+  PROPERTY,
+  BUBBLING_EVENT,
+  CAPTURING_EVENT,
+}
+
+export type GetPropConfig = (key: string) => {type: PropType; key: string};
+
+export interface Initiator {
+  <E extends Element>(
+    element: E,
+    args: readonly StaticArg[],
+    getPropConfig: GetPropConfig,
+  ): E;
+  <E extends Element>(
+    element: E,
+    args: readonly Arg[],
+    getPropConfig: GetPropConfig,
+  ): Component<E>;
+}
+
+export interface Creator<E extends Element> {
+  (...args: readonly StaticArg[]): E;
+  (...args: readonly Arg[]): Component<E>;
+}
 
 export type Evaluable<T> = () => T | (() => Evaluable<T>);
 
 export type Evaluated<T> = Exclude<T, Function>;
 
+// -- UPDATE --
+
 export interface UpdatableProp {
   readonly update: Evaluable<Prop>;
   value: Evaluated<Prop>;
+  isAttr: boolean;
 }
 
 export interface DynamicProps {
@@ -73,38 +105,3 @@ export type UpdatableChild = {
 );
 
 export type DynamicChild<E extends Element> = UpdatableChild | Component<E>;
-
-// elementary-js/dom-component
-// dom-element-component
-// DomElementUpdater
-// DynamicElement
-// Turbik
-// Fusor
-export class Component<E extends Element> {
-  constructor(
-    private element: E,
-    private props?: DynamicProps,
-    private children?: readonly DynamicChild<E>[],
-  ) {}
-
-  getElement() {
-    return this.element;
-  }
-
-  update() {
-    const {element, props, children} = this;
-
-    if (props) {
-      for (const [key, prop] of Object.entries(props)) {
-        updateProp(element, key, prop);
-      }
-    }
-
-    if (children) {
-      for (const child of children) {
-        if (child instanceof Component) child.update();
-        else updateChild(element, child);
-      }
-    }
-  }
-}

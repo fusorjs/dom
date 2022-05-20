@@ -11,11 +11,19 @@ The generic @perform dom html, svg element components.
 - children arrays could be appended/updated multiple times (spread/rest optimization)
 - dynamic children arrays cannot have dynamic elements (as it ruins the declarative predictability)
 - same (by ref) dynamic arrays will not trigger updates
-
-## Guides
-
 - Do not mutate props objects or children arrays that you pass to components.
 - Do not spread join props objects or children array, just pass them separately to components.
+
+## The Default Config
+
+### Attributes/Properties/Events
+
+> to overwrite the following config see: `getPropConfig`
+
+- attribute names written as usual (ex: `id`, `href`, `class`)
+- property names start with `$` (ex: `$value`, `$checked`), shortcut `$class` same as `$className`
+- bubbling event handler names start with `on` (ex: `onclick`)
+- capturing event handler names start with `$on` (ex: `$onclick`)
 
 ## Naming Conventions
 
@@ -46,15 +54,15 @@ The generic @perform dom html, svg element components.
 - init children from static array (spread/rest optimization)
 - replace all children from dynamic array (spread/rest optimization)
 - same (by ref) dynamic arrays will not trigger updates
+- add possibility to set property (ex: input.value) instead of always setting attribute (probably by using prefix "$" or by defining all cases)
 
 ## BACKLOG
 
-- add possibility to set property (ex: input.value) instead of always setting attribute (probably by using prefix "$" or by defining all cases)
-
-- replace only range of children from dynamic array (usinng node start/end indexes)
-
 - implement style, object, data attributes,
+- replace only range for dynamic children array (using node start/end indexes)
+- jsx support
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
+- optimize by diffing nodes for dynamic children array
 
 ```json
   "exports": {

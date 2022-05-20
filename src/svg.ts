@@ -1,4 +1,6 @@
-import {Creator, initElement} from './element';
+import {getPropConfig} from './config';
+import {initElement} from './element';
+import {Creator} from './types';
 import {createTaggedMap} from './utils';
 
 export const tagSvgElement =
@@ -7,6 +9,7 @@ export const tagSvgElement =
     initElement(
       document.createElementNS('http://www.w3.org/2000/svg', tagName),
       args,
+      getPropConfig,
     ) as any;
 
 type Result = {

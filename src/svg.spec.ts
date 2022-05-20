@@ -1,4 +1,4 @@
-import {Component} from './types';
+import {Component} from './element';
 import {path, svg} from './svg';
 
 test('empty svg', () => {

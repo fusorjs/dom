@@ -1,4 +1,4 @@
-import {Component} from './types';
+import {Component} from './element';
 import {div, button, p, form, select, option, textarea, a, img} from './html';
 
 test('empty div', () => {

@@ -1,4 +1,4 @@
-import {UpdatableChild, Component, SingleChild} from './types';
+import {UpdatableChild, SingleChild} from './types';
 import {
   convertChild,
   convertChildNode,
@@ -9,6 +9,7 @@ import {
 } from './child';
 import {evaluate, getString, ObjectIs} from './utils';
 import {getStringTestData} from './test-data.spec';
+import {Component} from './element';
 
 test.each([
   [null, emptyChild],
@@ -40,21 +41,14 @@ describe('init child', () => {
       ([p, e1, e2]) =>
         [
           p,
-          // getChildCache(typeof p === 'function' ? evaluate(p) : p),
-          // (e => (Array.isArray(e) ? e.map(getChildCache) : getChildCache(e)))(
-          //   typeof p === 'function' ? evaluate(p) : p,
-          // ),
-          // typeof p === 'function'
-          //   ? (e =>
-          //       Array.isArray(e) ? e.map(getChildCache) : getChildCache(e))(
-          //       evaluate(p),
-          //     )
-          //   : getChildCache(p),
           typeof p === 'function'
             ? (e => ({
                 value: e,
                 node: Array.isArray(e)
-                  ? e.map(convertChildNode)
+                  ? e
+                      .map(convertChild)
+                      .filter(i => i !== emptyChild)
+                      .map(getChildNode)
                   : convertChildNode(e),
               }))(evaluate(p))
             : {

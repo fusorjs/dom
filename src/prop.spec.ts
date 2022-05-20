@@ -1,17 +1,17 @@
-import {UpdatableProp} from './types';
-import {convertProp, updateProp, initProp, useCapture, emptyProp} from './prop';
-import {evaluate, getString} from './utils';
+import {PropType, UpdatableProp} from './types';
+import {convertAttr, updateProp, initProp, emptyAttr} from './prop';
+import {evaluate, getString, ObjectIs} from './utils';
 import {getStringTestData} from './test-data.spec';
 
 test.each([
-  ['', emptyProp],
-  [null, emptyProp],
-  [false, emptyProp],
-  [emptyProp, emptyProp],
+  ['', emptyAttr],
+  [null, emptyAttr],
+  [false, emptyAttr],
+  [emptyAttr, emptyAttr],
   [true, ''],
   ['other', 'other'],
 ])('convert prop provided %p expected %p', (provided, expected) => {
-  expect(convertProp(provided)).toBe(expected);
+  expect(convertAttr(provided)).toBe(expected);
 });
 
 describe('init prop event listener', () => {
@@ -22,7 +22,12 @@ describe('init prop event listener', () => {
   test('init prop event listener', () => {
     const name = 'click';
     const callback = () => {};
-    const updater = initProp(element as any as Element, `on${name}`, callback);
+    const updater = initProp(
+      element as any as Element,
+      name,
+      callback,
+      PropType.BUBBLING_EVENT,
+    );
 
     expect(updater).toBeUndefined();
 
@@ -30,86 +35,125 @@ describe('init prop event listener', () => {
     expect(element.addEventListener).toHaveBeenCalledWith(
       name,
       callback,
-      useCapture,
+      false,
     );
   });
 });
 
-const key = 'myprop';
+const myPropName = 'myPropName'; // not standard
 
-const propTestData = getStringTestData.map(
-  ([p]) => [p, convertProp(typeof p === 'function' ? evaluate(p) : p)] as const,
-);
+const propTestData = [true, false]
+  .map(isAttr =>
+    getStringTestData.map(
+      ([p, e1]) =>
+        [
+          isAttr,
+          p,
+          (e => (isAttr ? convertAttr(e) : e))(
+            typeof p === 'function' ? evaluate(p) : p,
+          ),
+          e1,
+        ] as const,
+    ),
+  )
+  .flat();
 
-describe('init prop', () => {
-  const element = {
-    setAttribute: jest.fn(),
-  };
+const element = {
+  setAttribute: jest.fn(),
+  removeAttribute: jest.fn(), // used only in updater
+  set myPropName(v: any) {},
+};
 
-  test.each(propTestData)(
-    `init prop provided %p expected %p <<< %p <<< %p`,
-    (provided, expected) => {
-      const result = initProp(element as any as Element, key, provided as any);
+const elementSetMyPropName = jest.spyOn(element, myPropName, 'set');
 
-      // prop
-      if (expected === emptyProp) {
+test.each(propTestData)(
+  `init attribute %p provided %p expected %p <<< %p <<< %p`,
+  (isAttr, provided, expected) => {
+    const result = initProp(
+      element as any as Element,
+      myPropName,
+      provided,
+      isAttr ? PropType.ATTRIBUTE : PropType.PROPERTY,
+    );
+
+    // attribute
+    if (isAttr) {
+      if (expected === emptyAttr) {
         expect(element.setAttribute).not.toHaveBeenCalled();
       } else {
         expect(element.setAttribute).toHaveBeenCalledTimes(1);
         expect(element.setAttribute).toHaveBeenCalledWith(
-          key,
+          myPropName,
           getString(expected),
         );
       }
 
-      // updater
-      if (typeof provided === 'function')
-        expect(result).toEqual<UpdatableProp>({
-          update: provided,
-          value: expected,
-        });
-      else expect(result).toBeUndefined();
-    },
-  );
-});
+      expect(elementSetMyPropName).not.toHaveBeenCalled();
+    }
+
+    // property
+    else {
+      expect(element.setAttribute).not.toHaveBeenCalled();
+      expect(elementSetMyPropName).toHaveBeenCalledTimes(1);
+      expect(elementSetMyPropName).toHaveBeenCalledWith(expected);
+    }
+
+    // updater
+    if (typeof provided === 'function')
+      expect(result).toEqual<UpdatableProp>({
+        update: provided,
+        value: expected,
+        isAttr,
+      });
+    else expect(result).toBeUndefined();
+  },
+);
 
 describe('update prop', () => {
-  const element = {
-    setAttribute: jest.fn(),
-    removeAttribute: jest.fn(),
-  };
-
   let dynamic: any;
 
   const updatable: UpdatableProp = {
     update: () => dynamic,
     value: dynamic,
+    isAttr: true,
   };
 
   test.each(propTestData)(
-    'update prop provided %p expected %p <<< %p <<< %p',
-    (provided, expected) => {
-      const isSame = expected === updatable.value; // before updater
-      const isRemoved = expected === undefined;
+    'update attribute %p provided %p expected %p <<< %p <<< %p',
+    (isAttr, provided, expected) => {
+      const isSame = ObjectIs(expected, updatable.value); // before updater
 
       dynamic = provided;
+      updatable.isAttr = isAttr;
 
-      updateProp(element as any as Element, key, updatable);
+      updateProp(element as any as Element, myPropName, updatable);
 
       if (isSame) {
         expect(element.setAttribute).not.toHaveBeenCalled();
         expect(element.removeAttribute).not.toHaveBeenCalled();
-      } else if (isRemoved) {
-        expect(element.setAttribute).not.toHaveBeenCalled();
-        expect(element.removeAttribute).toHaveBeenCalledTimes(1);
-        expect(element.removeAttribute).toHaveBeenCalledWith(key);
+        expect(elementSetMyPropName).not.toHaveBeenCalled();
       } else {
-        expect(element.setAttribute).toHaveBeenCalledTimes(1);
-        expect(element.setAttribute).toHaveBeenCalledWith(
-          key,
-          getString(expected),
-        );
-        expect(element.removeAttribute).not.toHaveBeenCalled();
+        if (isAttr) {
+          if (expected === emptyAttr) {
+            expect(element.setAttribute).not.toHaveBeenCalled();
+            expect(element.removeAttribute).toHaveBeenCalledTimes(1);
+            expect(element.removeAttribute).toHaveBeenCalledWith(myPropName);
+          } else {
+            expect(element.setAttribute).toHaveBeenCalledTimes(1);
+            expect(element.setAttribute).toHaveBeenCalledWith(
+              myPropName,
+              getString(expected),
+            );
+            expect(element.removeAttribute).not.toHaveBeenCalled();
+          }
+
+          expect(elementSetMyPropName).not.toHaveBeenCalled();
+        } else {
+          expect(element.setAttribute).not.toHaveBeenCalled();
+          expect(element.removeAttribute).not.toHaveBeenCalled();
+          expect(elementSetMyPropName).toHaveBeenCalledTimes(1);
+          expect(elementSetMyPropName).toHaveBeenCalledWith(expected);
+        }
       }
     },
   );
@@ -137,13 +181,18 @@ describe('update prop', () => {
 
 test.each([
   [
-    'onclick',
+    'click',
     'str',
-    new TypeError(`illegal property: "onclick" = "str"; expected function`),
+    new TypeError(`illegal event: "click" value: "str" expected: function`),
   ],
   // ['ref', 'str', new TypeError(`illegal property: "ref" = "str"; expected function or object`)], // ! deprecated
 ])('init prop key %p provided %p expected %p', (key, provided, error) => {
   expect(() => {
-    initProp(document.createElement('div'), key, provided);
+    initProp(
+      document.createElement('div'),
+      key,
+      provided,
+      PropType.BUBBLING_EVENT,
+    );
   }).toThrow(error);
 });

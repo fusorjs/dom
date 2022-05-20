@@ -1,9 +1,10 @@
-import {Component, Evaluable, Evaluated} from './types';
+import {Component} from './element';
+import {Evaluable, Evaluated} from './types';
 
 export const ObjectIs = Object.is;
 
-export const isDevelopment =
-  process?.env?.NODE_ENV?.trim().toLowerCase() === 'development';
+export const DEBUG =
+  process?.env?.NODE_ENV?.trim().toLowerCase() !== 'production';
 
 /** evaluate functional expression (conditions, dynamic) */
 export const evaluate = <T>(callback: Evaluable<T>): Evaluated<T> => {

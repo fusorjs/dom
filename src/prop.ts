@@ -1,16 +1,16 @@
-import {getString} from './utils';
-import {Evaluable, Prop, UpdatableProp, StaticProp} from './types';
+import {getString, ObjectIs} from './utils';
+import {Evaluable, Prop, UpdatableProp, StaticProp, PropType} from './types';
 import {evaluate, stringify} from './utils';
 
-export const emptyProp = undefined;
+export const emptyAttr = undefined;
 
-export const convertProp = <T>(value: T): T | typeof emptyProp | '' => {
+export const convertAttr = <T>(value: T): T | typeof emptyAttr | '' => {
   switch (value) {
     case '' as any: // ? maybe not
     case null:
     case false as any:
-    case emptyProp:
-      return emptyProp;
+    case emptyAttr:
+      return emptyAttr;
     case true as any:
       return '';
     default:
@@ -18,26 +18,23 @@ export const convertProp = <T>(value: T): T | typeof emptyProp | '' => {
   }
 };
 
-export const useCapture = false;
-
-export const initProp = (element: Element, key: string, value: Prop) => {
-  value = convertProp(value); // todo except (typeof value === 'function')
-
-  // do nothing
-  if (value === emptyProp) {
-    return;
-  }
+export const initProp = (
+  element: Element,
+  key: string,
+  value: Prop,
+  type: PropType,
+) => {
   // init static event listener
-  else if (key.startsWith('on')) {
+  if (type === PropType.BUBBLING_EVENT || type === PropType.CAPTURING_EVENT) {
     if (typeof value !== 'function')
       throw new TypeError(
-        `illegal property: "${key}" = ${stringify(value)}; expected function`,
+        `illegal event: "${key}" value: ${stringify(value)} expected: function`,
       );
 
     element.addEventListener(
-      key.substring(2),
+      key,
       value as EventListener,
-      useCapture,
+      type === PropType.CAPTURING_EVENT,
     );
   }
   // todo data-
@@ -58,38 +55,61 @@ export const initProp = (element: Element, key: string, value: Prop) => {
   //   }
   // }
 
-  // init dynamic property
+  // init dynamic attribute/property
   else if (typeof value === 'function') {
-    const val = convertProp(evaluate(value as Evaluable<StaticProp>));
+    let val = evaluate(value as Evaluable<StaticProp>);
 
-    if (val !== emptyProp) element.setAttribute(key, getString(val));
+    const isAttr = type === PropType.ATTRIBUTE;
 
-    const data: UpdatableProp = {
+    if (isAttr) {
+      val = convertAttr(val);
+
+      if (val !== emptyAttr) element.setAttribute(key, getString(val));
+    } else {
+      element[key as 'id'] = val as any;
+    }
+
+    const updatable: UpdatableProp = {
       update: value as Evaluable<StaticProp>,
       value: val,
+      isAttr,
     };
 
-    return data;
+    return updatable;
   }
-  // init static property
+
+  // init static attribute/property
   else {
-    element.setAttribute(key, getString(value));
+    if (type === PropType.ATTRIBUTE) {
+      const v = convertAttr(value);
+
+      if (v === emptyAttr) return; // do nothing
+
+      element.setAttribute(key, getString(v));
+    } else {
+      element[key as 'id'] = value as any;
+    }
   }
 };
 
 export const updateProp = (
   element: Element,
   key: string,
-  data: UpdatableProp,
+  updatable: UpdatableProp,
 ) => {
-  const value = convertProp(evaluate(data.update));
+  const {update, value: prevValue, isAttr} = updatable;
+  const nextValue = isAttr ? convertAttr(evaluate(update)) : evaluate(update);
 
-  if (value === data.value) return;
+  if (ObjectIs(nextValue, prevValue)) return;
 
-  data.value = value;
+  updatable.value = nextValue;
 
-  if (value === emptyProp) element.removeAttribute(key);
-  else element.setAttribute(key, getString(value));
+  if (isAttr) {
+    if (nextValue === emptyAttr) element.removeAttribute(key);
+    else element.setAttribute(key, getString(nextValue));
+  } else {
+    element[key as 'id'] = nextValue as any;
+  }
 };
 
 // https://stackoverflow.com/questions/3919291/when-to-use-setattribute-vs-attribute-in-javascript
@@ -127,3 +147,4 @@ li       | value     | value (int)
 */
 
 // https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#reflecting-content-attributes-in-idl-attributes
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes

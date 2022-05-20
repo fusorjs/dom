@@ -1,34 +1,25 @@
 import {
-  StaticArg,
-  Arg,
-  Component,
   DynamicChild,
   Prop,
   DynamicProps,
   SingleChild,
+  Initiator,
 } from './types';
 import {initProp} from './prop';
 import {initChild} from './child';
+import {updateChild} from './child';
+import {updateProp} from './prop';
 
-interface Initiator {
-  <E extends Element>(elem: E, args: readonly StaticArg[]): E;
-  <E extends Element>(elem: E, args: readonly Arg[]): Component<E>;
-}
-
-export interface Creator<E extends Element> {
-  (...args: readonly StaticArg[]): E;
-  (...args: readonly Arg[]): Component<E>;
-}
-
-export const initElement: Initiator = (element, args) => {
+export const initElement: Initiator = (element, args, getPropConfig) => {
   let props: DynamicProps | undefined;
   let children: DynamicChild<Element>[] | undefined;
 
   for (const arg of args) {
     // init props
     if (arg?.constructor === Object) {
-      for (const [key, val] of Object.entries(arg)) {
-        const prop = initProp(element, key, val as Prop);
+      for (const [_key, val] of Object.entries(arg)) {
+        const {key, type} = getPropConfig(_key);
+        const prop = initProp(element, key, val as Prop, type);
 
         if (prop) {
           if (props) props[key] = prop;
@@ -62,3 +53,41 @@ export const initElement: Initiator = (element, args) => {
     ? new Component(element, props, children) // dynamic
     : element; // static
 };
+
+// elementary-js/dom-component
+// dom-element-component
+// DomElementUpdater
+// DynamicElement
+// Turbik
+// Fusor
+// TurboFusor DomFusor ElementFusor efusor
+// fusion reactor
+
+export class Component<E extends Element> {
+  constructor(
+    private element: E,
+    private props?: DynamicProps,
+    private children?: readonly DynamicChild<E>[],
+  ) {}
+
+  getElement() {
+    return this.element;
+  }
+
+  update() {
+    const {element, props, children} = this;
+
+    if (props) {
+      for (const [key, prop] of Object.entries(props)) {
+        updateProp(element, key, prop);
+      }
+    }
+
+    if (children) {
+      for (const child of children) {
+        if (child instanceof Component) child.update();
+        else updateChild(element, child);
+      }
+    }
+  }
+}
