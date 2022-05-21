@@ -1,9 +1,9 @@
 import {Component, initElement} from './element';
-import {getPropConfig} from './config';
+import {getPropConfig$$} from './config';
 
 test('init empty element', () => {
   const element = document.createElement('div');
-  const result = initElement(element, [], getPropConfig);
+  const result = initElement(element, [], getPropConfig$$);
 
   expect(result).toBe(element);
 
@@ -23,7 +23,7 @@ test('init element with static props', () => {
       },
       {},
     ],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   expect(result).toBe(element);
@@ -40,7 +40,7 @@ test('init element with static prop override', () => {
   const result = initElement(
     element,
     [{id: 'one'}, {id: 'two'}],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   expect(result).toBe(element);
@@ -54,7 +54,7 @@ test('init element with dynamic prop', () => {
   let title = 'aaa';
 
   const element = document.createElement('div');
-  const result = initElement(element, [{title: () => title}], getPropConfig);
+  const result = initElement(element, [{title: () => title}], getPropConfig$$);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.getElement()).toBe(element);
@@ -79,7 +79,7 @@ test('init element with dynamic prop override', () => {
   const result = initElement(
     element,
     [{id: () => dynamic1++}, {id: () => dynamic2++}],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   expect(result).toBeInstanceOf(Component);
@@ -101,7 +101,7 @@ test('init element with dynamic prop override', () => {
 
 test('init element with event handler, it should be static', () => {
   const element = document.createElement('button');
-  const result = initElement(element, [{onclick: () => {}}], getPropConfig);
+  const result = initElement(element, [{onclick: () => {}}], getPropConfig$$);
 
   expect(result).toBe(element);
 
@@ -112,7 +112,7 @@ test('init element with event handler, it should be static', () => {
 
 test('init element with static children', () => {
   const element = document.createElement('div');
-  const result = initElement(element, ['one', 2, 'three'], getPropConfig);
+  const result = initElement(element, ['one', 2, 'three'], getPropConfig$$);
 
   expect(result).toBe(element);
   expect(result.attributes.length).toBe(0);
@@ -127,8 +127,8 @@ test('init element with nested static child', () => {
   const element = document.createElement('div');
   const result = initElement(
     element,
-    [initElement(document.createElement('p'), ['Hi!'], getPropConfig)],
-    getPropConfig,
+    [initElement(document.createElement('p'), ['Hi!'], getPropConfig$$)],
+    getPropConfig$$,
   );
 
   expect(result).toBe(element);
@@ -142,7 +142,7 @@ test('init element with dynamic child', () => {
   let child = 123;
 
   const element = document.createElement('div');
-  const result = initElement(element, [() => child], getPropConfig);
+  const result = initElement(element, [() => child], getPropConfig$$);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.getElement()).toBe(element);
@@ -164,8 +164,14 @@ test('init element with nested dynamic child', () => {
   const element = document.createElement('div');
   const result = initElement(
     element,
-    [initElement(document.createElement('p'), [() => ++count], getPropConfig)],
-    getPropConfig,
+    [
+      initElement(
+        document.createElement('p'),
+        [() => ++count],
+        getPropConfig$$,
+      ),
+    ],
+    getPropConfig$$,
   );
 
   expect(result).toBeInstanceOf(Component);
@@ -193,11 +199,11 @@ describe('init element changing nested dynamic child', () => {
   let child: any = initElement(
     document.createElement('p'),
     ['Hi!'],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   const element = document.createElement('div');
-  const result = initElement(element, [() => child], getPropConfig);
+  const result = initElement(element, [() => child], getPropConfig$$);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.getElement()).toBe(element);
@@ -207,8 +213,16 @@ describe('init element changing nested dynamic child', () => {
 
   expect(element.childNodes[0]).toBe(child);
 
-  const one = initElement(document.createElement('h1'), ['one'], getPropConfig);
-  const two = initElement(document.createElement('h2'), ['two'], getPropConfig);
+  const one = initElement(
+    document.createElement('h1'),
+    ['one'],
+    getPropConfig$$,
+  );
+  const two = initElement(
+    document.createElement('h2'),
+    ['two'],
+    getPropConfig$$,
+  );
 
   test.each([
     ['aaa'],
@@ -216,8 +230,14 @@ describe('init element changing nested dynamic child', () => {
     [two],
     [two],
     ['111'],
-    [initElement(document.createElement('p'), ['Hello!'], getPropConfig)],
-    [initElement(document.createElement('p'), [() => 'Hello!'], getPropConfig)],
+    [initElement(document.createElement('p'), ['Hello!'], getPropConfig$$)],
+    [
+      initElement(
+        document.createElement('p'),
+        [() => 'Hello!'],
+        getPropConfig$$,
+      ),
+    ],
     [one],
     [one],
     ['bbb'],
@@ -242,7 +262,11 @@ test('init element incrementing nested dynamic children', () => {
   const result = initElement(
     element,
     [
-      initElement(document.createElement('p'), [() => ++count], getPropConfig),
+      initElement(
+        document.createElement('p'),
+        [() => ++count],
+        getPropConfig$$,
+      ),
       ' ',
       initElement(
         document.createElement('p'),
@@ -251,13 +275,13 @@ test('init element incrementing nested dynamic children', () => {
             initElement(
               document.createElement('span'),
               [() => ++count],
-              getPropConfig,
+              getPropConfig$$,
             ),
         ],
-        getPropConfig,
+        getPropConfig$$,
       ),
     ],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   expect(result).toBeInstanceOf(Component);
@@ -281,27 +305,27 @@ test.each([
   ['aaa', 'aaa'],
   [111, '111'],
   [
-    initElement(document.createElement('p'), ['one'], getPropConfig),
+    initElement(document.createElement('p'), ['one'], getPropConfig$$),
     '<p>one</p>',
   ],
   [
-    initElement(document.createElement('p'), [() => 'two'], getPropConfig),
+    initElement(document.createElement('p'), [() => 'two'], getPropConfig$$),
     '<p>two</p>',
   ],
   [
-    () => initElement(document.createElement('p'), ['three'], getPropConfig),
+    () => initElement(document.createElement('p'), ['three'], getPropConfig$$),
     '<p>three</p>',
   ],
   [
     () =>
-      initElement(document.createElement('p'), [() => 'four'], getPropConfig),
+      initElement(document.createElement('p'), [() => 'four'], getPropConfig$$),
     '<p>four</p>',
   ],
   ['bbb', 'bbb'],
   ['bbb', 'bbb'],
 ])('init element with random child %p to be %p', (provided, expected) => {
   const element = document.createElement('div');
-  const result = initElement(element, [provided], getPropConfig);
+  const result = initElement(element, [provided], getPropConfig$$);
 
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(1);
@@ -324,7 +348,7 @@ test('init element with dynamic prop and child', () => {
   const result = initElement(
     element,
     [{title: () => title}, () => child],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   expect(result).toBeInstanceOf(Component);
@@ -352,7 +376,7 @@ test('init element with array of static children', () => {
   const result = initElement(
     element,
     ['one', [111, 'aaa', 333], 'two', [], ['three']],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   expect(result).toBe(element);
@@ -373,7 +397,7 @@ test('init element with dynamic array of children', () => {
   const result = initElement(
     element,
     [[111, () => 'dynamic', () => [1, 2, 3]]],
-    getPropConfig,
+    getPropConfig$$,
   );
 
   expect(result).toBeInstanceOf(Component);

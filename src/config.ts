@@ -1,26 +1,34 @@
 import {GetPropConfig, PropType} from './types';
-import {DEBUG} from './utils';
 
-export const getPropConfig: GetPropConfig = key => {
-  if (DEBUG && key.length < 2) {
-    throw new TypeError(
-      `property name length is less than 2 characters: name "${key}"`,
-    );
-  }
+/** $$ - to stand out and distinguish from template literals */
+export const getPropConfig$$: GetPropConfig = name => {
+  const {length} = name;
 
-  if (key[0] === '$') {
-    key = key.substring(1);
+  if (name[length - 2] === '$' && name[length - 1] === '$') {
+    name = name.substring(0, length - 2);
 
-    if (key.startsWith('on')) {
-      return {type: PropType.CAPTURING_EVENT, key: key.substring(2)};
+    if (name.startsWith('on')) {
+      if (length < 5)
+        throw new TypeError(`short capturing event name: "${name}$$"`);
+
+      return {type: PropType.CAPTURING_EVENT, key: name.substring(2)};
     }
 
-    return {type: PropType.PROPERTY, key: key === 'class' ? 'className' : key};
+    if (length < 3) throw new TypeError(`short property name: "${name}$$"`);
+
+    return {
+      type: PropType.PROPERTY,
+      key: name === 'class' ? 'className' : name,
+    };
   }
 
-  if (key.startsWith('on')) {
-    return {type: PropType.BUBBLING_EVENT, key: key.substring(2)};
+  if (name.startsWith('on')) {
+    if (length < 3) throw new TypeError(`short bubbling event name: "${name}"`);
+
+    return {type: PropType.BUBBLING_EVENT, key: name.substring(2)};
   }
 
-  return {type: PropType.ATTRIBUTE, key};
+  if (length < 1) throw new TypeError(`short attribute name: "${name}"`);
+
+  return {type: PropType.ATTRIBUTE, key: name};
 };

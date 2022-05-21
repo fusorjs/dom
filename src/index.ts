@@ -1,2 +1,2 @@
-// export * from './types';
-export {initElement} from './element';
+export * from './types';
+export {initElement, Component} from './element';

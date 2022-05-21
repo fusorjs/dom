@@ -1,4 +1,4 @@
-import {getPropConfig} from './config';
+import {getPropConfig$$} from './config';
 import {initElement} from './element';
 import {Creator} from './types';
 import {createTaggedMap} from './utils';
@@ -6,7 +6,7 @@ import {createTaggedMap} from './utils';
 export const tagHtmlElement =
   (tagName: string): Creator<HTMLElement> =>
   (...args) =>
-    initElement(document.createElement(tagName), args, getPropConfig) as any;
+    initElement(document.createElement(tagName), args, getPropConfig$$) as any;
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
@@ -14,7 +14,7 @@ export const button: Creator<HTMLButtonElement> = (...args) =>
   initElement(
     document.createElement('button'),
     [defaultButtonProps, ...args],
-    getPropConfig,
+    getPropConfig$$,
   ) as any;
 
 type Result = {

@@ -1,6 +1,8 @@
-# @perform/dom-element
+# @efusor/dom
 
-The generic @perform dom html, svg element components.
+## `e`Fusor - Element Fusor
+
+Functional, reactive DOM component framework.
 
 ## Rules
 
@@ -21,9 +23,9 @@ The generic @perform dom html, svg element components.
 > to overwrite the following config see: `getPropConfig`
 
 - attribute names written as usual (ex: `id`, `href`, `class`)
-- property names start with `$` (ex: `$value`, `$checked`), shortcut `$class` same as `$className`
-- bubbling event handler names start with `on` (ex: `onclick`)
-- capturing event handler names start with `$on` (ex: `$onclick`)
+- property names end with `$$` (ex: `value$$`, `checked$$`), shortcut `class$$` same as `className$$` (property names are case-sensitive)
+- bubbling event names start with `on` (ex: `onclick`)
+- capturing event names start with `on` and end with `$$` (ex: `onclick$$`)
 
 ## Naming Conventions
 
@@ -60,9 +62,9 @@ The generic @perform dom html, svg element components.
 
 - implement style, object, data attributes,
 - replace only range for dynamic children array (using node start/end indexes)
-- jsx support
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
 - optimize by diffing nodes for dynamic children array
+- jsx support
 
 ```json
   "exports": {

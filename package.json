@@ -1,14 +1,14 @@
 {
-  "name": "@perform/dom-element",
+  "name": "@efusor/dom",
   "version": "1.0.0",
-  "description": "The generic @perform dom html, svg element components.",
+  "description": "Functional, reactive DOM component framework.",
   "keywords": [
-    "perform",
+    "efusor",
     "dom",
-    "element",
-    "html",
-    "svg",
-    "component"
+    "functional",
+    "reactive",
+    "component",
+    "framework"
   ],
   "license": "ISC",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
