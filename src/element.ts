@@ -63,6 +63,9 @@ export const initElement: Initiator = (element, args, getPropConfig) => {
 // TurboFusor DomFusor ElementFusor efusor
 // fusion reactor
 
+// todo 5 to config
+export const RECURSION_LIMIT = 5;
+
 export class Component<E extends Element> {
   constructor(
     private element: E,
@@ -70,11 +73,16 @@ export class Component<E extends Element> {
     private children?: readonly DynamicChild<E>[],
   ) {}
 
+  // todo getter
   getElement() {
     return this.element;
   }
 
-  update() {
+  update(recursion = RECURSION_LIMIT) {
+    if (recursion < 1) {
+      throw new Error(`update recursion limit has been reached`);
+    }
+
     const {element, props, children} = this;
 
     if (props) {
@@ -85,8 +93,8 @@ export class Component<E extends Element> {
 
     if (children) {
       for (const child of children) {
-        if (child instanceof Component) child.update();
-        else updateChild(element, child);
+        if (child instanceof Component) child.update(recursion);
+        else updateChild(element, child, recursion);
       }
     }
   }

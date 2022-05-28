@@ -1,4 +1,4 @@
-import {Component} from './element';
+import {Component, RECURSION_LIMIT} from './element';
 import {
   StaticChild,
   Evaluable,
@@ -31,6 +31,9 @@ export const getChildNode = (value: any): ValueNode => {
   }
 };
 
+export const convertChildNode = <T>(value: T) =>
+  getChildNode(convertChild(value));
+
 export const initDynamicChild = (
   parent: Node,
   update: Evaluable<StaticChild>,
@@ -43,9 +46,12 @@ export const initDynamicChild = (
     node = [];
 
     for (let v of value) {
+      if (typeof v === 'function') v = evaluate(v);
+
       v = convertChild(v);
 
-      if (v === emptyChild) continue;
+      // ! must not be skiped in dynamic child, same as for single child
+      // if (v === emptyChild) continue; // ! will break updates by index
 
       const n = getChildNode(v);
 
@@ -104,14 +110,64 @@ export const initChild = (parent: Node, value: SingleChild) => {
   }
 };
 
-export const convertChildNode = <T>(value: T) =>
-  getChildNode(convertChild(value));
+// /** @returns nextNode */
+// export const updateSingleChild = (
+//   parent: Node,
+//   prevNode: ValueNode,
+//   nextValue: SingleStaticChild | Component<Element>,
+//   recursion: number,
+// ): ValueNode => {
+//   // replace with different element
+//   if (nextValue instanceof Element) {
+//     parent.replaceChild(nextValue, prevNode as ValueNode);
 
-export const updateChild = (parent: Node, updatable: UpdatableChild) => {
+//     return nextValue;
+//   }
+
+//   // replace with different component's element
+//   else if (nextValue instanceof Component) {
+//     nextValue.update(recursion - 1);
+
+//     const nextNode = nextValue.getElement();
+
+//     parent.replaceChild(nextNode, prevNode as ValueNode);
+
+//     return nextNode;
+//   }
+
+//   // replace text reusing node
+//   else if (prevNode instanceof Text) {
+//     prevNode.nodeValue = getString(convertChild(nextValue));
+
+//     return prevNode;
+//   }
+
+//   // replace text creating node
+//   else {
+//     const nextNode = document.createTextNode(
+//       getString(convertChild(nextValue)),
+//     );
+
+//     parent.replaceChild(nextNode, prevNode as ValueNode);
+
+//     return nextNode;
+//   }
+// };
+
+export const updateChild = (
+  parent: Node,
+  updatable: UpdatableChild,
+  recursion = RECURSION_LIMIT,
+) => {
   const {update, value: prevValue, node: prevNode} = updatable;
   const nextValue = evaluate(update);
 
-  if (ObjectIs(nextValue, prevValue)) return;
+  // same value
+  if (ObjectIs(nextValue, prevValue)) {
+    if (nextValue instanceof Component) nextValue.update(recursion - 1);
+
+    return; // do nothing
+  }
 
   updatable.value = nextValue;
 
@@ -122,16 +178,34 @@ export const updateChild = (parent: Node, updatable: UpdatableChild) => {
 
   // replace children with children
   if (isNextArray && isPrevArray) {
+    // todo update all components and evaluate all funcs
     const nextNode = nextValue.map(convertChildNode);
 
     updatable.node = nextNode;
 
     // todo range, maybe diff
     (parent as any).replaceChildren(...nextNode);
+    // quickArrayDiff(
+    //   prevNode as ValueNode[],
+    //   nextNode as ValueNode[],
+    //   // compare
+    //   (index, prevNode, nextNode) => {
+    //     if (prevNode !== nextNode) parent.replaceChild(nextNode, prevNode);
+    //   },
+    //   // append
+    //   (index, nextNode) => {
+    //     parent.appendChild(nextNode);
+    //   },
+    //   // remove
+    //   (index, prevNode) => {
+    //     parent.removeChild(prevNode);
+    //   },
+    // );
   }
 
   // replace child with children
   else if (isNextArray) {
+    // todo update all components and evaluate all funcs
     const nextNode = nextValue.map(convertChildNode);
 
     updatable.node = nextNode;
@@ -142,6 +216,8 @@ export const updateChild = (parent: Node, updatable: UpdatableChild) => {
 
   // replace children with child
   else if (isPrevArray) {
+    if (nextValue instanceof Component) nextValue.update(recursion - 1);
+
     const nextNode = convertChildNode(nextValue);
 
     updatable.node = nextNode;
@@ -150,7 +226,7 @@ export const updateChild = (parent: Node, updatable: UpdatableChild) => {
     (parent as any).replaceChildren(nextNode);
   }
 
-  // -- SINGLE --
+  // -- SINGLE -- // todo refactor with updateSingleChild
 
   // replace with different element
   else if (nextValue instanceof Element) {
@@ -161,6 +237,8 @@ export const updateChild = (parent: Node, updatable: UpdatableChild) => {
 
   // replace with different component's element
   else if (nextValue instanceof Component) {
+    nextValue.update(recursion - 1);
+
     const nextNode = nextValue.getElement();
 
     updatable.node = nextNode;
@@ -184,3 +262,22 @@ export const updateChild = (parent: Node, updatable: UpdatableChild) => {
     parent.replaceChild(nextNode, prevNode as ValueNode);
   }
 };
+
+// (index, prevValue, nextValue) => {
+//   if (typeof nextValue === 'function') {
+//     nextValue = evaluate(nextValue as Evaluable<SingleChild>);
+//   }
+//   if (ObjectIs(nextValue, prevValue)) {
+//     if (nextValue instanceof Component) nextValue.update(recursion - 1);
+//     nextNode.push((prevNode as ValueNode[])[index]);
+//   } else {
+//     nextNode.push(
+//       updateSingleChild(
+//         parent,
+//         (prevNode as ValueNode[])[index],
+//         nextValue,
+//         recursion,
+//       ),
+//     );
+//   }
+// }

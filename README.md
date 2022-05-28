@@ -6,15 +6,16 @@ Functional, reactive DOM component framework.
 
 ## Rules
 
-- the Element never changes
-- use functions for dynamic props/children
+- the Component's Element never changes
+- use functions for dynamic props/children (the Element can change in dynamic child)
 - you should use props for context (context should be explicit, not hidden)
 - props objects can be applied multiple times (spread/rest optimization, see button in html.ts), please place them before children for readability
 - children arrays could be appended/updated multiple times (spread/rest optimization)
-- dynamic children arrays cannot have dynamic elements (as it ruins the declarative predictability)
+- dynamic children arrays can have dynamic elements (see: `RECURSION_LIMIT` config)
 - same (by ref) dynamic arrays will not trigger updates
 - Do not mutate props objects or children arrays that you pass to components.
 - Do not spread join props objects or children array, just pass them separately to components.
+- Do not create Component in dynamic child (ex: `p(() => div(() => ++count)))`). It will be first recreated and then updated every time its parent will be updated. Cheche it before (ex: `const cache = div(() => ++count))`) instead.
 
 ## The Default Config
 
@@ -57,9 +58,11 @@ Functional, reactive DOM component framework.
 - replace all children from dynamic array (spread/rest optimization)
 - same (by ref) dynamic arrays will not trigger updates
 - add possibility to set property (ex: input.value) instead of always setting attribute (probably by using prefix "$" or by defining all cases)
+- dynamic children arrays can have dynamic elements
 
 ## BACKLOG
 
+- children with value of true/false are not shown, ex: isVisible && Modal()
 - implement style, object, data attributes,
 - replace only range for dynamic children array (using node start/end indexes)
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254

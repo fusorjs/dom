@@ -45,10 +45,7 @@ describe('init child', () => {
             ? (e => ({
                 value: e,
                 node: Array.isArray(e)
-                  ? e
-                      .map(convertChild)
-                      .filter(i => i !== emptyChild)
-                      .map(getChildNode)
+                  ? e.map(convertChildNode)
                   : convertChildNode(e),
               }))(evaluate(p))
             : {
@@ -173,3 +170,22 @@ describe('update child', () => {
     },
   );
 });
+
+// describe('specific cases', () => {
+//   const element = {
+//     appendChild: jest.fn(),
+//     replaceChild: jest.fn(),
+//     replaceChildren: jest.fn(),
+//   };
+
+//   let dynamic: Child = 'text';
+
+//   const app = initChild(element as any as Node, () => dynamic);
+
+//   expect(element.appendChild).toHaveBeenCalledTimes(1);
+//   expect(element.appendChild).toHaveBeenCalledWith(convertChildNode('text'));
+
+//   let count = 0;
+
+//   // dynamic =
+// });

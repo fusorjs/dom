@@ -1,5 +1,6 @@
 import {Component} from './element';
 import {div, button, p, form, select, option, textarea, a, img} from './html';
+import {Child} from './types';
 
 test('empty div', () => {
   const result = div();
@@ -193,4 +194,72 @@ test('toggle button color', () => {
   toggleElement.click();
 
   expect(toggleElement.innerHTML).toBe('On');
+});
+
+test('init & update dynamic children array', () => {
+  let count = 0;
+
+  const counter = () => ++count;
+  const app = div(() => [counter, p(counter)]);
+
+  expect(app.getElement().innerHTML).toBe('2<p>1</p>'); // p's init called first
+  expect(app.getElement().childNodes.length).toBe(2);
+
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('3<p>4</p>');
+  expect(app.getElement().childNodes.length).toBe(2);
+});
+
+test('dynamic children array', () => {
+  let dynamic: Child = 'text';
+
+  const app = div(() => dynamic, 123);
+
+  expect(app.getElement().innerHTML).toBe('text123');
+  expect(app.getElement().childNodes.length).toBe(2);
+
+  dynamic = [1, 2, 3];
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('123');
+  expect(app.getElement().childNodes.length).toBe(3);
+
+  dynamic = ['a', 'b'];
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('ab');
+  expect(app.getElement().childNodes.length).toBe(2);
+
+  dynamic = 'one';
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('one');
+  expect(app.getElement().childNodes.length).toBe(1);
+
+  let count = 0;
+
+  dynamic = p(() => ++count);
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>2</p>'); // 2 - create + update
+  expect(app.getElement().childNodes.length).toBe(1);
+
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>3</p>');
+  expect(app.getElement().childNodes.length).toBe(1);
+
+  count = 1;
+  dynamic = [p(() => count), () => count];
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>1</p>1');
+  expect(app.getElement().childNodes.length).toBe(2);
+
+  count = 2;
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>2</p>2');
+  expect(app.getElement().childNodes.length).toBe(2);
 });

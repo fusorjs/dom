@@ -1,5 +1,7 @@
 import {emptyChild} from './child';
 import {Component} from './element';
+import {p} from './html';
+import {emptyAttr} from './prop';
 
 type TestItem = [any, string, string?];
 
@@ -46,12 +48,15 @@ export const getStringTestData = (all => {
   [[1, 2, 4], '[1,2,4]'],
   [['a', 'b'], '["a","b"]'],
   [['a', emptyChild, 'b'], '["a","","b"]'],
+  [[8, () => 'f', p(() => 3)], `[8,() => 'f',<p>3</p>]`],
 
   // objects
   [{}, '{}'],
   [{a: 1}, '{"a":1}'],
   [{a: 1, b: 2}, '{"a":1,"b":2}'],
   [{a: 1, b: 3}, '{"a":1,"b":3}'],
+  [{a: 1, b: 3, c: emptyAttr}, '{"a":1,"b":3,"c":undefined}'],
+  [{a: 1, b: () => 's', c: p(() => 5)}, `{"a":1,"b":() => 's',"c":<p>5</p>}`],
 
   // functions
   [() => {}, '() => { }'],
