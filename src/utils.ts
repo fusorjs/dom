@@ -13,7 +13,7 @@ export const evaluate = <T>(callback: Evaluable<T>): Evaluated<T> => {
   // faster than recursion
   for (let i = 1; typeof value === 'function'; i++) {
     if (i === 5)
-      throw new TypeError(`preventing indefinite callback: ${i + 1}`);
+      throw new TypeError(`evaluation limit has been reached: ${i + 1}`);
 
     value = (value as Evaluable<T>)();
   }
@@ -64,30 +64,30 @@ export const createTaggedMap = <M, K extends keyof M>(
 };
 
 /** one pass through arrays */
-export const quickArrayDiff = <T>(
-  prev: readonly T[],
-  next: readonly T[],
-  compare: (index: number, prev: T, next: T) => void,
-  append: (index: number, next: T) => void,
-  remove: (index: number, prev: T) => void,
-) => {
-  const prevLen = prev.length;
-  const nextLen = next.length;
+// export const quickArrayDiff = <T>(
+//   prev: readonly T[],
+//   next: readonly T[],
+//   compare: (index: number, prev: T, next: T) => void,
+//   append: (index: number, next: T) => void,
+//   remove: (index: number, prev: T) => void,
+// ) => {
+//   const prevLen = prev.length;
+//   const nextLen = next.length;
 
-  let i = 0;
+//   let i = 0;
 
-  // compare
-  for (const minLen = Math.min(prevLen, nextLen); i < minLen; i++) {
-    compare(i, prev[i], next[i]);
-  }
+//   // compare
+//   for (const minLen = Math.min(prevLen, nextLen); i < minLen; i++) {
+//     compare(i, prev[i], next[i]);
+//   }
 
-  // append
-  for (; i < nextLen; i++) {
-    append(i, next[i]);
-  }
+//   // append
+//   for (; i < nextLen; i++) {
+//     append(i, next[i]);
+//   }
 
-  // remove
-  for (; i < prevLen; i++) {
-    remove(i, prev[i]);
-  }
-};
+//   // remove
+//   for (; i < prevLen; i++) {
+//     remove(i, prev[i]);
+//   }
+// };

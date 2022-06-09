@@ -15,7 +15,7 @@ Functional, reactive DOM component framework.
 - same (by ref) dynamic arrays will not trigger updates
 - Do not mutate props objects or children arrays that you pass to components.
 - Do not spread join props objects or children array, just pass them separately to components.
-- Do not create Component in dynamic child (ex: `p(() => div(() => ++count)))`). It will be first recreated and then updated every time its parent will be updated. Cheche it before (ex: `const cache = div(() => ++count))`) instead.
+- Do not create Component in dynamic child (ex: `p(() => div(() => ++count)))`). It will be first recreated and then updated every time its parent will be updated. Cheche it before (ex: `const cache = div(() => ++count))`) instead. Also the same applies to dynamic child arrays: `p(() => [div(() => ++count))])`.
 
 ## The Default Config
 

@@ -34,7 +34,10 @@ export type StaticArg = StaticProps | StaticChild;
 
 export type Prop = StaticProp | Function;
 
-export type SingleChild = SingleStaticChild | Function | Component<Element>;
+export type SingleChild =
+  | SingleStaticChild
+  | Function // todo | (() => SingleStaticChild | Component<Element>)
+  | Component<Element>;
 
 export type Child = SingleChild | Array<SingleChild>;
 
@@ -99,7 +102,9 @@ export type UpdatableChild = {
       node: ValueNode;
     }
   | {
-      value: Evaluated<SingleChild[]>;
+      // todo refactor
+      refValue: Evaluated<SingleChild[]>; // array value to compare refs
+      value: Evaluated<SingleChild[]>; // evaluated array values // todo Evaluated<SingleChild>[]
       node: ValueNode[];
     }
 );

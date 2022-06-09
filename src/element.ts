@@ -80,7 +80,9 @@ export class Component<E extends Element> {
 
   update(recursion = RECURSION_LIMIT) {
     if (recursion < 1) {
-      throw new Error(`update recursion limit has been reached`);
+      throw new Error(
+        `update recursion limit has been reached: ${RECURSION_LIMIT}`,
+      );
     }
 
     const {element, props, children} = this;

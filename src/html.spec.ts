@@ -1,4 +1,4 @@
-import {Component} from './element';
+import {Component, RECURSION_LIMIT} from './element';
 import {div, button, p, form, select, option, textarea, a, img} from './html';
 import {Child} from './types';
 
@@ -207,7 +207,7 @@ test('init & update dynamic children array', () => {
 
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('3<p>4</p>');
+  expect(app.getElement().innerHTML).toBe('4<p>5</p>'); // p's recreated first then updated
   expect(app.getElement().childNodes.length).toBe(2);
 });
 
@@ -260,6 +260,79 @@ test('dynamic children array', () => {
   count = 2;
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>2</p>2');
+  expect(app.getElement().innerHTML).toBe('<p>1</p>1'); // same array, does not update
   expect(app.getElement().childNodes.length).toBe(2);
 });
+
+it('should update dynamic array components whith different arrays', () => {
+  let count = 0;
+
+  const paragraph = p(() => ++count);
+
+  let dynamic = [paragraph];
+
+  const app = div(() => dynamic);
+
+  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+
+  dynamic = [paragraph]; // different array
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>2</p>');
+
+  dynamic = [paragraph]; // different array
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>3</p>');
+});
+
+it('should not update dynamic array components with the same array', () => {
+  let count = 0;
+
+  const paragraph = p(() => ++count);
+
+  let dynamic = [paragraph];
+
+  const app = div(() => dynamic);
+
+  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+
+  app.update(); // same array
+
+  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+
+  app.update(); // same array
+
+  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+});
+
+it('should replace dynamic array with dynamic component and update component', () => {
+  let count = 0;
+
+  const paragraph = p(() => ++count);
+
+  let dynamic: Child = [paragraph];
+
+  const app = div(() => dynamic);
+
+  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+
+  dynamic = paragraph;
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>2</p>');
+
+  app.update();
+
+  expect(app.getElement().innerHTML).toBe('<p>3</p>');
+});
+
+// it('should throw update recursion limit', () => {
+//   expect(() => {
+//     div([[div([div([div([div([div([div(div(div()))])])])])])]]);
+//   }).toThrow(
+//     new TypeError(
+//       `update recursion limit has been reached: ${RECURSION_LIMIT}`,
+//     ),
+//   );
+// });

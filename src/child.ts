@@ -31,9 +31,6 @@ export const getChildNode = (value: any): ValueNode => {
   }
 };
 
-export const convertChildNode = <T>(value: T) =>
-  getChildNode(convertChild(value));
-
 export const initDynamicChild = (
   parent: Node,
   update: Evaluable<StaticChild>,
@@ -45,8 +42,12 @@ export const initDynamicChild = (
   if (Array.isArray(value)) {
     node = [];
 
+    const vals = [];
+
     for (let v of value) {
       if (typeof v === 'function') v = evaluate(v);
+
+      vals.push(v);
 
       v = convertChild(v);
 
@@ -61,7 +62,8 @@ export const initDynamicChild = (
 
     return {
       update,
-      value,
+      refValue: value,
+      value: vals,
       node,
     };
   }
@@ -154,6 +156,17 @@ export const initChild = (parent: Node, value: SingleChild) => {
 //   }
 // };
 
+export const updateEvaluate = <T>(value: T) => {
+  if (typeof value === 'function') value = evaluate(value as any);
+
+  if (value instanceof Component) value.update();
+
+  return value;
+};
+
+export const convertChildNode = <T>(value: T) =>
+  getChildNode(convertChild(value));
+
 export const updateChild = (
   parent: Node,
   updatable: UpdatableChild,
@@ -178,8 +191,15 @@ export const updateChild = (
 
   // replace children with children
   if (isNextArray && isPrevArray) {
-    // todo update all components and evaluate all funcs
-    const nextNode = nextValue.map(convertChildNode);
+    if ((updatable as any).refValue === nextValue) return;
+
+    (updatable as any).refValue = nextValue;
+
+    const _nextValue = nextValue.map(updateEvaluate);
+
+    updatable.value = _nextValue as any;
+
+    const nextNode = _nextValue.map(convertChildNode);
 
     updatable.node = nextNode;
 
@@ -205,8 +225,13 @@ export const updateChild = (
 
   // replace child with children
   else if (isNextArray) {
-    // todo update all components and evaluate all funcs
-    const nextNode = nextValue.map(convertChildNode);
+    (updatable as any).refValue = nextValue;
+
+    const _nextValue = nextValue.map(updateEvaluate);
+
+    updatable.value = _nextValue as any;
+
+    const nextNode = _nextValue.map(convertChildNode);
 
     updatable.node = nextNode;
 
@@ -216,6 +241,8 @@ export const updateChild = (
 
   // replace children with child
   else if (isPrevArray) {
+    (updatable as any).refValue = undefined;
+
     if (nextValue instanceof Component) nextValue.update(recursion - 1);
 
     const nextNode = convertChildNode(nextValue);

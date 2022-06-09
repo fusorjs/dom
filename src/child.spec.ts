@@ -43,10 +43,20 @@ describe('init child', () => {
           p,
           typeof p === 'function'
             ? (e => ({
-                value: e,
-                node: Array.isArray(e)
-                  ? e.map(convertChildNode)
-                  : convertChildNode(e),
+                ...(Array.isArray(e)
+                  ? {
+                      refValue: e,
+                      ...(e => ({
+                        value: e,
+                        node: e.map(convertChildNode),
+                      }))(
+                        e.map(e => (typeof e === 'function' ? evaluate(e) : e)),
+                      ),
+                    }
+                  : {
+                      value: e,
+                      node: convertChildNode(e),
+                    }),
               }))(evaluate(p))
             : {
                 value: p,
@@ -58,7 +68,8 @@ describe('init child', () => {
     ),
   )(
     'init child provided %p expected %p <<< %p <<< %p',
-    (provided, {value, node}) => {
+    (provided, expected) => {
+      const {value, node} = expected;
       const result = initChild(element as any as Node, provided as SingleChild);
 
       // child
@@ -87,6 +98,7 @@ describe('init child', () => {
       } else if (typeof provided === 'function') {
         expect(result).toEqual<UpdatableChild>({
           update: provided,
+          refValue: (expected as any).refValue,
           value,
           node: node as any,
         });
@@ -117,10 +129,18 @@ describe('update child', () => {
         [
           p,
           (e => ({
-            value: e,
-            node: Array.isArray(e)
-              ? e.map(convertChildNode)
-              : convertChildNode(e),
+            ...(Array.isArray(e)
+              ? {
+                  refValue: e,
+                  ...(e => ({
+                    value: e,
+                    node: e.map(convertChildNode),
+                  }))(e.map(e => (typeof e === 'function' ? evaluate(e) : e))),
+                }
+              : {
+                  value: e,
+                  node: convertChildNode(e),
+                }),
           }))(typeof p === 'function' ? evaluate(p) : p),
           e1,
           e2,
@@ -128,25 +148,34 @@ describe('update child', () => {
     ),
   )(
     'update child provided %p expected %p <<< %p <<< %p',
-    (provided, {value: nextValue, node: nextNode}) => {
+    (provided, expected) => {
       const {value: prevValue, node: prevNode} = updatable; // before updater
+      const prevRefValue = (updatable as any).refValue; // before updater
 
       dynamic = provided;
 
       updateChild(element as any as Element, updatable);
 
+      const nextRefValue = (expected as any).refValue;
+      const {value: nextValue, node: nextNode} = expected;
+      const currRefValue = (updatable as any).refValue;
       const {value: currValue, node: currNode} = updatable;
 
-      expect(currValue).toStrictEqual(nextValue);
+      expect(currRefValue).toStrictEqual(nextRefValue);
       expect(currNode).toStrictEqual(nextNode);
 
       if (ObjectIs(nextValue, prevValue)) {
         expect(element.replaceChild).not.toHaveBeenCalled();
         expect(element.replaceChildren).not.toHaveBeenCalled();
       } else if (Array.isArray(nextNode) && Array.isArray(prevNode)) {
-        expect(element.replaceChild).not.toHaveBeenCalled();
-        expect(element.replaceChildren).toHaveBeenCalledTimes(1);
-        expect(element.replaceChildren).toHaveBeenCalledWith(...nextNode);
+        if (nextRefValue === prevRefValue) {
+          expect(element.replaceChild).not.toHaveBeenCalled();
+          expect(element.replaceChildren).not.toHaveBeenCalled();
+        } else {
+          expect(element.replaceChild).not.toHaveBeenCalled();
+          expect(element.replaceChildren).toHaveBeenCalledTimes(1);
+          expect(element.replaceChildren).toHaveBeenCalledWith(...nextNode);
+        }
       } else if (Array.isArray(nextNode)) {
         expect(element.replaceChild).not.toHaveBeenCalled();
         expect(element.replaceChildren).toHaveBeenCalledTimes(1);

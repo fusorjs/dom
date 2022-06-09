@@ -11,10 +11,10 @@ test.each([
   expect(evaluate(provided)).toBe(expected);
 });
 
-test('evaluate throws preventing indefinite callback', () => {
+test('evaluate throws error', () => {
   expect(() => {
     evaluate(() => () => () => () => () => () => 6);
-  }).toThrow(new TypeError(`preventing indefinite callback: 6`));
+  }).toThrow(new TypeError(`evaluation limit has been reached: 6`));
 });
 
 test.each(getStringTestData)(
