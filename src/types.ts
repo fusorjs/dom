@@ -1,45 +1,39 @@
 import {Component} from './element';
 
-// -- ARGS --
+/* STATIC ARGS */
 
-// export type some = string | number | boolean | symbol | object;
-// export type StaticValue <T> = T extends Function ? never : T;
-
-export type Primitive = string | number | boolean | symbol | null | undefined;
+export type Primitive =
+  | string
+  | number
+  | boolean
+  | symbol
+  | null
+  | undefined
+  | void;
 
 export type StaticProp = Primitive;
 
 export type SingleStaticChild = Primitive | Element;
 
-export type StaticChild = SingleStaticChild | Array<SingleStaticChild>;
+export type StaticChild = SingleStaticChild | SingleStaticChild[];
 
 export interface StaticProps {
   [key: string]: StaticProp;
-  // [kkey: `on${string}`]: Function;
+  // [kkey: `on${string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
 }
-// todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
-// type EventName = `on${string}`;
-// interface StaticProps2 {
-//   // [key: string]: StaticProp;
-//   // [key: `on${string}`]: Function;
-//   [K: EventName | string]: typeof K extends EventName ? Function : StaticProp;
-//   // [K: string]: typeof K extends EventName ? Function : StaticProp;
-// }
-// const xxx: StaticProps2 = {
-//   asd: true,
-//   onasd: () => {},
-// };
 
 export type StaticArg = StaticProps | StaticChild;
 
-export type Prop = StaticProp | Function;
+/* DYNAMIC ARGS */
+
+export type Prop = StaticProp | (() => Prop);
 
 export type SingleChild =
   | SingleStaticChild
-  | Function // todo | (() => SingleStaticChild | Component<Element>)
+  | (() => Child)
   | Component<Element>;
 
-export type Child = SingleChild | Array<SingleChild>;
+export type Child = SingleChild | SingleChild[];
 
 export interface Props {
   [key: string]: Prop;
@@ -47,7 +41,13 @@ export interface Props {
 
 export type Arg = Props | Child;
 
-// -- INIT --
+/* UTILS */
+
+export type Evaluable<T> = () => T | Evaluable<T>;
+
+export type Evaluated<T> = Exclude<T, () => T>;
+
+/* INIT */
 
 export const enum PropType {
   ATTRIBUTE,
@@ -76,11 +76,7 @@ export interface Creator<E extends Element> {
   (...args: readonly Arg[]): Component<E>;
 }
 
-export type Evaluable<T> = () => T | (() => Evaluable<T>);
-
-export type Evaluated<T> = Exclude<T, Function>;
-
-// -- UPDATE --
+/* UPDATE */
 
 export interface UpdatableProp {
   readonly update: Evaluable<Prop>;
@@ -98,15 +94,36 @@ export type UpdatableChild = {
   readonly update: Evaluable<Child>;
 } & (
   | {
-      value: Evaluated<SingleChild>;
+      value: Evaluated<Child>;
       node: ValueNode;
     }
   | {
       // todo refactor
-      refValue: Evaluated<SingleChild[]>; // array value to compare refs
-      value: Evaluated<SingleChild[]>; // evaluated array values // todo Evaluated<SingleChild>[]
+      refValue: Evaluated<Child[]>; // array value to compare refs
+      value: Evaluated<Child>[]; // evaluated array values
       node: ValueNode[];
     }
 );
 
 export type DynamicChild<E extends Element> = UpdatableChild | Component<E>;
+
+/* EXPERIMENTS */
+
+// export type some = string | number | boolean | symbol | object;
+// export type StaticValue <T> = T extends Function ? never : T;
+
+// export interface StaticProps2 {
+//   [key: string]: StaticProp;
+//   [kkey: `on${string}`]: Function;
+// }
+// type EventName = `on${string}`;
+// interface StaticProps2 {
+//   // [key: string]: StaticProp;
+//   // [key: `on${string}`]: Function;
+//   [K: EventName | string]: typeof K extends EventName ? Function : StaticProp;
+//   // [K: string]: typeof K extends EventName ? Function : StaticProp;
+// }
+// const xxx: StaticProps2 = {
+//   asd: true,
+//   onasd: () => {},
+// };

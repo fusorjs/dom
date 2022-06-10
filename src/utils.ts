@@ -26,7 +26,7 @@ export const getString = (value: any): string => {
   if (typeof value === 'object') {
     if (value instanceof Element) return value.outerHTML;
 
-    if (value instanceof Component) return value.getElement().outerHTML;
+    if (value instanceof Component) return value.element.outerHTML;
 
     if (Array.isArray(value)) {
       return `[${value.map(stringify).join(',')}]`; // [() => 5] -> [() => 5]

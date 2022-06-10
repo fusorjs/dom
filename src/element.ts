@@ -27,10 +27,11 @@ export const initElement: Initiator = (element, args, getPropConfig) => {
         }
       }
     }
+
     // init children
     else if (Array.isArray(arg)) {
       for (const a of arg) {
-        const child = initChild(element, a as SingleChild);
+        const child = initChild(element, a);
 
         if (child) {
           if (children) children.push(child);
@@ -38,6 +39,7 @@ export const initElement: Initiator = (element, args, getPropConfig) => {
         }
       }
     }
+
     // init child
     else {
       const child = initChild(element, arg as SingleChild);
@@ -68,14 +70,14 @@ export const RECURSION_LIMIT = 5;
 
 export class Component<E extends Element> {
   constructor(
-    private element: E,
+    private _element: E,
     private props?: DynamicProps,
     private children?: readonly DynamicChild<E>[],
   ) {}
 
   // todo getter
-  getElement() {
-    return this.element;
+  get element() {
+    return this._element;
   }
 
   update(recursion = RECURSION_LIMIT) {
@@ -85,18 +87,18 @@ export class Component<E extends Element> {
       );
     }
 
-    const {element, props, children} = this;
+    const {_element, props, children} = this;
 
     if (props) {
       for (const [key, prop] of Object.entries(props)) {
-        updateProp(element, key, prop);
+        updateProp(_element, key, prop);
       }
     }
 
     if (children) {
       for (const child of children) {
         if (child instanceof Component) child.update(recursion);
-        else updateChild(element, child, recursion);
+        else updateChild(_element, child, recursion);
       }
     }
   }

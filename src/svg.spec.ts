@@ -22,7 +22,7 @@ test('dynamic div', () => {
 
   expect(result).toBeInstanceOf(Component);
 
-  const element = result.getElement();
+  const {element} = result;
 
   expect(element).toBeInstanceOf(SVGSVGElement);
   expect(element.attributes.length).toBe(0);

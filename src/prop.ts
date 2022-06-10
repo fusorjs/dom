@@ -1,5 +1,5 @@
 import {getString, ObjectIs} from './utils';
-import {Evaluable, Prop, UpdatableProp, StaticProp, PropType} from './types';
+import {Prop, UpdatableProp, PropType} from './types';
 import {evaluate, stringify} from './utils';
 
 export const emptyAttr = undefined;
@@ -31,11 +31,7 @@ export const initProp = (
         `illegal event: "${key}" value: ${stringify(value)} expected: function`,
       );
 
-    element.addEventListener(
-      key,
-      value as EventListener,
-      type === PropType.CAPTURING_EVENT,
-    );
+    element.addEventListener(key, value, type === PropType.CAPTURING_EVENT);
   }
   // todo data-
   // todo style...
@@ -57,7 +53,7 @@ export const initProp = (
 
   // init dynamic attribute/property
   else if (typeof value === 'function') {
-    let val = evaluate(value as Evaluable<StaticProp>);
+    let val = evaluate(value);
 
     const isAttr = type === PropType.ATTRIBUTE;
 
@@ -70,7 +66,7 @@ export const initProp = (
     }
 
     const updatable: UpdatableProp = {
-      update: value as Evaluable<StaticProp>,
+      update: value,
       value: val,
       isAttr,
     };

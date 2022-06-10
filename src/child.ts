@@ -1,10 +1,10 @@
 import {Component, RECURSION_LIMIT} from './element';
 import {
-  StaticChild,
   Evaluable,
   UpdatableChild,
   ValueNode,
   SingleChild,
+  Child,
 } from './types';
 import {evaluate, getString, ObjectIs} from './utils';
 
@@ -25,7 +25,7 @@ export const getChildNode = (value: any): ValueNode => {
   if (value instanceof Element) {
     return value;
   } else if (value instanceof Component) {
-    return value.getElement();
+    return value.element;
   } else {
     return document.createTextNode(getString(value));
   }
@@ -33,7 +33,7 @@ export const getChildNode = (value: any): ValueNode => {
 
 export const initDynamicChild = (
   parent: Node,
-  update: Evaluable<StaticChild>,
+  update: Evaluable<Child>,
 ): UpdatableChild => {
   const value = evaluate(update);
   let node: ValueNode | ValueNode[];
@@ -44,8 +44,8 @@ export const initDynamicChild = (
 
     const vals = [];
 
-    for (let v of value) {
-      if (typeof v === 'function') v = evaluate(v);
+    for (const item of value) {
+      let v = typeof item === 'function' ? evaluate(item) : item;
 
       vals.push(v);
 
@@ -92,14 +92,14 @@ export const initChild = (parent: Node, value: SingleChild) => {
 
   // init dynamic component
   else if (value instanceof Component) {
-    parent.appendChild(value.getElement());
+    parent.appendChild(value.element);
 
     return value;
   }
 
   // init dynamic value
   else if (typeof value === 'function') {
-    return initDynamicChild(parent, value as Evaluable<StaticChild>);
+    return initDynamicChild(parent, value);
   }
 
   // init static value
@@ -156,12 +156,12 @@ export const initChild = (parent: Node, value: SingleChild) => {
 //   }
 // };
 
-export const updateEvaluate = <T>(value: T) => {
-  if (typeof value === 'function') value = evaluate(value as any);
+export const updateEvaluateChild = (value: SingleChild) => {
+  const v = typeof value === 'function' ? evaluate(value) : value;
 
-  if (value instanceof Component) value.update();
+  if (v instanceof Component) v.update();
 
-  return value;
+  return v;
 };
 
 export const convertChildNode = <T>(value: T) =>
@@ -195,9 +195,9 @@ export const updateChild = (
 
     (updatable as any).refValue = nextValue;
 
-    const _nextValue = nextValue.map(updateEvaluate);
+    const _nextValue = nextValue.map(updateEvaluateChild);
 
-    updatable.value = _nextValue as any;
+    updatable.value = _nextValue;
 
     const nextNode = _nextValue.map(convertChildNode);
 
@@ -227,9 +227,9 @@ export const updateChild = (
   else if (isNextArray) {
     (updatable as any).refValue = nextValue;
 
-    const _nextValue = nextValue.map(updateEvaluate);
+    const _nextValue = nextValue.map(updateEvaluateChild);
 
-    updatable.value = _nextValue as any;
+    updatable.value = _nextValue;
 
     const nextNode = _nextValue.map(convertChildNode);
 
@@ -266,7 +266,7 @@ export const updateChild = (
   else if (nextValue instanceof Component) {
     nextValue.update(recursion - 1);
 
-    const nextNode = nextValue.getElement();
+    const nextNode = nextValue.element;
 
     updatable.node = nextNode;
 

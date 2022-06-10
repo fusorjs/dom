@@ -22,7 +22,7 @@ test.each([
 
 test.each([
   (v => [v, v])(document.createElement('div')),
-  (v => [v, v.getElement()])(new Component(document.createElement('div'))),
+  (v => [v, v.element])(new Component(document.createElement('div'))),
   (v => [v, document.createTextNode(getString(v))])('other'),
   (v => [v, document.createTextNode(getString(v))])(() => {}),
 ])('get child node provided %p expected %p', (provided, expected) => {

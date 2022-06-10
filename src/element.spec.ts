@@ -57,7 +57,7 @@ test('init element with dynamic prop', () => {
   const result = initElement(element, [{title: () => title}], getPropConfig$$);
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(1);
   expect(element.childNodes.length).toBe(0);
@@ -83,7 +83,7 @@ test('init element with dynamic prop override', () => {
   );
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(1);
   expect(element.childNodes.length).toBe(0);
@@ -145,7 +145,7 @@ test('init element with dynamic child', () => {
   const result = initElement(element, [() => child], getPropConfig$$);
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(1);
@@ -175,7 +175,7 @@ test('init element with nested dynamic child', () => {
   );
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(1);
@@ -206,7 +206,7 @@ describe('init element changing nested dynamic child', () => {
   const result = initElement(element, [() => child], getPropConfig$$);
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(1);
@@ -250,7 +250,7 @@ describe('init element changing nested dynamic child', () => {
 
     if (val instanceof Element) expect(element.childNodes[0]).toBe(val);
     else if (val instanceof Component)
-      expect(element.childNodes[0]).toBe(val.getElement());
+      expect(element.childNodes[0]).toBe(val.element);
     else expect(element.childNodes[0].nodeValue).toBe(val);
   });
 });
@@ -286,7 +286,7 @@ test('init element incrementing nested dynamic children', () => {
   );
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(3);
@@ -333,7 +333,7 @@ test.each([
 
   if (typeof provided === 'function' || provided instanceof Component) {
     expect(result).toBeInstanceOf(Component);
-    expect(result.getElement()).toBe(element);
+    expect(result.element).toBe(element);
   } else {
     expect(result).toBe(element);
   }
@@ -353,7 +353,7 @@ test('init element with dynamic prop and child', () => {
   );
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(1);
   expect(element.childNodes.length).toBe(1);
@@ -402,7 +402,7 @@ test('init element with dynamic array of children', () => {
   );
 
   expect(result).toBeInstanceOf(Component);
-  expect(result.getElement()).toBe(element);
+  expect(result.element).toBe(element);
 
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(5);

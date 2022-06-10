@@ -1,4 +1,4 @@
-import {Component, RECURSION_LIMIT} from './element';
+import {Component} from './element';
 import {div, button, p, form, select, option, textarea, a, img} from './html';
 import {Child} from './types';
 
@@ -8,6 +8,7 @@ test('empty div', () => {
   expect(result).toBeInstanceOf(HTMLDivElement);
   expect(result.attributes.length).toBe(0);
   expect(result.childNodes.length).toBe(0);
+  expect(result.outerHTML).toBe('<div></div>');
 });
 
 test('staic div', () => {
@@ -16,6 +17,7 @@ test('staic div', () => {
   expect(result).toBeInstanceOf(HTMLDivElement);
   expect(result.attributes.length).toBe(1);
   expect(result.childNodes.length).toBe(1);
+  expect(result.outerHTML).toBe('<div class="111">bbb</div>');
 });
 
 test('dynamic div', () => {
@@ -23,11 +25,25 @@ test('dynamic div', () => {
 
   expect(result).toBeInstanceOf(Component);
 
-  const element = result.getElement();
+  const {element} = result;
 
   expect(element).toBeInstanceOf(HTMLDivElement);
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(1);
+  expect(element.outerHTML).toBe('<div>bbb</div>');
+});
+
+it('has dynamic void child', () => {
+  const result = p(() => {});
+
+  expect(result).toBeInstanceOf(Component);
+
+  const {element} = result;
+
+  expect(element).toBeInstanceOf(HTMLParagraphElement);
+  expect(element.attributes.length).toBe(0);
+  expect(element.childNodes.length).toBe(1);
+  expect(element.outerHTML).toBe('<p></p>');
 });
 
 test('static button', () => {
@@ -67,7 +83,7 @@ test('stateless button changes global counter onclick', () => {
 
   expect(btn).toBeInstanceOf(Component);
 
-  const element = btn.getElement();
+  const {element} = btn;
 
   expect(element).toBeInstanceOf(HTMLButtonElement);
 
@@ -100,9 +116,9 @@ test('stateful counter button instances are clicked', () => {
     return btn;
   };
 
-  const element1 = CounterButton().getElement();
-  const element2 = CounterButton().getElement();
-  const element3 = CounterButton(333).getElement();
+  const element1 = CounterButton().element;
+  const element2 = CounterButton().element;
+  const element3 = CounterButton(333).element;
 
   expect(element1.innerHTML).toBe('Clicked 0 times!');
   expect(element2.innerHTML).toBe('Clicked 0 times!');
@@ -158,8 +174,8 @@ test('toggle button color', () => {
     () => `Clicked ${counter} times!`,
   );
 
-  const toggleElement = tgl.getElement();
-  const counterElement = cnt.getElement();
+  const toggleElement = tgl.element;
+  const counterElement = cnt.element;
 
   expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe(
@@ -202,13 +218,13 @@ test('init & update dynamic children array', () => {
   const counter = () => ++count;
   const app = div(() => [counter, p(counter)]);
 
-  expect(app.getElement().innerHTML).toBe('2<p>1</p>'); // p's init called first
-  expect(app.getElement().childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('2<p>1</p>'); // p's init called first
+  expect(app.element.childNodes.length).toBe(2);
 
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('4<p>5</p>'); // p's recreated first then updated
-  expect(app.getElement().childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('4<p>5</p>'); // p's recreated first then updated
+  expect(app.element.childNodes.length).toBe(2);
 });
 
 test('dynamic children array', () => {
@@ -216,52 +232,52 @@ test('dynamic children array', () => {
 
   const app = div(() => dynamic, 123);
 
-  expect(app.getElement().innerHTML).toBe('text123');
-  expect(app.getElement().childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('text123');
+  expect(app.element.childNodes.length).toBe(2);
 
   dynamic = [1, 2, 3];
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('123');
-  expect(app.getElement().childNodes.length).toBe(3);
+  expect(app.element.innerHTML).toBe('123');
+  expect(app.element.childNodes.length).toBe(3);
 
   dynamic = ['a', 'b'];
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('ab');
-  expect(app.getElement().childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('ab');
+  expect(app.element.childNodes.length).toBe(2);
 
   dynamic = 'one';
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('one');
-  expect(app.getElement().childNodes.length).toBe(1);
+  expect(app.element.innerHTML).toBe('one');
+  expect(app.element.childNodes.length).toBe(1);
 
   let count = 0;
 
   dynamic = p(() => ++count);
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>2</p>'); // 2 - create + update
-  expect(app.getElement().childNodes.length).toBe(1);
+  expect(app.element.innerHTML).toBe('<p>2</p>'); // 2 - create + update
+  expect(app.element.childNodes.length).toBe(1);
 
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>3</p>');
-  expect(app.getElement().childNodes.length).toBe(1);
+  expect(app.element.innerHTML).toBe('<p>3</p>');
+  expect(app.element.childNodes.length).toBe(1);
 
   count = 1;
   dynamic = [p(() => count), () => count];
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>1</p>1');
-  expect(app.getElement().childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('<p>1</p>1');
+  expect(app.element.childNodes.length).toBe(2);
 
   count = 2;
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>1</p>1'); // same array, does not update
-  expect(app.getElement().childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('<p>1</p>1'); // same array, does not update
+  expect(app.element.childNodes.length).toBe(2);
 });
 
 it('should update dynamic array components whith different arrays', () => {
@@ -273,17 +289,17 @@ it('should update dynamic array components whith different arrays', () => {
 
   const app = div(() => dynamic);
 
-  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+  expect(app.element.innerHTML).toBe('<p>1</p>');
 
   dynamic = [paragraph]; // different array
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>2</p>');
+  expect(app.element.innerHTML).toBe('<p>2</p>');
 
   dynamic = [paragraph]; // different array
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>3</p>');
+  expect(app.element.innerHTML).toBe('<p>3</p>');
 });
 
 it('should not update dynamic array components with the same array', () => {
@@ -295,15 +311,15 @@ it('should not update dynamic array components with the same array', () => {
 
   const app = div(() => dynamic);
 
-  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+  expect(app.element.innerHTML).toBe('<p>1</p>');
 
   app.update(); // same array
 
-  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+  expect(app.element.innerHTML).toBe('<p>1</p>');
 
   app.update(); // same array
 
-  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+  expect(app.element.innerHTML).toBe('<p>1</p>');
 });
 
 it('should replace dynamic array with dynamic component and update component', () => {
@@ -315,16 +331,16 @@ it('should replace dynamic array with dynamic component and update component', (
 
   const app = div(() => dynamic);
 
-  expect(app.getElement().innerHTML).toBe('<p>1</p>');
+  expect(app.element.innerHTML).toBe('<p>1</p>');
 
   dynamic = paragraph;
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>2</p>');
+  expect(app.element.innerHTML).toBe('<p>2</p>');
 
   app.update();
 
-  expect(app.getElement().innerHTML).toBe('<p>3</p>');
+  expect(app.element.innerHTML).toBe('<p>3</p>');
 });
 
 // it('should throw update recursion limit', () => {
