@@ -1,9 +1,15 @@
-import {UpdatableChild, SingleChild} from './types';
+import {
+  UpdatableChild,
+  SingleChild,
+  UpdatableChildren,
+  ChildCache,
+} from './types';
 import {
   convertChild,
   convertChildNode,
   emptyChild,
   getChildNode,
+  getNode,
   initChild,
   updateChild,
 } from './child';
@@ -31,76 +37,86 @@ test.each([
   else expect(getChildNode(provided)).toBe(expected);
 });
 
+type TestChild = [
+  any,
+  Omit<UpdatableChild | UpdatableChildren, 'update'>,
+  string,
+  string?,
+];
+
+const getCache = (value: any): ChildCache => ({
+  value,
+  node: convertChildNode(value),
+});
+
+const getUpdatable = (e: any) =>
+  Array.isArray(e)
+    ? {
+        arrayRef: e,
+        cache: e
+          .map(e => (typeof e === 'function' ? evaluate(e) : e))
+          .map(getCache),
+      }
+    : {
+        cache: getCache(e),
+      };
+
 describe('init child', () => {
   const element = {
     appendChild: jest.fn(),
   };
 
   test.each(
-    getStringTestData.map(
-      ([p, e1, e2]) =>
-        [
-          p,
-          typeof p === 'function'
-            ? (e => ({
-                ...(Array.isArray(e)
-                  ? {
-                      refValue: e,
-                      ...(e => ({
-                        value: e,
-                        node: e.map(convertChildNode),
-                      }))(
-                        e.map(e => (typeof e === 'function' ? evaluate(e) : e)),
-                      ),
-                    }
-                  : {
-                      value: e,
-                      node: convertChildNode(e),
-                    }),
-              }))(evaluate(p))
-            : {
-                value: p,
-                node: convertChildNode(p),
-              },
-          e1,
-          e2,
-        ] as const,
-    ),
+    getStringTestData.map<TestChild>(([p, e1, e2]) => [
+      p,
+      typeof p === 'function'
+        ? getUpdatable(evaluate(p))
+        : {
+            cache: getCache(p),
+          },
+      e1,
+      e2,
+    ]),
   )(
     'init child provided %p expected %p <<< %p <<< %p',
     (provided, expected) => {
-      const {value, node} = expected;
+      // const {value, node} = expected;
+      const {cache} = expected;
       const result = initChild(element as any as Node, provided as SingleChild);
 
       // child
-      if (Array.isArray(node)) {
-        if (node.length === 0) {
+      if (Array.isArray(cache)) {
+        if (cache.length === 0) {
           expect(element.appendChild).not.toHaveBeenCalled();
         } else {
-          expect(element.appendChild).toHaveBeenCalledTimes(node.length);
+          expect(element.appendChild).toHaveBeenCalledTimes(cache.length);
 
-          for (let i = 0; i < node.length; i++) {
-            expect(element.appendChild.mock.calls[i][0]).toStrictEqual(node[i]);
+          for (let i = 0; i < cache.length; i++) {
+            expect(element.appendChild.mock.calls[i][0]).toStrictEqual(
+              cache[i].node,
+            );
           }
         }
       } else {
-        if (node.nodeValue === emptyChild && typeof provided !== 'function') {
+        if (
+          cache.node.nodeValue === emptyChild &&
+          typeof provided !== 'function'
+        ) {
           expect(element.appendChild).not.toHaveBeenCalled();
         } else {
           expect(element.appendChild).toHaveBeenCalledTimes(1);
-          expect(element.appendChild).toHaveBeenCalledWith(node);
+          expect(element.appendChild).toHaveBeenCalledWith(cache.node);
         }
       }
 
-      // updater
+      // result
       if (provided instanceof Component) {
         expect(result).toBe(provided);
       } else if (typeof provided === 'function') {
-        expect(result).toEqual<UpdatableChild>({
+        expect(result).toEqual({
           update: provided,
-          refValue: (expected as any).refValue,
-          value,
-          node: node as any,
+          arrayRef: (expected as UpdatableChildren).arrayRef,
+          cache,
         });
       } else {
         expect(result).toBeUndefined();
@@ -117,84 +133,73 @@ describe('update child', () => {
 
   let dynamic: any;
 
-  const updatable: UpdatableChild = {
+  const updatable: UpdatableChild | UpdatableChildren = {
     update: () => dynamic,
-    value: dynamic,
-    node: getChildNode(dynamic),
+    cache: getCache(dynamic),
   };
 
   test.each(
-    getStringTestData.map(
-      ([p, e1, e2]) =>
-        [
-          p,
-          (e => ({
-            ...(Array.isArray(e)
-              ? {
-                  refValue: e,
-                  ...(e => ({
-                    value: e,
-                    node: e.map(convertChildNode),
-                  }))(e.map(e => (typeof e === 'function' ? evaluate(e) : e))),
-                }
-              : {
-                  value: e,
-                  node: convertChildNode(e),
-                }),
-          }))(typeof p === 'function' ? evaluate(p) : p),
-          e1,
-          e2,
-        ] as const,
-    ),
+    getStringTestData.map<TestChild>(([p, e1, e2]) => [
+      p,
+      getUpdatable(typeof p === 'function' ? evaluate(p) : p),
+      e1,
+      e2,
+    ]),
   )(
     'update child provided %p expected %p <<< %p <<< %p',
     (provided, expected) => {
-      const {value: prevValue, node: prevNode} = updatable; // before updater
-      const prevRefValue = (updatable as any).refValue; // before updater
+      const prevArrayRef = (updatable as any as UpdatableChildren).arrayRef; // before updater
+      const {cache: prev} = updatable; // before updater
 
       dynamic = provided;
 
       updateChild(element as any as Element, updatable);
 
-      const nextRefValue = (expected as any).refValue;
-      const {value: nextValue, node: nextNode} = expected;
-      const currRefValue = (updatable as any).refValue;
-      const {value: currValue, node: currNode} = updatable;
+      const nextArrayRef = (expected as UpdatableChildren).arrayRef;
+      const {cache: next} = expected;
 
-      expect(currRefValue).toStrictEqual(nextRefValue);
-      expect(currNode).toStrictEqual(nextNode);
+      const currArrayRef = (updatable as any as UpdatableChildren).arrayRef;
+      const {cache: curr} = updatable;
 
-      if (ObjectIs(nextValue, prevValue)) {
-        expect(element.replaceChild).not.toHaveBeenCalled();
-        expect(element.replaceChildren).not.toHaveBeenCalled();
-      } else if (Array.isArray(nextNode) && Array.isArray(prevNode)) {
-        if (nextRefValue === prevRefValue) {
+      expect(currArrayRef).toStrictEqual(nextArrayRef);
+      expect(curr).toStrictEqual(next);
+
+      // multiple
+      if (Array.isArray(next) && Array.isArray(prev)) {
+        if (nextArrayRef === prevArrayRef) {
           expect(element.replaceChild).not.toHaveBeenCalled();
           expect(element.replaceChildren).not.toHaveBeenCalled();
         } else {
           expect(element.replaceChild).not.toHaveBeenCalled();
           expect(element.replaceChildren).toHaveBeenCalledTimes(1);
-          expect(element.replaceChildren).toHaveBeenCalledWith(...nextNode);
+          expect(element.replaceChildren).toHaveBeenCalledWith(
+            ...next.map(getNode),
+          );
         }
-      } else if (Array.isArray(nextNode)) {
+      } else if (Array.isArray(next)) {
         expect(element.replaceChild).not.toHaveBeenCalled();
         expect(element.replaceChildren).toHaveBeenCalledTimes(1);
-        expect(element.replaceChildren).toHaveBeenCalledWith(...nextNode);
-      } else if (Array.isArray(prevNode)) {
+        expect(element.replaceChildren).toHaveBeenCalledWith(
+          ...next.map(getNode),
+        );
+      } else if (Array.isArray(prev)) {
         expect(element.replaceChild).not.toHaveBeenCalled();
         expect(element.replaceChildren).toHaveBeenCalledTimes(1);
-        expect(element.replaceChildren).toHaveBeenCalledWith(nextNode);
+        expect(element.replaceChildren).toHaveBeenCalledWith(next.node);
       }
       // single
-      else if (prevNode instanceof Text && nextNode instanceof Text) {
+      else if (ObjectIs(next.value, prev.value)) {
+        expect(element.replaceChild).not.toHaveBeenCalled();
+        expect(element.replaceChildren).not.toHaveBeenCalled();
+      } else if (prev.node instanceof Text && next.node instanceof Text) {
         expect(element.replaceChildren).not.toHaveBeenCalled();
         expect(element.replaceChild).not.toHaveBeenCalled();
-        expect(prevNode).toStrictEqual(nextNode);
-        expect(prevNode.nodeValue).toBe(getString(convertChild(nextValue)));
+        expect(prev.node).toStrictEqual(next.node);
+        expect(prev.node.nodeValue).toBe(getString(convertChild(next.value)));
       } else {
         expect(element.replaceChildren).not.toHaveBeenCalled();
         expect(element.replaceChild).toHaveBeenCalledTimes(1);
-        expect(element.replaceChild).toHaveBeenCalledWith(nextNode, prevNode);
+        expect(element.replaceChild).toHaveBeenCalledWith(next.node, prev.node);
       }
     },
   );

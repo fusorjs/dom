@@ -46,6 +46,7 @@ export type Arg = Props | Child;
 export type Evaluable<T> = () => T | Evaluable<T>;
 
 export type Evaluated<T> = Exclude<T, () => T>;
+// export type Evaluated<T> = Exclude<T, Function>;
 
 /* INIT */
 
@@ -90,27 +91,31 @@ export interface DynamicProps {
 
 export type ValueNode = Text | Element;
 
-export type UpdatableChild = {
-  readonly update: Evaluable<Child>;
-} & (
-  | {
-      value: Evaluated<Child>;
-      node: ValueNode;
-    }
-  | {
-      // todo refactor
-      refValue: Evaluated<Child[]>; // array value to compare refs
-      value: Evaluated<Child>[]; // evaluated array values
-      node: ValueNode[];
-    }
-);
+export interface ChildCache {
+  value: Evaluated<Child>; // ! not StaticChild
+  node: ValueNode;
+}
 
-export type DynamicChild<E extends Element> = UpdatableChild | Component<E>;
+export interface UpdatableChild {
+  readonly update: Evaluable<Child>;
+  cache: ChildCache;
+}
+
+export type UpdatableChildren = {
+  readonly update: Evaluable<Child>;
+  arrayRef: Evaluated<Child[]>;
+  cache: ChildCache[];
+};
+
+export type DynamicChild<E extends Element> =
+  | UpdatableChild
+  | UpdatableChildren
+  | Component<E>;
 
 /* EXPERIMENTS */
 
 // export type some = string | number | boolean | symbol | object;
-// export type StaticValue <T> = T extends Function ? never : T;
+// export type StaticValue<T> = T extends Function ? never : T;
 
 // export interface StaticProps2 {
 //   [key: string]: StaticProp;

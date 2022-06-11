@@ -42,3 +42,9 @@ export const getPropConfig$$: GetPropConfig = name => {
 // <input type="radio" />     checked={boolean}     onChange  event.target.checked
 // <textarea />               value="string"        onChange  event.target.value
 // <select />                 value="option value"  onChange  event.target.value
+
+// export const config = {
+//   defineProp: getPropConfig$$,
+//   evaluateRecursionLimit: 5,
+//   updateRecursionLimit: 5, // RECURSION_LIMIT;
+// } as const;

@@ -21,6 +21,11 @@ export const evaluate = <T>(callback: Evaluable<T>): Evaluated<T> => {
   return value as Evaluated<T>;
 };
 
+/** get any value, evaluate first if it is a function */
+// export const getValue = <T>(value: T): Evaluated<T> => {
+//   return typeof value === 'function' ? evaluate(value) : value;
+// };
+
 /** Get string value of anything. */
 export const getString = (value: any): string => {
   if (typeof value === 'object') {

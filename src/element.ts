@@ -56,15 +56,6 @@ export const initElement: Initiator = (element, args, getPropConfig) => {
     : element; // static
 };
 
-// elementary-js/dom-component
-// dom-element-component
-// DomElementUpdater
-// DynamicElement
-// Turbik
-// Fusor
-// TurboFusor DomFusor ElementFusor efusor
-// fusion reactor
-
 // todo 5 to config
 export const RECURSION_LIMIT = 5;
 
@@ -75,7 +66,6 @@ export class Component<E extends Element> {
     private children?: readonly DynamicChild<E>[],
   ) {}
 
-  // todo getter
   get element() {
     return this._element;
   }
