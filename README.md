@@ -16,6 +16,7 @@ Functional, reactive DOM component framework.
 - Do not mutate props objects or children arrays that you pass to components.
 - Do not spread join props objects or children array, just pass them separately to components.
 - Do not create Component in dynamic child (ex: `p(() => div(() => ++count)))`). It will be first recreated and then updated every time its parent will be updated. Cheche it before (ex: `const cache = div(() => ++count))`) instead. Also the same applies to dynamic child arrays: `p(() => [div(() => ++count))])`.
+- boolean children are not shown, so you could do: `isVisible && ModalDialog`
 
 ## The Default Config
 
@@ -59,10 +60,10 @@ Functional, reactive DOM component framework.
 - same (by ref) dynamic arrays will not trigger updates
 - add possibility to set property (ex: input.value) instead of always setting attribute (probably by using prefix "$" or by defining all cases)
 - dynamic children arrays can have dynamic elements
+- children with value of true/false are not shown, ex: isVisible && Modal()
 
 ## BACKLOG
 
-- children with value of true/false are not shown, ex: isVisible && Modal()
 - implement style, object, data attributes,
 - replace only range for dynamic children array (using node start/end indexes)
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254

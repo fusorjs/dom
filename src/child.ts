@@ -13,15 +13,16 @@ import {evaluate, getString, ObjectIs} from './utils';
 
 export const emptyChild = '';
 
-export const convertChild = <T>(value: T): T | typeof emptyChild => {
+export const convertChild = (value: any) => {
   switch (value) {
     case null:
+    case true:
+    case false:
     case undefined:
-    case emptyChild as any:
       return emptyChild;
-    default:
-      return value;
   }
+
+  return value;
 };
 
 export const getChildNode = (value: any): ValueNode => {

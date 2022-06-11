@@ -352,3 +352,15 @@ it('should replace dynamic array with dynamic component and update component', (
 //     ),
 //   );
 // });
+
+it('should not show boolean values', () => {
+  expect(div(true).innerHTML).toBe('');
+  expect(div(true || 'invisible').innerHTML).toBe('');
+  expect(div(() => true).element.innerHTML).toBe('');
+  expect(div(false).innerHTML).toBe('');
+  expect(div(false && 'invisible').innerHTML).toBe('');
+  expect(div(() => false).element.innerHTML).toBe('');
+  expect(div([true, false]).innerHTML).toBe('');
+  expect(div(() => [true, false]).element.innerHTML).toBe('');
+  expect(div(() => [() => true, () => false]).element.innerHTML).toBe('');
+});

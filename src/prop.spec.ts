@@ -7,9 +7,11 @@ test.each([
   ['', emptyAttr],
   [null, emptyAttr],
   [false, emptyAttr],
-  [emptyAttr, emptyAttr],
   [true, ''],
-  ['other', 'other'],
+  [emptyAttr, emptyAttr],
+  [123, 123],
+  ['str', 'str'],
+  (e => [e, e])({}),
 ])('convert prop provided %p expected %p', (provided, expected) => {
   expect(convertAttr(provided)).toBe(expected);
 });

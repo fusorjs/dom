@@ -4,18 +4,17 @@ import {evaluate, stringify} from './utils';
 
 export const emptyAttr = undefined;
 
-export const convertAttr = <T>(value: T): T | typeof emptyAttr | '' => {
+export const convertAttr = (value: any) => {
   switch (value) {
-    case '' as any: // ? maybe not
+    case '': // ? maybe not
     case null:
-    case false as any:
-    case emptyAttr:
+    case false:
       return emptyAttr;
-    case true as any:
+    case true:
       return '';
-    default:
-      return value;
   }
+
+  return value;
 };
 
 export const initProp = (
