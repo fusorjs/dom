@@ -1,14 +1,13 @@
 {
-  "name": "@efusor/dom",
+  "name": "@fusorjs/dom",
   "version": "1.0.0",
-  "description": "Functional, reactive DOM component framework.",
+  "description": "A DOM library for building user interfaces.",
   "keywords": [
-    "efusor",
+    "fusorjs",
     "dom",
-    "functional",
-    "reactive",
-    "component",
-    "framework"
+    "interface",
+    "ui",
+    "front"
   ],
   "license": "ISC",
   "author": "Igor Sukharev <imixaly4@gmail.com>",

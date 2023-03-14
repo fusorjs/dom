@@ -26,7 +26,7 @@ export type StaticArg = StaticProps | StaticChild;
 
 /* DYNAMIC ARGS */
 
-export type Prop = StaticProp | (() => Prop);
+export type Prop = StaticProp | ((...a: any) => Prop); //| EventHandler;
 
 export type SingleChild =
   | SingleStaticChild
