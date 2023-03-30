@@ -1,16 +1,20 @@
 {
   "name": "@fusorjs/dom",
-  "version": "1.0.0",
-  "description": "A DOM library for building user interfaces.",
-  "keywords": [
-    "fusorjs",
-    "dom",
-    "interface",
-    "ui",
-    "front"
-  ],
+  "version": "1.0.1",
   "license": "ISC",
+  "homepage": "https://github.com/fusorjs/dom#readme",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
+  "description": "Fusor declaratively manages DOM",
+  "keywords": [
+    "dom",
+    "fusor",
+    "fusorjs",
+    "@fusorjs",
+    "ui",
+    "interface",
+    "frontend",
+    "library"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
