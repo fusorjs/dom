@@ -77,10 +77,10 @@ This imported functions are initializers:
 import {button, div, p} from '@fusorjs/dom/html';
 ```
 
-An initializer creates a respective DOM Element and returns, depending on the presence of dynamic values, either:
+An initializer creates a respective DOM Element and returns, depending on the presence of **dynamic** values, either:
 
-- this static DOM Element
-- new dynamic `Component` object
+- this **static** DOM Element
+- new **dynamic** `Component` object
 
 > SVG initializers in `@fusorjs/dom/svg`.
 
@@ -112,19 +112,19 @@ Fusor is:
 
 ## Fusor vs React
 
-|                      | Fusor        | React                                   |
-| -------------------- | ------------ | --------------------------------------- |
-| Component functions  | Created once | Re-created on each update               |
-| State, effects, refs | Simple       | Verbose and complex Hooks system        |
-| Updating components  | Explicit     | Complex, diffing, lifecycle, concurrent |
-| Events               | Native       | Synthetic                               |
-| DOM                  | Real         | Virtual                                 |
+|                      | Fusor        | React                                           |
+| -------------------- | ------------ | ----------------------------------------------- |
+| Objects in Component | Created once | Re-created on each update even with memoization |
+| State, effects, refs | Simple       | Verbose and complex Hooks subsystem             |
+| Updating components  | Explicit     | Complex, diffing, lifecycle, concurrent, ...    |
+| Events               | Native       | Synthetic                                       |
+| DOM                  | Real         | Virtual                                         |
 
 ## Next Steps
 
 More details see the [DOCS](DOCS.md).
 
-Check out the [complete todo-list application](https://github.com/fusorjs/todomvc) written with Fusor.
+Check out the [complete todo-list application](https://github.com/fusorjs/todomvc#readme) written with Fusor.
 
 ## Contribute
 
