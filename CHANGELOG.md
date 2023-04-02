@@ -38,6 +38,14 @@
 
 ## Done
 
+### Version 2
+
+Version 2 vs 1 differences:
+
+- When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice).
+
+### Version 1
+
 - children with value of true/false are not shown, ex: isVisible && Modal()
 - dynamic children arrays can have dynamic elements
 - add possibility to set property (ex: input.value) instead of always setting attribute (probably by using prefix "$" or by defining all cases)

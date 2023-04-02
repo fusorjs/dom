@@ -67,7 +67,7 @@ A `Component` object holds a DOM Element and manages its dynamic values.
 It has two properties:
 
 - `element`: get the associated DOM Element object
-- `update`: propagate dynamic values to the `element` (make changes visible)
+- `update`: propagate dynamic values to the `element` (make changes visible), return `this`.
 
 ## Initializers
 
@@ -122,7 +122,7 @@ Fusor is:
 
 ## Next Steps
 
-More details see the [DOCS](DOCS.md).
+For more details see the [DETAILS](DOCS.md).
 
 Check out the [complete todo-list application](https://github.com/fusorjs/todomvc#readme) written with Fusor.
 

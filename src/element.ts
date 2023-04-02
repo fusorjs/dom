@@ -56,9 +56,6 @@ export const initElement: Initiator = (element, args, getPropConfig) => {
     : element; // static
 };
 
-// todo 5 to config
-export const RECURSION_LIMIT = 5;
-
 export class Component<E extends Element> {
   constructor(
     private _element: E,
@@ -70,13 +67,7 @@ export class Component<E extends Element> {
     return this._element;
   }
 
-  update(recursion = RECURSION_LIMIT) {
-    if (recursion < 1) {
-      throw new Error(
-        `update recursion limit has been reached: ${RECURSION_LIMIT}`,
-      );
-    }
-
+  update() {
     const {_element, props, children} = this;
 
     if (props) {
@@ -87,9 +78,11 @@ export class Component<E extends Element> {
 
     if (children) {
       for (const child of children) {
-        if (child instanceof Component) child.update(recursion);
-        else updateChild(_element, child, recursion);
+        if (child instanceof Component) child.update();
+        else updateChild(_element, child);
       }
     }
+
+    return this; // todo 2.0
   }
 }

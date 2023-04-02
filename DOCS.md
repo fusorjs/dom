@@ -22,7 +22,7 @@ A child can be of any value:
 
 - Boolean values are not shown, so you could do logical expressions: `isVisible && modalDialog`.
 - Static array values are treated as the usual children (nested arrays not supported yet).
-- Dynamic array values will replace associated children (currently **all children will be replaced**, just use a single dynamic children array for now).
+- Dynamic array values will replace ~~associated children~~ (it is in development, currently **all children will be replaced**, just use a single dynamic children array for now).
 
 ## Updating
 
@@ -39,13 +39,24 @@ And then it will update the DOM only if:
 
 > You should try to update only necessary components for performance.
 
-## More
+## Caching
 
-- Use functions to declare dynamic props/children.
+- If you create Component in dynamic child, ex: `p(() => div(() => ++count))`, tt will be re-created every time its parent is updated.
+- Yoc can cache it, ex: `` and then:
+
+```ts
+let cache: undefined | Component<HTMLElement>;
+// then use it
+p(() => cache?.update() ?? (cache = div(() => ++count)));
+```
+
+- Also the same applies to dynamic child arrays: `p(() => [div(() => ++count)])`.
+
+## More Facts
+
 - A Fusor's HTML/SVG `Component.element` never changes.
 - Your dynamic child function can return different DOM Element or any other value.
 - Dynamic children arrays can have dynamic elements (see: `RECURSION_LIMIT` in config).
-- Do not create Component in dynamic child (ex: `p(() => div(() => ++count)))`). It will be first recreated and then updated every time its parent will be updated. Cheche it before (ex: `const cache = div(() => ++count))`) instead. Also the same applies to dynamic child arrays: `p(() => [div(() => ++count))])`.
 
 ## Functional Notation vs JSX
 

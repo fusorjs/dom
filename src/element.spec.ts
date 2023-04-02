@@ -256,8 +256,8 @@ describe('init element changing nested dynamic child', () => {
 });
 
 test('init element incrementing nested dynamic children', () => {
-  let count = 0,
-    cache;
+  let count = 0;
+  let cache: Component<HTMLElement>;
 
   const element = document.createElement('div');
   const result = initElement(
@@ -273,11 +273,13 @@ test('init element incrementing nested dynamic children', () => {
         document.createElement('p'),
         [
           () =>
-            (cache ||= initElement(
-              document.createElement('span'),
-              [() => ++count],
-              getPropConfig$$,
-            )),
+            cache
+              ? cache.update()
+              : (cache = initElement(
+                  document.createElement('span'),
+                  [() => ++count],
+                  getPropConfig$$,
+                )),
         ],
         getPropConfig$$,
       ),

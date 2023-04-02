@@ -1,4 +1,4 @@
-import {Component, RECURSION_LIMIT} from './element';
+import {Component} from './element';
 import {
   UpdatableChild,
   ValueNode,
@@ -114,9 +114,9 @@ export const initChild = (
 };
 
 export const updateChildCache = (value: SingleChild): ChildCache => {
-  const evaluated = typeof value === 'function' ? evaluate(value) : value;
+  const evaluated = typeof value === 'function' ? evaluate(value) : value; // todo 2.0
 
-  if (evaluated instanceof Component) evaluated.update();
+  // if (evaluated instanceof Component) evaluated.update(); // todo 2.0
 
   return {
     value: evaluated,
@@ -129,10 +129,9 @@ export const getNode = ({node}: ChildCache) => node;
 export const updateChild = (
   element: Node,
   updatable: UpdatableChild | UpdatableChildren,
-  recursion = RECURSION_LIMIT,
 ): void => {
   const {update, cache} = updatable;
-  const nextValue = evaluate(update);
+  const nextValue = evaluate(update); // todo 2.0
 
   const isNextArray = Array.isArray(nextValue);
   const isPrevArray = Array.isArray(cache);
@@ -169,8 +168,6 @@ export const updateChild = (
   else if (isPrevArray) {
     delete (updatable as Partial<Pick<UpdatableChildren, 'arrayRef'>>).arrayRef;
 
-    if (nextValue instanceof Component) nextValue.update(recursion - 1);
-
     const node = convertChildNode(nextValue);
 
     updatable.cache = {
@@ -188,14 +185,12 @@ export const updateChild = (
 
     // same value do nothing
     if (ObjectIs(nextValue, prevValue)) {
-      if (nextValue instanceof Component) nextValue.update(recursion - 1);
-
       return; // do nothing
     }
 
     updatable.cache = {
       value: nextValue,
-      node: updateSingleChild(element, prevNode, nextValue, recursion),
+      node: updateSingleChild(element, prevNode, nextValue),
     };
   }
 };
@@ -205,7 +200,6 @@ export const updateSingleChild = (
   element: Node,
   prevNode: ValueNode,
   nextValue: SingleStaticChild | Component<Element>,
-  recursion: number,
 ): ValueNode => {
   // replace with different element
   if (nextValue instanceof Element) {
@@ -216,8 +210,6 @@ export const updateSingleChild = (
 
   // replace with different component's element
   else if (nextValue instanceof Component) {
-    nextValue.update(recursion - 1);
-
     const nextNode = nextValue.element;
 
     element.replaceChild(nextNode, prevNode as ValueNode);

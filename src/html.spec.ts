@@ -218,12 +218,12 @@ test('init & update dynamic children array', () => {
   const counter = () => ++count;
   const app = div(() => [counter, p(counter)]);
 
-  expect(app.element.innerHTML).toBe('2<p>1</p>'); // p's init called first
+  expect(app.element.innerHTML).toBe('2<p>1</p>'); // <p> init called first
   expect(app.element.childNodes.length).toBe(2);
 
   app.update();
 
-  expect(app.element.innerHTML).toBe('4<p>5</p>'); // p's recreated first then updated
+  expect(app.element.innerHTML).toBe('4<p>3</p>'); // <p> re-created first
   expect(app.element.childNodes.length).toBe(2);
 });
 
@@ -256,14 +256,20 @@ test('dynamic children array', () => {
   let count = 0;
 
   dynamic = p(() => ++count);
+
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>2</p>'); // 2 - create + update
+  expect(app.element.innerHTML).toBe('<p>1</p>');
   expect(app.element.childNodes.length).toBe(1);
 
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>3</p>');
+  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(app.element.childNodes.length).toBe(1);
+
+  dynamic.update();
+
+  expect(app.element.innerHTML).toBe('<p>2</p>');
   expect(app.element.childNodes.length).toBe(1);
 
   count = 1;
@@ -285,7 +291,7 @@ it('should update dynamic array components whith different arrays', () => {
 
   const paragraph = p(() => ++count);
 
-  let dynamic = [paragraph];
+  let dynamic: any[] = [paragraph];
 
   const app = div(() => dynamic);
 
@@ -294,12 +300,16 @@ it('should update dynamic array components whith different arrays', () => {
   dynamic = [paragraph]; // different array
   app.update();
 
+  expect(app.element.innerHTML).toBe('<p>1</p>');
+
+  paragraph.update();
+
   expect(app.element.innerHTML).toBe('<p>2</p>');
 
-  dynamic = [paragraph]; // different array
+  dynamic = ['abc']; // different array
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>3</p>');
+  expect(app.element.innerHTML).toBe('abc');
 });
 
 it('should not update dynamic array components with the same array', () => {
@@ -334,13 +344,18 @@ it('should replace dynamic array with dynamic component and update component', (
   expect(app.element.innerHTML).toBe('<p>1</p>');
 
   dynamic = paragraph;
+
   app.update();
+
+  expect(app.element.innerHTML).toBe('<p>1</p>');
+
+  dynamic.update();
 
   expect(app.element.innerHTML).toBe('<p>2</p>');
 
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>3</p>');
+  expect(app.element.innerHTML).toBe('<p>2</p>');
 });
 
 // it('should throw update recursion limit', () => {
