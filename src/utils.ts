@@ -1,30 +1,6 @@
 import {Component} from './element';
-import {Evaluable, Evaluated} from './types';
 
 export const ObjectIs = Object.is;
-
-export const DEBUG =
-  process?.env?.NODE_ENV?.trim().toLowerCase() !== 'production';
-
-/** evaluate functional expression (conditions, dynamic) */
-export const evaluate = <T>(callback: Evaluable<T>): Evaluated<T> => {
-  let value = callback();
-
-  // faster than recursion
-  for (let i = 1; typeof value === 'function'; i++) {
-    if (i === 5)
-      throw new TypeError(`evaluation limit has been reached: ${i + 1}`);
-
-    value = (value as Evaluable<T>)();
-  }
-
-  return value as Evaluated<T>;
-};
-
-/** get any value, evaluate first if it is a function */
-// export const getValue = <T>(value: T): Evaluated<T> => {
-//   return typeof value === 'function' ? evaluate(value) : value;
-// };
 
 /** Get string value of anything. */
 export const getString = (value: any): string => {

@@ -14,6 +14,7 @@
 - Maybe make Prop and Child classes?
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` (https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments), speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
+- refactor tests
 - replace only range for dynamic children array (using node start/end indexes), (are they fragments?)
 - support nested children arrays, not just one level
 - implement style, object, data attributes,
@@ -42,7 +43,13 @@
 
 Version 2 vs 1 differences:
 
+- event handle can have `any` return value (in v1 it must have been `void`)
+- speed and code-complexity improvements
+
+Version 2 breaking changes:
+
 - When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice).
+- upon Child/Prop init/update, the updater function will be called once in v2. In v1 it would keep executing until non-function value would be returned or recursion limit would be reached. As it turns out, the v1 way of `evaluate` is not needed and you ecouraged to manage updator functios yourself for clarity.
 
 ### Version 1
 

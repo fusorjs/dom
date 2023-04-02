@@ -1,21 +1,5 @@
 import {getStringTestData} from './test-data.spec';
-import {evaluate, getString, stringify, createTaggedMap} from './utils';
-
-test.each([
-  [() => 1, 1],
-  [() => () => 2, 2],
-  [() => () => () => 3, 3],
-  [() => () => () => () => 4, 4],
-  [() => () => () => () => () => 5, 5],
-])('evaluate provided %p expected %p', (provided: any, expected) => {
-  expect(evaluate(provided)).toBe(expected);
-});
-
-test('evaluate throws error', () => {
-  expect(() => {
-    evaluate(() => () => () => () => () => () => 6);
-  }).toThrow(new TypeError(`evaluation limit has been reached: 6`));
-});
+import {getString, stringify, createTaggedMap} from './utils';
 
 test.each(getStringTestData)(
   'get string provided %p expected %p',

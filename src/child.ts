@@ -5,11 +5,9 @@ import {
   SingleChild,
   Child,
   ChildCache,
-  Evaluated,
   UpdatableChildren,
-  SingleStaticChild,
 } from './types';
-import {evaluate, getString, ObjectIs} from './utils';
+import {getString, ObjectIs} from './utils';
 
 export const emptyChild = '';
 
@@ -39,10 +37,7 @@ export const convertChildNode = (value: any): ValueNode => {
   return getChildNode(convertChild(value));
 };
 
-export const initDynamicChild = (
-  element: Node,
-  value: Evaluated<Child>,
-): ChildCache => {
+export const initDynamicChild = (element: Node, value: Child): ChildCache => {
   const node = convertChildNode(value);
 
   element.appendChild(node);
@@ -63,7 +58,7 @@ export const initDynamicChildren = (
     // ! must not be skiped in dynamic child, same as for single child
     // if (v === emptyChild) continue; // ! will break range updates by index
 
-    const evaluated = typeof value === 'function' ? evaluate(value) : value;
+    const evaluated = typeof value === 'function' ? value() : value;
 
     result.push(initDynamicChild(element, evaluated));
   }
@@ -89,7 +84,7 @@ export const initChild = (
 
   // init dynamic value
   else if (typeof value === 'function') {
-    const evaluated = evaluate(value);
+    const evaluated = value();
 
     return Array.isArray(evaluated)
       ? {
@@ -114,9 +109,7 @@ export const initChild = (
 };
 
 export const updateChildCache = (value: SingleChild): ChildCache => {
-  const evaluated = typeof value === 'function' ? evaluate(value) : value; // todo 2.0
-
-  // if (evaluated instanceof Component) evaluated.update(); // todo 2.0
+  const evaluated = typeof value === 'function' ? value() : value;
 
   return {
     value: evaluated,
@@ -131,7 +124,7 @@ export const updateChild = (
   updatable: UpdatableChild | UpdatableChildren,
 ): void => {
   const {update, cache} = updatable;
-  const nextValue = evaluate(update); // todo 2.0
+  const nextValue = update();
 
   const isNextArray = Array.isArray(nextValue);
   const isPrevArray = Array.isArray(cache);
@@ -184,9 +177,7 @@ export const updateChild = (
     const {value: prevValue, node: prevNode} = cache;
 
     // same value do nothing
-    if (ObjectIs(nextValue, prevValue)) {
-      return; // do nothing
-    }
+    if (ObjectIs(nextValue, prevValue)) return;
 
     updatable.cache = {
       value: nextValue,
@@ -199,7 +190,7 @@ export const updateChild = (
 export const updateSingleChild = (
   element: Node,
   prevNode: ValueNode,
-  nextValue: SingleStaticChild | Component<Element>,
+  nextValue: SingleChild | Component<Element>,
 ): ValueNode => {
   // replace with different element
   if (nextValue instanceof Element) {

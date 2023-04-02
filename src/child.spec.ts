@@ -13,7 +13,7 @@ import {
   initChild,
   updateChild,
 } from './child';
-import {evaluate, getString, ObjectIs} from './utils';
+import {getString, ObjectIs} from './utils';
 import {getStringTestData} from './test-data.spec';
 import {Component} from './element';
 
@@ -57,9 +57,7 @@ const getUpdatable = (e: any) =>
   Array.isArray(e)
     ? {
         arrayRef: e,
-        cache: e
-          .map(e => (typeof e === 'function' ? evaluate(e) : e))
-          .map(getCache),
+        cache: e.map(e => (typeof e === 'function' ? e() : e)).map(getCache),
       }
     : {
         cache: getCache(e),
@@ -74,7 +72,7 @@ describe('init child', () => {
     getStringTestData.map<TestChild>(([p, e1, e2]) => [
       p,
       typeof p === 'function'
-        ? getUpdatable(evaluate(p))
+        ? getUpdatable(p())
         : {
             cache: getCache(p),
           },
@@ -145,7 +143,7 @@ describe('update child', () => {
   test.each(
     getStringTestData.map<TestChild>(([p, e1, e2]) => [
       p,
-      getUpdatable(typeof p === 'function' ? evaluate(p) : p),
+      getUpdatable(typeof p === 'function' ? p() : p),
       e1,
       e2,
     ]),

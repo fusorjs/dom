@@ -13,7 +13,7 @@ export type Primitive =
 
 export type StaticProp = Primitive;
 
-export type SingleStaticChild = Primitive | Element;
+export type SingleStaticChild = Primitive | Element; // ? deprecate ?
 
 export type StaticChild = SingleStaticChild | SingleStaticChild[];
 
@@ -26,7 +26,7 @@ export type StaticArg = StaticProps | StaticChild;
 
 /* DYNAMIC ARGS */
 
-export type Prop = StaticProp | ((...a: any) => Prop); //| EventHandler;
+export type Prop = StaticProp | ((...a: any) => any); //| EventHandler;
 
 export type SingleChild =
   | SingleStaticChild
@@ -40,13 +40,6 @@ export interface Props {
 }
 
 export type Arg = Props | Child;
-
-/* UTILS */
-
-export type Evaluable<T> = () => T | Evaluable<T>;
-
-export type Evaluated<T> = Exclude<T, () => T>;
-// export type Evaluated<T> = Exclude<T, Function>;
 
 /* INIT */
 
@@ -80,8 +73,8 @@ export interface Creator<E extends Element> {
 /* UPDATE */
 
 export interface UpdatableProp {
-  readonly update: Evaluable<Prop>;
-  value: Evaluated<Prop>;
+  readonly update: () => Prop;
+  value: Prop;
   isAttr: boolean;
 }
 
@@ -92,18 +85,18 @@ export interface DynamicProps {
 export type ValueNode = Text | Element;
 
 export interface ChildCache {
-  value: Evaluated<Child>; // ! not StaticChild
+  value: Child; // ! not StaticChild
   node: ValueNode;
 }
 
 export interface UpdatableChild {
-  readonly update: Evaluable<Child>;
+  readonly update: () => Child;
   cache: ChildCache;
 }
 
 export type UpdatableChildren = {
-  readonly update: Evaluable<Child>;
-  arrayRef: Evaluated<Child[]>;
+  readonly update: () => Child;
+  arrayRef: Child[];
   cache: ChildCache[];
 };
 

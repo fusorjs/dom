@@ -1,5 +1,16 @@
 import {Component} from './element';
-import {div, button, p, form, select, option, textarea, a, img} from './html';
+import {
+  div,
+  button,
+  p,
+  form,
+  select,
+  option,
+  textarea,
+  a,
+  img,
+  input,
+} from './html';
 import {Child} from './types';
 
 test('empty div', () => {
@@ -144,6 +155,12 @@ test('set color style of text', () => {
   expect(p({style: 'color:red'}, 'This text is red colored.').outerHTML).toBe(
     '<p style="color:red">This text is red colored.</p>',
   );
+});
+
+test('init dynamic property', () => {
+  let count = 0;
+
+  expect(input({value$$: () => ++count}).element.value).toBe('1');
 });
 
 // 04.child
@@ -357,16 +374,6 @@ it('should replace dynamic array with dynamic component and update component', (
 
   expect(app.element.innerHTML).toBe('<p>2</p>');
 });
-
-// it('should throw update recursion limit', () => {
-//   expect(() => {
-//     div([[div([div([div([div([div([div(div(div()))])])])])])]]);
-//   }).toThrow(
-//     new TypeError(
-//       `update recursion limit has been reached: ${RECURSION_LIMIT}`,
-//     ),
-//   );
-// });
 
 it('should not show boolean values', () => {
   expect(div(true).innerHTML).toBe('');

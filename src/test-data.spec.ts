@@ -59,10 +59,10 @@ export const getStringTestData = (all => {
   [{a: 1, b: () => 's', c: p(() => 5)}, `{"a":1,"b":() => 's',"c":<p>5</p>}`],
 
   // functions
-  [() => {}, '() => { }'],
-  [() => 123, '() => 123'],
-  [() => () => 'abc', "() => () => 'abc'"],
-  [(x: any) => x + x, '(x) => x + x'],
+  // [() => {}, '() => { }'],
+  // [() => 123, '() => 123'],
+  // [() => () => 'abc', "() => () => 'abc'"],
+  // [(x: any) => x + x, '(x) => x + x'],
 
   // elements
   [document.createElement('span'), '<span></span>'],
@@ -107,9 +107,9 @@ export const getStringTestData = (all => {
     // repeat one item
     one,
     one,
-    [() => p, '() => p', e],
-    [() => () => p, '() => () => p'],
-    one,
+    // [() => p, '() => p', e],
+    // [() => () => p, '() => () => p'],
+    // one,
     one,
   );
 

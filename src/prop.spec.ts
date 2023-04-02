@@ -1,6 +1,6 @@
 import {PropType, UpdatableProp} from './types';
 import {convertAttr, updateProp, initProp, emptyAttr} from './prop';
-import {evaluate, getString, ObjectIs} from './utils';
+import {getString, ObjectIs} from './utils';
 import {getStringTestData} from './test-data.spec';
 
 test.each([
@@ -52,7 +52,7 @@ const propTestData = [true, false]
           isAttr,
           p,
           (e => (isAttr ? convertAttr(e) : e))(
-            typeof p === 'function' ? evaluate(p) : p,
+            typeof p === 'function' ? p() : p,
           ),
           e1,
         ] as const,

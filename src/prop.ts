@@ -1,6 +1,6 @@
 import {getString, ObjectIs} from './utils';
 import {Prop, UpdatableProp, PropType} from './types';
-import {evaluate, stringify} from './utils';
+import {stringify} from './utils';
 
 export const emptyAttr = undefined;
 
@@ -52,7 +52,7 @@ export const initProp = (
 
   // init dynamic attribute/property
   else if (typeof value === 'function') {
-    let val = evaluate(value);
+    let val = value();
 
     const isAttr = type === PropType.ATTRIBUTE;
 
@@ -93,8 +93,9 @@ export const updateProp = (
   updatable: UpdatableProp,
 ) => {
   const {update, value: prevValue, isAttr} = updatable;
-  const nextValue = isAttr ? convertAttr(evaluate(update)) : evaluate(update);
+  const nextValue = isAttr ? convertAttr(update()) : update();
 
+  // same value do nothing
   if (ObjectIs(nextValue, prevValue)) return;
 
   updatable.value = nextValue;
