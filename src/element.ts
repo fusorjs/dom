@@ -6,14 +6,11 @@ import {
   Creator,
   SetCreatorConfig,
 } from './types';
-import {initProp} from './prop';
-import {initChild} from './child';
-import {updateChild} from './child';
-import {updateProp} from './prop';
-import {defaultConfig} from './config';
+import {initProp, updateProp} from './prop';
+import {initChild, updateChild} from './child';
 
-export const create: Creator = (element, args) => {
-  let {getPropConfig} = defaultConfig;
+export const create: Creator = (element, config, args) => {
+  let {getPropConfig} = config;
   let props: DynamicProps | undefined;
   let children: DynamicChild<Element>[] | undefined;
 

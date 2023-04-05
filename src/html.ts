@@ -1,6 +1,7 @@
 import {TaggedCreator, CustomCreator} from './types';
 import {create} from './element';
 import {getTaggedCreatorMap} from './utils';
+import {defaultConfig} from './config';
 
 const createHtml = (tagName: string, args: any[]) => {
   const arg = args[0];
@@ -9,11 +10,15 @@ const createHtml = (tagName: string, args: any[]) => {
     const is = (arg as any).is;
 
     if (typeof is === 'string') {
-      return create(document.createElement(tagName, {is}), args) as any;
+      return create(
+        document.createElement(tagName, {is}),
+        defaultConfig,
+        args,
+      ) as any;
     }
   }
 
-  return create(document.createElement(tagName), args) as any;
+  return create(document.createElement(tagName), defaultConfig, args) as any;
 };
 
 export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>
@@ -22,9 +27,9 @@ export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
 export const button: TaggedCreator<HTMLButtonElement> = (...args) =>
-  create(document.createElement('button'), [
+  create(document.createElement('button'), defaultConfig, [
     defaultButtonProps,
-    ...args,
+    ...args, // todo unspread (make recursive create)
   ]) as any;
 
 export const getTaggedHtmlCreator =

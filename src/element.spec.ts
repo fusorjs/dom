@@ -1,4 +1,14 @@
-import {Component, create} from './element';
+import {defaultConfig} from './config';
+import {Component, create as createConf} from './element';
+import {Arg, StaticArg} from './types';
+
+export interface CreatorNoConf {
+  <E extends Element>(element: E, args: readonly StaticArg[]): E;
+  <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
+}
+
+const create: CreatorNoConf = (element, args) =>
+  createConf(element, defaultConfig, args);
 
 test('init empty element', () => {
   const element = document.createElement('div');

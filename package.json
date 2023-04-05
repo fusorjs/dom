@@ -39,8 +39,8 @@
   "scripts": {
     "test": "jest src",
     "test-coverage": "jest src --coverage",
-    "start": "shx rm -rf dist/* && tsc -p tsconfig.dist.json --watch",
-    "prepublishOnly": "shx rm -rf dist/* && tsc -p tsconfig.dist.json",
+    "start": "shx rm -rf dist/*  &&  NODE_ENV=development  tsc -p tsconfig.dist.json --watch",
+    "prepublishOnly": "shx rm -rf dist/*  &&  NODE_ENV=production  tsc -p tsconfig.dist.json",
     "prettier": "prettier --write ."
   },
   "devDependencies": {

@@ -69,8 +69,16 @@ export class SetCreatorConfig {
 /* CREATORS */
 
 export interface Creator {
-  <E extends Element>(element: E, args: readonly StaticArg[]): E;
-  <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
+  <E extends Element>(
+    element: E,
+    config: Config,
+    args: readonly StaticArg[],
+  ): E;
+  <E extends Element>(
+    element: E,
+    config: Config,
+    args: readonly Arg[],
+  ): Component<E>;
 }
 
 // export interface CustomCreatorArr<E extends Element> {
