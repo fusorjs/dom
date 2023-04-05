@@ -1,4 +1,4 @@
-import {Component} from './element';
+import {Component} from './component';
 
 export const ObjectIs = Object.is;
 

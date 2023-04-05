@@ -1,5 +1,5 @@
 import {defaultConfig} from './config';
-import {create} from './element';
+import {create} from './create';
 import {TaggedCreator} from './types';
 import {getTaggedCreatorMap} from './utils';
 

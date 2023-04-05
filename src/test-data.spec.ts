@@ -1,5 +1,5 @@
 import {emptyChild} from './child';
-import {Component} from './element';
+import {Component} from './component';
 import {p} from './html';
 import {emptyAttr} from './prop';
 

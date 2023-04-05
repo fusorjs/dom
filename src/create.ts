@@ -6,8 +6,9 @@ import {
   Creator,
   SetCreatorConfig,
 } from './types';
-import {initProp, updateProp} from './prop';
-import {initChild, updateChild} from './child';
+import {initProp} from './prop';
+import {initChild} from './child';
+import {Component} from './component';
 
 export const create: Creator = (element, config, args) => {
   let {getPropConfig} = config;
@@ -60,36 +61,3 @@ export const create: Creator = (element, config, args) => {
     ? new Component(element, props, children) // dynamic
     : element; // static
 };
-
-// todo split file here --/--
-
-export class Component<E extends Element> {
-  constructor(
-    private _element: E,
-    private props?: DynamicProps,
-    private children?: readonly DynamicChild<E>[],
-  ) {}
-
-  get element() {
-    return this._element;
-  }
-
-  update() {
-    const {_element, props, children} = this;
-
-    if (props) {
-      for (const [key, prop] of Object.entries(props)) {
-        updateProp(_element, key, prop);
-      }
-    }
-
-    if (children) {
-      for (const child of children) {
-        if (child instanceof Component) child.update();
-        else updateChild(_element, child);
-      }
-    }
-
-    return this; // todo 2.0
-  }
-}

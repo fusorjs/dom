@@ -1,5 +1,6 @@
 import {defaultConfig} from './config';
-import {Component, create as createConf} from './element';
+import {create as createConf} from './create';
+import {Component} from './component';
 import {Arg, StaticArg} from './types';
 
 export interface CreatorNoConf {

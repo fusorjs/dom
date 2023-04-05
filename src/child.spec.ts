@@ -15,7 +15,7 @@ import {
 } from './child';
 import {getString, ObjectIs} from './utils';
 import {getStringTestData} from './test-data.spec';
-import {Component} from './element';
+import {Component} from './component';
 
 test.each([
   [null, emptyChild],

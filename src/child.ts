@@ -1,4 +1,4 @@
-import {Component} from './element';
+import {Component} from './component';
 import {
   UpdatableChild,
   ValueNode,
