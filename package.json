@@ -4,7 +4,7 @@
   "license": "ISC",
   "homepage": "https://github.com/fusorjs/dom#readme",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
-  "description": "Fusor declaratively manages DOM",
+  "description": "Fusor declaratively manages the DOM.",
   "keywords": [
     "dom",
     "fusor",

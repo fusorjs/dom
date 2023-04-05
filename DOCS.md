@@ -57,6 +57,7 @@ p(() => cache?.update() ?? (cache = div(() => ++count)));
 - A Fusor's HTML/SVG `Component.element` never changes.
 - Your dynamic child function can return different DOM Element or any other value.
 - Dynamic children arrays can have dynamic elements (see: `RECURSION_LIMIT` in config).
+- Use `is` attribute to attach custom element (it must be in the first props object)
 
 ## Functional Notation vs JSX
 

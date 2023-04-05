@@ -1,10 +1,10 @@
 # @fusorjs/dom
 
-Fusor declaratively manages DOM.
+Fusor declaratively manages the DOM.
 
 Fusor is a simple, flexible, standard-compliant, and performant library.
 
-> It fuses DOM Elements.
+> It fuses the DOM Elements.
 
 ## Example
 
@@ -69,20 +69,20 @@ It has two properties:
 - `element`: get the associated DOM Element object
 - `update`: propagate dynamic values to the `element` (make changes visible), return `this`.
 
-## Initializers
+## Creators
 
-This imported functions are initializers:
+This imported functions are creators:
 
 ```js
 import {button, div, p} from '@fusorjs/dom/html';
 ```
 
-An initializer creates a respective DOM Element and returns, depending on the presence of **dynamic** values, either:
+A creator initializes a respective DOM Element and returns, depending on the presence of **dynamic** values, either:
 
 - this **static** DOM Element
 - new **dynamic** `Component` object
 
-> SVG initializers in `@fusorjs/dom/svg`.
+> SVG creators in `@fusorjs/dom/svg`.
 
 ## Static vs Dynamic
 
@@ -102,6 +102,8 @@ Everything else is **static**.
 - You already know Fusor, if you have read this far.
 - It does one thing and does it well.
 - You control your updation strategy.
+- It uses functional approach.
+- Fusor and Web Components are perfect fit for each other.
 
 Fusor is:
 
@@ -117,12 +119,13 @@ Fusor is:
 | Objects in Component | Created once | Re-created on each update even with memoization |
 | State, effects, refs | Simple       | Verbose and complex Hooks subsystem             |
 | Updating components  | Explicit     | Complex, diffing, lifecycle, concurrent, ...    |
-| Events               | Native       | Synthetic                                       |
 | DOM                  | Real         | Virtual                                         |
+| Events               | Native       | Synthetic                                       |
+| Life-cycle           | Native       | Diffing???                                      |
 
 ## Next Steps
 
-For more details see the [DETAILS](DOCS.md).
+For more details see the [DOCUMENTATION](DOCS.md).
 
 Check out the [complete todo-list application](https://github.com/fusorjs/todomvc#readme) written with Fusor.
 

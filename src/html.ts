@@ -1,24 +1,50 @@
+import {TaggedCreator, GetPropConfig, CustomCreator} from './types';
 import {getPropConfig$$} from './config';
 import {initElement} from './element';
-import {Creator} from './types';
-import {createTaggedMap} from './utils';
+import {getTaggedCreatorMap} from './utils';
 
-export const tagHtmlElement =
-  (tagName: string): Creator<HTMLElement> =>
-  (...args) =>
-    initElement(document.createElement(tagName), args, getPropConfig$$) as any;
+/** @deprecated */
+export const createHtml = (
+  tagName: string,
+  args: any[],
+  config: GetPropConfig,
+) => {
+  const arg = args[0];
+
+  if (arg?.constructor === Object) {
+    const is = (arg as any).is;
+
+    if (typeof is === 'string') {
+      return initElement(
+        document.createElement(tagName, {is}),
+        args,
+        config,
+      ) as any;
+    }
+  }
+
+  return initElement(document.createElement(tagName), args, config) as any;
+};
+
+export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>
+  createHtml(tagName, args, getPropConfig$$);
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
-export const button: Creator<HTMLButtonElement> = (...args) =>
+export const button: TaggedCreator<HTMLButtonElement> = (...args) =>
   initElement(
     document.createElement('button'),
     [defaultButtonProps, ...args],
     getPropConfig$$,
   ) as any;
 
+export const getTaggedHtmlCreator =
+  (tagName: string): TaggedCreator<HTMLElement> =>
+  (...args) =>
+    createHtml(tagName, args, getPropConfig$$);
+
 type Result = {
-  [K in keyof HTMLElementTagNameMap]: Creator<HTMLElementTagNameMap[K]>;
+  [K in keyof HTMLElementTagNameMap]: TaggedCreator<HTMLElementTagNameMap[K]>;
 };
 
 export const {
@@ -50,7 +76,6 @@ export const {
   details,
   dfn,
   dialog,
-  dir,
   div,
   dl,
   dt,
@@ -59,11 +84,8 @@ export const {
   fieldset,
   figcaption,
   figure,
-  font,
   footer,
   form,
-  frame,
-  frameset,
   h1,
   h2,
   h3,
@@ -88,7 +110,6 @@ export const {
   main,
   map,
   mark,
-  marquee,
   menu,
   meta,
   meter,
@@ -100,7 +121,6 @@ export const {
   option,
   output,
   p,
-  param,
   picture,
   pre,
   progress,
@@ -139,7 +159,8 @@ export const {
   var: hvar,
   video,
   wbr,
-} = createTaggedMap<Result, keyof HTMLElementTagNameMap>(
+} = getTaggedCreatorMap<Result, keyof HTMLElementTagNameMap>(
+  getTaggedHtmlCreator,
   [
     'a',
     'abbr',
@@ -169,7 +190,6 @@ export const {
     'details',
     'dfn',
     'dialog',
-    'dir',
     'div',
     'dl',
     'dt',
@@ -178,11 +198,8 @@ export const {
     'fieldset',
     'figcaption',
     'figure',
-    'font',
     'footer',
     'form',
-    'frame',
-    'frameset',
     'h1',
     'h2',
     'h3',
@@ -207,7 +224,6 @@ export const {
     'main',
     'map',
     'mark',
-    'marquee',
     'menu',
     'meta',
     'meter',
@@ -219,7 +235,6 @@ export const {
     'option',
     'output',
     'p',
-    'param',
     'picture',
     'pre',
     'progress',
@@ -259,5 +274,4 @@ export const {
     'video',
     'wbr',
   ],
-  tagHtmlElement,
 );

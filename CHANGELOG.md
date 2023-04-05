@@ -2,9 +2,7 @@
 
 ## Remaining Questions
 
-- At the moment we do not have `context`, as in React. Maybe we should use props for context so the context will be explicit, not hidden. Or should we introduce it like in React? Implementing it is not hard, but should we?
-
-- There is no `element` unmounting event at the moment. I've managed to overcome this by using `WeakRef` in certain scenarious. Also the `Observers/Proxies` potentially could be useful. Anyway this needs more investigation, as "destructuring" the whole tree of components could decrease performance. Although it is not hard to implement.
+- At the moment we do not have `context`, as in React. Maybe we should use props, imported/exported variables, enclosed variables for context so the context will be explicit, not hidden. Or should we introduce it like in React? Implementing it is not hard, but should we? We need some definitive examples if we need the context and absolutely cannot live without it.
 
 ## Todo
 
@@ -39,17 +37,27 @@
 
 ## Done
 
+- Component life-cycle methods will not be implemented as they natively implemented in Custom Elements. So you should use them together with Fusor. Previously these alternatives were investigated:
+
+  - DOMNodeRemoved is working, but MutationEvent is deprecated.
+  - MutationObserver does not have a way to detect its target unmounting.
+  - WeakRef is not reliable as it could never trigger.
+
 ### Version 2
 
 Version 2 vs 1 differences:
 
 - event handle can have `any` return value (in v1 it must have been `void`)
+- props can now be any value (in v1 only primitives typechecked)
 - speed and code-complexity improvements
+- refactored HTML/SVG creators
 
 Version 2 breaking changes:
 
-- When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice).
+- When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice). The main reason for this change is: we do not know whether user creates the component or passes it from somewhere else like a cache.
 - upon Child/Prop init/update, the updater function will be called once in v2. In v1 it would keep executing until non-function value would be returned or recursion limit would be reached. As it turns out, the v1 way of `evaluate` is not needed and you ecouraged to manage updator functios yourself for clarity.
+- renamed functions: tagHtmlElement>>getTaggedHtmlCreator, tagSvgElement>>getTaggedSvgCreator, createTaggedMap>>getTaggedCreatorMap
+- removed deprecated HTML creators: dir, font, frame, frameset, marquee, param.
 
 ### Version 1
 

@@ -5,13 +5,19 @@ import {Component} from './element';
 export type Primitive =
   | string
   | number
+  | bigint
   | boolean
   | symbol
   | null
   | undefined
   | void;
 
-export type StaticProp = Primitive;
+export type StaticProp =
+  | Primitive
+  | readonly any[]
+  // any object but function
+  | {apply?: never; [k: string]: any}
+  | {call?: never; [k: string]: any};
 
 export type SingleStaticChild = Primitive | Element; // ? deprecate ?
 
@@ -65,9 +71,14 @@ export interface Initiator {
   ): Component<E>;
 }
 
-export interface Creator<E extends Element> {
+export interface TaggedCreator<E extends Element> {
   (...args: readonly StaticArg[]): E;
   (...args: readonly Arg[]): Component<E>;
+}
+
+export interface CustomCreator<E extends Element> {
+  (tagName: string, ...args: readonly StaticArg[]): E;
+  (tagName: string, ...args: readonly Arg[]): Component<E>;
 }
 
 /* UPDATE */

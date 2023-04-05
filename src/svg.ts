@@ -1,10 +1,10 @@
 import {getPropConfig$$} from './config';
 import {initElement} from './element';
-import {Creator} from './types';
-import {createTaggedMap} from './utils';
+import {TaggedCreator} from './types';
+import {getTaggedCreatorMap} from './utils';
 
-export const tagSvgElement =
-  (tagName: string): Creator<SVGElement> =>
+export const getTaggedSvgCreator =
+  (tagName: string): TaggedCreator<SVGElement> =>
   (...args) =>
     initElement(
       document.createElementNS('http://www.w3.org/2000/svg', tagName),
@@ -13,7 +13,7 @@ export const tagSvgElement =
     ) as any;
 
 type Result = {
-  [K in keyof SVGElementTagNameMap]: Creator<SVGElementTagNameMap[K]>;
+  [K in keyof SVGElementTagNameMap]: TaggedCreator<SVGElementTagNameMap[K]>;
 };
 
 export const {
@@ -80,7 +80,8 @@ export const {
   tspan,
   use,
   view,
-} = createTaggedMap<Result, keyof SVGElementTagNameMap>(
+} = getTaggedCreatorMap<Result, keyof SVGElementTagNameMap>(
+  getTaggedSvgCreator,
   [
     'a',
     'animate',
@@ -146,5 +147,4 @@ export const {
     'use',
     'view',
   ],
-  tagSvgElement,
 );
