@@ -47,7 +47,7 @@ export interface Props {
 
 export type Arg = Props | Child;
 
-/* INIT */
+/* CONFIG */
 
 export const enum PropType {
   ATTRIBUTE,
@@ -58,27 +58,34 @@ export const enum PropType {
 
 export type GetPropConfig = (key: string) => {type: PropType; key: string};
 
-export interface Initiator {
-  <E extends Element>(
-    element: E,
-    args: readonly StaticArg[],
-    getPropConfig: GetPropConfig,
-  ): E;
-  <E extends Element>(
-    element: E,
-    args: readonly Arg[],
-    getPropConfig: GetPropConfig,
-  ): Component<E>;
+export interface Config {
+  getPropConfig: GetPropConfig;
+}
+
+export class SetCreatorConfig {
+  constructor(readonly config: Config) {}
+}
+
+/* CREATORS */
+
+export interface Creator {
+  <E extends Element>(element: E, args: readonly StaticArg[]): E;
+  <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
+}
+
+// export interface CustomCreatorArr<E extends Element> {
+//   (tagName: string, args: readonly StaticArg[]): E;
+//   (tagName: string, args: readonly Arg[]): Component<E>;
+// }
+
+export interface CustomCreator<E extends Element> {
+  (tagName: string, ...args: readonly StaticArg[]): E;
+  (tagName: string, ...args: readonly Arg[]): Component<E>;
 }
 
 export interface TaggedCreator<E extends Element> {
   (...args: readonly StaticArg[]): E;
   (...args: readonly Arg[]): Component<E>;
-}
-
-export interface CustomCreator<E extends Element> {
-  (tagName: string, ...args: readonly StaticArg[]): E;
-  (tagName: string, ...args: readonly Arg[]): Component<E>;
 }
 
 /* UPDATE */

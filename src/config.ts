@@ -1,4 +1,4 @@
-import {GetPropConfig, PropType} from './types';
+import {Config, GetPropConfig, PropType} from './types';
 
 /** $$ - to stand out and distinguish from template literals */
 export const getPropConfig$$: GetPropConfig = name => {
@@ -48,3 +48,9 @@ export const getPropConfig$$: GetPropConfig = name => {
 //   evaluateRecursionLimit: 5,
 //   updateRecursionLimit: 5, // RECURSION_LIMIT;
 // } as const;
+
+export let defaultConfig: Config = {
+  getPropConfig: getPropConfig$$,
+} as const;
+
+export const setDefaultConfig = (c: Config) => (defaultConfig = c);

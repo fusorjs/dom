@@ -3,20 +3,28 @@ import {
   Prop,
   DynamicProps,
   SingleChild,
-  Initiator,
+  Creator,
+  SetCreatorConfig,
 } from './types';
 import {initProp} from './prop';
 import {initChild} from './child';
 import {updateChild} from './child';
 import {updateProp} from './prop';
+import {defaultConfig} from './config';
 
-export const initElement: Initiator = (element, args, getPropConfig) => {
+export const create: Creator = (element, args) => {
+  let {getPropConfig} = defaultConfig;
   let props: DynamicProps | undefined;
   let children: DynamicChild<Element>[] | undefined;
 
   for (const arg of args) {
+    // set config
+    if (arg instanceof SetCreatorConfig) {
+      ({getPropConfig} = arg.config);
+    }
+
     // init props
-    if (arg?.constructor === Object) {
+    else if (arg?.constructor === Object) {
       for (const [_key, val] of Object.entries(arg)) {
         const {key, type} = getPropConfig(_key);
         const prop = initProp(element, key, val as Prop, type);
@@ -55,6 +63,8 @@ export const initElement: Initiator = (element, args, getPropConfig) => {
     ? new Component(element, props, children) // dynamic
     : element; // static
 };
+
+// todo split file here --/--
 
 export class Component<E extends Element> {
   constructor(

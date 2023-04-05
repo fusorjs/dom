@@ -1,47 +1,36 @@
-import {TaggedCreator, GetPropConfig, CustomCreator} from './types';
-import {getPropConfig$$} from './config';
-import {initElement} from './element';
+import {TaggedCreator, CustomCreator} from './types';
+import {create} from './element';
 import {getTaggedCreatorMap} from './utils';
 
-/** @deprecated */
-export const createHtml = (
-  tagName: string,
-  args: any[],
-  config: GetPropConfig,
-) => {
+const createHtml = (tagName: string, args: any[]) => {
   const arg = args[0];
 
   if (arg?.constructor === Object) {
     const is = (arg as any).is;
 
     if (typeof is === 'string') {
-      return initElement(
-        document.createElement(tagName, {is}),
-        args,
-        config,
-      ) as any;
+      return create(document.createElement(tagName, {is}), args) as any;
     }
   }
 
-  return initElement(document.createElement(tagName), args, config) as any;
+  return create(document.createElement(tagName), args) as any;
 };
 
 export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>
-  createHtml(tagName, args, getPropConfig$$);
+  createHtml(tagName, args);
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
 export const button: TaggedCreator<HTMLButtonElement> = (...args) =>
-  initElement(
-    document.createElement('button'),
-    [defaultButtonProps, ...args],
-    getPropConfig$$,
-  ) as any;
+  create(document.createElement('button'), [
+    defaultButtonProps,
+    ...args,
+  ]) as any;
 
 export const getTaggedHtmlCreator =
   (tagName: string): TaggedCreator<HTMLElement> =>
   (...args) =>
-    createHtml(tagName, args, getPropConfig$$);
+    createHtml(tagName, args);
 
 type Result = {
   [K in keyof HTMLElementTagNameMap]: TaggedCreator<HTMLElementTagNameMap[K]>;

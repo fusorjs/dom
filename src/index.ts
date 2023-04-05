@@ -1,7 +1,4 @@
 export * from './types';
-
-export {initElement, Component} from './element';
-
-export {getPropConfig$$} from './config';
-
+export * from './config';
+export {create, Component} from './element';
 export {getTaggedCreatorMap} from './utils';

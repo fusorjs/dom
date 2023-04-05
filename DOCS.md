@@ -9,7 +9,7 @@ There are four distinct types of named parameters:
 - **bubbling event**: names start with `on`, ex: `onclick`.
 - **capturing event**: names start with `on` and end with `$$`, ex: `onclick$$`.
 
-> To overwrite the above rules, see: `getPropConfig`.
+> To overwrite the above rules, see: [Config](#config).
 
 Values:
 
@@ -51,6 +51,20 @@ p(() => cache?.update() ?? (cache = div(() => ++count)));
 ```
 
 - Also the same applies to dynamic child arrays: `p(() => [div(() => ++count)])`.
+
+## Config
+
+HTML/SVG functions are there for your convinience, so you do not have to create your own. However if the need will arise, you totally can do it.
+
+You can customize: naming, behaviour, their number, etc.
+
+Files:
+
+- [config.ts](src/config.ts)
+- [html.ts](src/html.ts)
+- [svg.ts](src/svg.ts)
+
+## Custom Elements
 
 ## More Facts
 

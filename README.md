@@ -103,12 +103,12 @@ Everything else is **static**.
 - It does one thing and does it well.
 - You control your updation strategy.
 - It uses functional approach.
-- Fusor and Web Components are perfect fit for each other.
+- Fusor and Web Components are great together.
 
 Fusor is:
 
 - **Simple**: small, explicit, and predictable with sensible defaults.
-- **Flexible**: functional, modular, extensible, configurable, and integrates easily.
+- **Flexible**: functional, modular, extensible, configurable, integratable.
 - **Compliant**: 100% compatible with web standards.
 - **Performant**: tiny and fast.
 

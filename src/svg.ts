@@ -1,15 +1,13 @@
-import {getPropConfig$$} from './config';
-import {initElement} from './element';
+import {create} from './element';
 import {TaggedCreator} from './types';
 import {getTaggedCreatorMap} from './utils';
 
 export const getTaggedSvgCreator =
   (tagName: string): TaggedCreator<SVGElement> =>
   (...args) =>
-    initElement(
+    create(
       document.createElementNS('http://www.w3.org/2000/svg', tagName),
       args,
-      getPropConfig$$,
     ) as any;
 
 type Result = {
