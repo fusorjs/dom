@@ -1,6 +1,12 @@
 import {Config, GetPropConfig, PropType} from './types';
 
-/** $$ - to stand out and distinguish from template literals */
+/** $$ - to stand out and distinguish from template literals
+ * @deprecated used in Fusor version 1
+ * attribute
+ * property$$
+ * onbubblingevent
+ * oncapturingevent$$
+ */
 export const getPropConfig$$: GetPropConfig = name => {
   const {length} = name;
 
@@ -32,6 +38,8 @@ export const getPropConfig$$: GetPropConfig = name => {
 
   return {type: PropType.ATTRIBUTE, key: name};
 };
+
+// todo onClickCapture
 
 // convert attrs to props:
 // html: value, checked, selected

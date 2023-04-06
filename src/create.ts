@@ -8,7 +8,7 @@ import {
   ElementCreator,
   TaggedCreator,
 } from './types';
-import {initProp} from './prop';
+import {createProp} from './prop/create';
 import {initChild} from './child';
 import {Component} from './component';
 
@@ -45,7 +45,7 @@ export const create: Creator = (element, config, args) => {
     else if (arg?.constructor === Object) {
       for (const [_key, val] of Object.entries(arg)) {
         const {key, type} = getPropConfig(_key);
-        const prop = initProp(element, key, val as Prop, type);
+        const prop = createProp(element, key, val as Prop, type);
 
         if (prop) {
           if (props) props[key] = prop;

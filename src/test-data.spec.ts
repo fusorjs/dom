@@ -1,7 +1,7 @@
 import {emptyChild} from './child';
 import {Component} from './component';
 import {p} from './html';
-import {emptyAttr} from './prop';
+import {emptyAttr} from './prop/share';
 
 type TestItem = [any, string, string?];
 

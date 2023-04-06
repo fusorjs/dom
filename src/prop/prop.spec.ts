@@ -1,7 +1,10 @@
-import {PropType, UpdatableProp} from './types';
-import {convertAttr, updateProp, initProp, emptyAttr} from './prop';
-import {getString, ObjectIs} from './utils';
-import {getStringTestData} from './test-data.spec';
+import {PropType, UpdatableProp} from '../types';
+import {getString, ObjectIs} from '../utils';
+import {getStringTestData} from '../test-data.spec';
+
+import {convertAttr, emptyAttr} from './share';
+import {createProp} from './create';
+import {updateProp} from './update';
 
 test.each([
   ['', emptyAttr],
@@ -24,7 +27,7 @@ describe('init prop event listener', () => {
   test('init prop event listener', () => {
     const name = 'click';
     const callback = () => {};
-    const updater = initProp(
+    const updater = createProp(
       element as any as Element,
       name,
       callback,
@@ -71,7 +74,7 @@ const elementSetMyPropName = jest.spyOn(element, myPropName, 'set');
 test.each(propTestData)(
   `init attribute %p provided %p expected %p <<< %p <<< %p`,
   (isAttr, provided, expected) => {
-    const result = initProp(
+    const result = createProp(
       element as any as Element,
       myPropName,
       provided,
@@ -190,7 +193,7 @@ test.each([
   // ['ref', 'str', new TypeError(`illegal property: "ref" = "str"; expected function or object`)], // ! deprecated
 ])('init prop key %p provided %p expected %p', (key, provided, error) => {
   expect(() => {
-    initProp(
+    createProp(
       document.createElement('div'),
       key,
       provided,

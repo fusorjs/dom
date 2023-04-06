@@ -1,23 +1,22 @@
-import {getString, ObjectIs} from './utils';
-import {Prop, UpdatableProp, PropType} from './types';
-import {stringify} from './utils';
+import {Prop, UpdatableProp, PropType} from '../types';
+import {getString, stringify} from '../utils';
 
-export const emptyAttr = undefined;
+import {convertAttr, emptyAttr} from './share';
 
-export const convertAttr = (value: any) => {
-  switch (value) {
-    case '': // ? maybe not
-    case null:
-    case false:
-      return emptyAttr;
-    case true:
-      return '';
-  }
+/**
+ * Fusor v2
+ * automatic - attr or prop,
+ *           - if `preferProp`:`property`|`attribute` is set in Config it will be default
+ *           - Otherwise:
+ *             - user property if it is defined on the element prototype.
+ *             - set as attributes
+ * property$p
+ * attribute$a
+ * event$e
+ * event$e$capture$once$passive
+ */
 
-  return value;
-};
-
-export const initProp = (
+export const createProp = (
   element: Element,
   key: string,
   value: Prop,
@@ -85,28 +84,6 @@ export const initProp = (
     } else {
       element[key as 'id'] = value as any;
     }
-  }
-};
-
-export const updateProp = (
-  element: Element,
-  key: string,
-  updatable: UpdatableProp,
-) => {
-  const {update, value: prevValue, isAttr} = updatable;
-  const nextValue = isAttr ? convertAttr(update()) : update();
-
-  // same value do nothing
-  if (ObjectIs(nextValue, prevValue)) return;
-
-  updatable.value = nextValue;
-
-  if (isAttr) {
-    // todo NS https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
-    if (nextValue === emptyAttr) element.removeAttribute(key);
-    else element.setAttribute(key, getString(nextValue));
-  } else {
-    element[key as 'id'] = nextValue as any;
   }
 };
 
