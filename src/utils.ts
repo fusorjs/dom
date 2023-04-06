@@ -31,19 +31,6 @@ export const stringify = (value: any): string => {
 
 const stringifyField = ([k, v]: [string, any]) => `"${k}":${stringify(v)}`;
 
-export const getTaggedCreatorMap = <M, K extends keyof M>(
-  getCreator: (tagName: K) => M[K],
-  tagNames: readonly K[],
-) => {
-  const tagged: M = {} as M;
-
-  for (const name of tagNames) {
-    tagged[name] = getCreator(name);
-  }
-
-  return tagged;
-};
-
 /** one pass through arrays */
 // export const quickArrayDiff = <T>(
 //   prev: readonly T[],

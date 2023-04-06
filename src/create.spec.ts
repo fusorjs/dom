@@ -1,5 +1,5 @@
 import {defaultConfig} from './config';
-import {create as createConf} from './create';
+import {create as createConf, getTaggedCreatorMap} from './create';
 import {Component} from './component';
 import {Arg, StaticArg} from './types';
 
@@ -361,4 +361,15 @@ test('init element with dynamic array of children', () => {
   expect(element.childNodes[0].nodeValue).toBe('1');
   expect(element.childNodes[1].nodeValue).toBe('2');
   expect(element.childNodes[2].nodeValue).toBe('3');
+});
+
+// Helpers:
+
+test('create tagged map', () => {
+  type M = {a: string; b: string};
+
+  expect(getTaggedCreatorMap<M, keyof M>(v => v + v, ['a', 'b'])).toEqual({
+    a: 'aa',
+    b: 'bb',
+  });
 });

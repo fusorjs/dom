@@ -56,8 +56,8 @@ Version 2 breaking changes:
 
 - When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice). The main reason for this change is: we do not know whether user creates the component or passes it from somewhere else like a cache.
 - upon Child/Prop init/update, the updater function will be called once in v2. In v1 it would keep executing until non-function value would be returned or recursion limit would be reached. As it turns out, the v1 way of `evaluate` is not needed and you ecouraged to manage updator functios yourself for clarity.
-- renamed functions: tagHtmlElement>>getTaggedHtmlCreator, tagSvgElement>>getTaggedSvgCreator, createTaggedMap>>getTaggedCreatorMap
 - removed deprecated HTML creators: dir, font, frame, frameset, marquee, param.
+- renamed internal functions, but this should not affect you.
 
 ### Version 1
 

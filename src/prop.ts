@@ -80,6 +80,7 @@ export const initProp = (
 
       if (v === emptyAttr) return; // do nothing
 
+      // todo NS https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
       element.setAttribute(key, getString(v));
     } else {
       element[key as 'id'] = value as any;
@@ -101,6 +102,7 @@ export const updateProp = (
   updatable.value = nextValue;
 
   if (isAttr) {
+    // todo NS https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
     if (nextValue === emptyAttr) element.removeAttribute(key);
     else element.setAttribute(key, getString(nextValue));
   } else {

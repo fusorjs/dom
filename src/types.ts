@@ -62,10 +62,6 @@ export interface Config {
   getPropConfig: GetPropConfig;
 }
 
-export class SetCreatorConfig {
-  constructor(readonly config: Config) {}
-}
-
 /* CREATORS */
 
 export interface Creator {
@@ -81,10 +77,20 @@ export interface Creator {
   ): Component<E>;
 }
 
-// export interface CustomCreatorArr<E extends Element> {
-//   (tagName: string, args: readonly StaticArg[]): E;
-//   (tagName: string, args: readonly Arg[]): Component<E>;
-// }
+export interface ElementCreator<E extends Element> {
+  (
+    namespace: string | undefined,
+    tagName: string,
+    config: Config,
+    args: readonly StaticArg[],
+  ): E;
+  (
+    namespace: string | undefined,
+    tagName: string,
+    config: Config,
+    args: readonly Arg[],
+  ): Component<E>;
+}
 
 export interface CustomCreator<E extends Element> {
   (tagName: string, ...args: readonly StaticArg[]): E;

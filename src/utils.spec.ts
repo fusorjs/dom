@@ -1,5 +1,5 @@
 import {getStringTestData} from './test-data.spec';
-import {getString, stringify, getTaggedCreatorMap} from './utils';
+import {getString, stringify} from './utils';
 
 test.each(getStringTestData)(
   'get string provided %p expected %p',
@@ -15,13 +15,4 @@ test.each(
   ),
 )('stringify provided %p expected %p', (provided, expected) => {
   expect(stringify(provided)).toBe(expected);
-});
-
-test('create tagged map', () => {
-  type M = {a: string; b: string};
-
-  expect(getTaggedCreatorMap<M, keyof M>(v => v + v, ['a', 'b'])).toEqual({
-    a: 'aa',
-    b: 'bb',
-  });
 });

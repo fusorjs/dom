@@ -1,41 +1,17 @@
 import {TaggedCreator, CustomCreator} from './types';
-import {create} from './create';
-import {getTaggedCreatorMap} from './utils';
+import {createElement, getTaggedCreator, getTaggedCreatorMap} from './create';
 import {defaultConfig} from './config';
 
-const createHtml = (tagName: string, args: any[]) => {
-  const arg = args[0];
-
-  if (arg?.constructor === Object) {
-    const is = (arg as any).is;
-
-    if (typeof is === 'string') {
-      return create(
-        document.createElement(tagName, {is}),
-        defaultConfig,
-        args,
-      ) as any;
-    }
-  }
-
-  return create(document.createElement(tagName), defaultConfig, args) as any;
-};
-
 export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>
-  createHtml(tagName, args);
+  createElement(undefined, tagName, defaultConfig, args) as any;
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
 export const button: TaggedCreator<HTMLButtonElement> = (...args) =>
-  create(document.createElement('button'), defaultConfig, [
+  createElement(undefined, 'button', defaultConfig, [
     defaultButtonProps,
     ...args, // todo unspread (make recursive create)
   ]) as any;
-
-export const getTaggedHtmlCreator =
-  (tagName: string): TaggedCreator<HTMLElement> =>
-  (...args) =>
-    createHtml(tagName, args);
 
 type Result = {
   [K in keyof HTMLElementTagNameMap]: TaggedCreator<HTMLElementTagNameMap[K]>;
@@ -154,7 +130,7 @@ export const {
   video,
   wbr,
 } = getTaggedCreatorMap<Result, keyof HTMLElementTagNameMap>(
-  getTaggedHtmlCreator,
+  getTaggedCreator(undefined, defaultConfig),
   [
     'a',
     'abbr',
