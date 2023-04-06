@@ -1,12 +1,15 @@
-import {TaggedCreator} from './types';
-import {getTaggedCreator, getTaggedCreatorMap} from './create';
+import {CustomCreator, TaggedCreator} from './types';
+import {createElement, getTaggedCreator, getTaggedCreatorMap} from './create';
 import {defaultConfig} from './config';
+
+export const svgNamespaceUri = 'http://www.w3.org/2000/svg';
+
+export const s: CustomCreator<SVGElement> = (tagName, ...args) =>
+  createElement(svgNamespaceUri, tagName, defaultConfig, args) as any;
 
 type Result = {
   [K in keyof SVGElementTagNameMap]: TaggedCreator<SVGElementTagNameMap[K]>;
 };
-
-export const svgNamespaceUri = 'http://www.w3.org/2000/svg';
 
 export const {
   a,

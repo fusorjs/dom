@@ -14,7 +14,7 @@
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
 - refactor tests
 - replace only range for dynamic children array (using node start/end indexes), (are they fragments?)
-- support nested children arrays, not just one level
+- support nested children arrays, not just one level (fix button)
 - implement style, object, data attributes,
 
 ```json

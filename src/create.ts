@@ -16,14 +16,28 @@ export class SetCreatorConfig {
   constructor(readonly config: Config) {}
 }
 
+export class Options {
+  constructor(readonly options: ElementCreationOptions) {}
+}
+
 export const create: Creator = (element, config, args) => {
   let {getPropConfig} = config;
   let props: DynamicProps | undefined;
   let children: DynamicChild<Element>[] | undefined;
 
-  for (const arg of args) {
+  const length = args.length;
+
+  for (let index = 0; index < length; index++) {
+    const arg = args[index];
+
+    // skip options
+    if (arg instanceof Options) {
+      // ! Do not throw, as arrays could be reused, so we won't have to mutate/re-create them !
+      // if (index !== 0) throw new Error('Options must be a first child');
+    }
+
     // set config
-    if (arg instanceof SetCreatorConfig) {
+    else if (arg instanceof SetCreatorConfig) {
       ({getPropConfig} = arg.config);
     }
 
@@ -76,15 +90,19 @@ export const createElement: ElementCreator<Element> = (
   config,
   args,
 ) => {
-  const arg = args[0];
-
   let options: ElementCreationOptions | undefined;
 
-  if (arg?.constructor === Object) {
-    const {is} = arg as any;
+  /* Using Options class is a better aproach */
+  // const arg = args[0];
+  // if (arg?.constructor === Object) {
+  //   const {is} = arg as any;
+  //   if (typeof is === 'string') options = {is};
+  // }
 
-    if (typeof is === 'string') options = {is};
-  }
+  // Why two args? See: defaultButtonProps = {type: 'button'}
+  const [arg0, arg1] = args;
+  if (arg0 instanceof Options) options = arg0.options;
+  if (arg1 instanceof Options) options = arg1.options;
 
   const element = namespace
     ? document.createElementNS(namespace, tagName, options)

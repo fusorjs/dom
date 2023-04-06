@@ -66,6 +66,24 @@ Files:
 
 ## Custom Elements
 
+Autonomous custom elements:
+
+```js
+import {h, p} from '@fusorjs/dom/html';
+const onconnected = () => console.log('Say hi when connected!');
+const wrapper = h('fusor-events', {onconnected}, p('Hello!'));
+```
+
+Customized built-in elements:
+
+```js
+import {Options} from '@fusorjs/dom/core';
+import {div, p} from '@fusorjs/dom/html';
+const wrapper = div(new Options({is: 'name'}), p('Hello!'));
+```
+
+> `Options` must be the first or second child
+
 ## More Facts
 
 - A Fusor's HTML/SVG `Component.element` never changes.

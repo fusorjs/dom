@@ -1,4 +1,5 @@
 import {Component} from './component';
+import {Options} from './create';
 
 /* STATIC ARGS */
 
@@ -19,7 +20,7 @@ export type StaticProp =
   | {apply?: never; [k: string]: any}
   | {call?: never; [k: string]: any};
 
-export type SingleStaticChild = Primitive | Element; // ? deprecate ?
+export type SingleStaticChild = Primitive | Element | Options; // ? deprecate ?
 
 export type StaticChild = SingleStaticChild | SingleStaticChild[];
 

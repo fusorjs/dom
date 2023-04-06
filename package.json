@@ -38,7 +38,7 @@
   ],
   "scripts": {
     "test": "jest src",
-    "test-coverage": "jest src --coverage",
+    "testc": "jest src --coverage",
     "start": "shx rm -rf dist/*  &&  NODE_ENV=development  tsc -p tsconfig.dist.json --watch",
     "prepublishOnly": "shx rm -rf dist/*  &&  NODE_ENV=production  tsc -p tsconfig.dist.json",
     "prettier": "prettier --write ."

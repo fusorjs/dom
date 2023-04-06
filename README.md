@@ -1,10 +1,8 @@
 # @fusorjs/dom
 
-Fusor declaratively manages the DOM.
+Fusor is a simple, functional Javascript library that declaratively creates and updates DOM nodes.
 
-Fusor is a simple, flexible, standard-compliant, and performant library.
-
-> It fuses the DOM Elements.
+> It fuses DOM elements.
 
 ## Example
 
