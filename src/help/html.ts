@@ -1,4 +1,5 @@
-import {TaggedCreator, CustomCreator} from './types';
+import {TaggedCreator, CustomCreator} from '../types';
+
 import {createElement, getTaggedCreator, getTaggedCreatorMap} from './create';
 
 export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>

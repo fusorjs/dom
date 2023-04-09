@@ -9,32 +9,18 @@
 - shx to rimraf?
 - jsx support
 - optimize by diffing nodes for dynamic children array
-- Maybe make Prop and Child classes?
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` (https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments), speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
-- refactor tests
+- Maybe:
+  - Move create to Component static method?
+  - Make Prop and Child classes with static create and update methods?
 - replace only range for dynamic children array (using node start/end indexes), (are they fragments?)
 - support nested children arrays, not just one level (fix html button)
 - implement style, object, data attributes
 - createAttribute object and update it directly
 
-```json
-  "exports": {
-    ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./svg": {
-      "default": "./dist/svg.js",
-      "types": "./dist/svg.d.ts"
-    },
-    "./html": {
-        "default": "./dist/html.js",
-      "types": "./dist/html.d.ts"
-    },
-    "./package.json": "./package.json"
-  },
-```
+- before publish do:
+  - refactor tests
 
 ## Done
 
@@ -58,7 +44,7 @@ Version 2 vs 1 differences:
 
 Version 2 breaking changes:
 
-- Removed config, changed prop keys rules, no more `$$`, all possible options are available now, see the docs.
+- Removed config, changed prop keys rules, no more `$$`, all possible options are available now, see the docs. if you get `ReferenceError: Cannot access 'variable' before initialization` this means your event names `onclick` have to be renamed to new notation `click$e`.
 - When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice). The main reason for this change is: we do not know whether user creates the component or passes it from somewhere else like a cache.
 - upon Child/Prop init/update, the updater function will be called once in v2. In v1 it would keep executing until non-function value would be returned or recursion limit would be reached. As it turns out, the v1 way of `evaluate` is not needed and you ecouraged to manage updator functios yourself for clarity.
 - removed deprecated HTML creators: dir, font, frame, frameset, marquee, param.

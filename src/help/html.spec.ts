@@ -1,4 +1,4 @@
-import {Component} from './component';
+import {Component} from '../component';
 import {
   div,
   button,
@@ -11,7 +11,7 @@ import {
   img,
   input,
 } from './html';
-import {Child} from './types';
+import {Child} from '../types';
 
 test('empty div', () => {
   const result = div();

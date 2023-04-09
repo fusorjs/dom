@@ -1,10 +1,11 @@
-import {CustomCreator, TaggedCreator} from './types';
+import {CustomCreator, TaggedCreator} from '../types';
+
 import {createElement, getTaggedCreator, getTaggedCreatorMap} from './create';
 
-export const svgNamespaceUri = 'http://www.w3.org/2000/svg';
+export const svgNamespace = 'http://www.w3.org/2000/svg';
 
 export const s: CustomCreator<SVGElement> = (tagName, ...args) =>
-  createElement(svgNamespaceUri, tagName, args) as any;
+  createElement(svgNamespace, tagName, args) as any;
 
 type Result = {
   [K in keyof SVGElementTagNameMap]: TaggedCreator<SVGElementTagNameMap[K]>;
@@ -75,7 +76,7 @@ export const {
   use,
   view,
 } = getTaggedCreatorMap<Result, keyof SVGElementTagNameMap>(
-  getTaggedCreator(svgNamespaceUri),
+  getTaggedCreator(svgNamespace),
   [
     'a',
     'animate',
