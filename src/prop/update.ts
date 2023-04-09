@@ -8,7 +8,7 @@ export const updateProp = (
   key: string,
   updatable: UpdatableProp,
 ) => {
-  const {update, value: prevValue, isAttr} = updatable;
+  const {update, value: prevValue, isAttr, namespace} = updatable;
   const nextValue = isAttr ? convertAttr(update()) : update();
 
   // same value do nothing
@@ -17,9 +17,14 @@ export const updateProp = (
   updatable.value = nextValue;
 
   if (isAttr) {
-    // todo NS https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
-    if (nextValue === emptyAttr) element.removeAttribute(key);
-    else element.setAttribute(key, getString(nextValue));
+    // todo use createAttribute
+    if (namespace === undefined) {
+      if (nextValue === emptyAttr) element.removeAttribute(key);
+      else element.setAttribute(key, getString(nextValue));
+    } else {
+      if (nextValue === emptyAttr) element.removeAttributeNS(namespace, key);
+      else element.setAttributeNS(namespace, key, getString(nextValue));
+    }
   } else {
     element[key as 'id'] = nextValue as any;
   }

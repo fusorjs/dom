@@ -1,7 +1,10 @@
-import {Prop, UpdatableProp, PropType} from '../types';
-import {getString, stringify} from '../utils';
+import {Prop, UpdatableProp} from '../types';
+import {getString} from '../utils';
 
 import {convertAttr, emptyAttr} from './share';
+
+export let defaultPropSplitter = '$';
+export const setDefaultPropSplitter = (s: string) => (defaultPropSplitter = s);
 
 /**
  * Fusor v2
@@ -10,116 +13,188 @@ import {convertAttr, emptyAttr} from './share';
  *           - Otherwise:
  *             - user property if it is defined on the element prototype.
  *             - set as attributes
+ * "xmlns:xlink$a$http://www.w3.org/1999/xlink" - attribute
+ *
  * property$p
  * attribute$a
+ * "xmlns:xlink$a$http://www.w3.org/1999/xlink" - attribute
  * event$e
  * event$e$capture$once$passive
+ * or
+ * {handle, capture?, once?, passive?, signal?}
  */
+export const createProp = (element: Element, key: string, value: Prop) => {
+  const split = key.split(defaultPropSplitter);
+  const [name, type] = split;
 
-export const createProp = (
-  element: Element,
-  key: string,
-  value: Prop,
-  type: PropType,
-) => {
-  // init static event listener
-  if (type === PropType.BUBBLING_EVENT || type === PropType.CAPTURING_EVENT) {
-    if (typeof value !== 'function')
-      throw new TypeError(
-        `illegal event: "${key}" value: ${stringify(value)} expected: function`,
-      );
+  if (!name) throw new TypeError(`empty name in property key 1 "${key}"`);
 
-    element.addEventListener(key, value, type === PropType.CAPTURING_EVENT);
-  }
-  // todo data-
-  // todo style...
-  // todo area-
-  // todo classList - init
+  switch (
+    type ??
+    // *** AUTOMATIC TYPE ***
+    ((typeof value === 'object' && value !== null) || name in element
+      ? 'p'
+      : 'a')
+  ) {
+    // *** PROPERTY TYPE ***
+    case 'p':
+      // dynamic
+      if (typeof value === 'function') {
+        const val = value();
 
-  // ! ref deprecated
-  // ! as you should get the reference by simply calling the function
-  // ! this leads to better component separation
-  // else if (key === 'ref') {
-  //   switch (typeof val) {
-  //     case 'function': val(element); break;
-  //     case 'object': (val as any).current = element; break;
-  //     default: throw new TypeError(
-  //       `illegal property: "${key}" = ${stringify(val)}; expected function or object`
-  //     );
-  //   }
-  // }
+        element[name as 'id'] = val as any;
 
-  // init dynamic attribute/property
-  else if (typeof value === 'function') {
-    let val = value();
+        const updatable: UpdatableProp = {
+          update: value,
+          value: val,
+          isAttr: false,
+        };
 
-    const isAttr = type === PropType.ATTRIBUTE;
+        return updatable;
+      }
 
-    if (isAttr) {
-      val = convertAttr(val);
+      // static
+      element[name as 'id'] = value as any;
 
-      if (val !== emptyAttr) element.setAttribute(key, getString(val));
-    } else {
-      element[key as 'id'] = val as any;
-    }
+      // todo data-
+      // todo style...
+      // todo area-
+      // todo classList - init
 
-    const updatable: UpdatableProp = {
-      update: value,
-      value: val,
-      isAttr,
-    };
+      break;
 
-    return updatable;
-  }
+    // *** ATTRIBUTE TYPE ***
+    case 'a':
+      // https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
+      const namespace =
+        split[2] || (element instanceof HTMLElement ? undefined : null);
 
-  // init static attribute/property
-  else {
-    if (type === PropType.ATTRIBUTE) {
-      const v = convertAttr(value);
+      // dynamic
+      if (typeof value === 'function') {
+        const val = convertAttr(value());
 
-      if (v === emptyAttr) return; // do nothing
+        if (val !== emptyAttr) {
+          // todo use createAttribute
+          if (namespace === undefined) {
+            element.setAttribute(
+              name,
+              typeof val === 'string' ? val : getString(val),
+            );
+          } else {
+            element.setAttributeNS(
+              namespace,
+              name,
+              typeof val === 'string' ? val : getString(val),
+            );
+          }
+        }
 
-      // todo NS https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
-      element.setAttribute(key, getString(v));
-    } else {
-      element[key as 'id'] = value as any;
-    }
+        const updatable: UpdatableProp = {
+          update: value,
+          value: val,
+          isAttr: true,
+          namespace,
+        };
+
+        return updatable;
+      }
+
+      // static
+
+      const val = convertAttr(value);
+
+      if (val === emptyAttr) return; // do nothing
+
+      // todo use createAttribute
+      if (namespace === undefined) {
+        element.setAttribute(
+          name,
+          typeof val === 'string' ? val : getString(val),
+        );
+      } else {
+        element.setAttributeNS(
+          namespace,
+          name,
+          typeof val === 'string' ? val : getString(val),
+        );
+      }
+
+      break;
+
+    // *** EVENT TYPE ***
+    case 'e':
+      const {length} = split;
+
+      // * all options
+      if (length === 2) {
+        if (typeof value !== 'function') {
+          if (value?.constructor === Object) {
+            const {handle} = value as any;
+
+            if (
+              typeof handle === 'function' ||
+              typeof handle?.handleEvent === 'function'
+            ) {
+              element.addEventListener(
+                name,
+                handle,
+                value as AddEventListenerOptions,
+              );
+
+              return;
+            }
+          }
+
+          throw new TypeError(`not function event property "${key}"`);
+        }
+
+        element.addEventListener(name, value);
+      }
+
+      // * capture option
+      else if (length === 3 && split[2] === 'capture') {
+        if (typeof value !== 'function')
+          throw new TypeError(`not function event property "${key}"`);
+
+        element.addEventListener(name, value, true);
+      }
+
+      // * boolean options
+      else {
+        if (typeof value !== 'function')
+          throw new TypeError(`not function event property "${key}"`);
+
+        const options: Exclude<AddEventListenerOptions, 'signal'> = {
+          capture: undefined,
+          once: undefined,
+          passive: undefined,
+        };
+
+        for (let i = 2; i < length; i++) {
+          const o = split[i];
+
+          if (!(o in options))
+            throw new TypeError(
+              `out of capture|once|passive option in property key ${
+                i + 1
+              } "${key}"`,
+            );
+
+          if ((options as any)[o])
+            throw new TypeError(
+              `same option declared twice in property key ${i + 1} "${key}"`,
+            );
+
+          (options as any)[o] = true;
+        }
+
+        element.addEventListener(name, value, options);
+      }
+
+      break;
+
+    // *** WRONG TYPE ***
+    default:
+      throw new TypeError(`out of a|p|e type in property key 2 "${key}"`);
   }
 };
-
-// https://stackoverflow.com/questions/3919291/when-to-use-setattribute-vs-attribute-in-javascript
-// https://quirksmode.org/dom/core/#attributes
-
-// https://www.drupal.org/node/1420706#comment-6423420
-// tabindex: "tabIndex",
-// readonly: "readOnly",
-// "for": "htmlFor",
-// "class": "className",
-// maxlength: "maxLength",
-// cellspacing: "cellSpacing",
-// cellpadding: "cellPadding",
-// rowspan: "rowSpan",
-// colspan: "colSpan",
-// usemap: "useMap",
-// frameborder: "frameBorder",
-// contenteditable: "contentEditable"
-
-// Attributes vs Properties
-// https://stackoverflow.com/questions/22151560/what-is-happening-behind-setattribute-vs-attribute
-// input.value - does not change Attribute
-// asetAttribute('href', '/abc') - a.href === 'http://domain/abc
-// a.href = '/abc' - a.getAttribute('href') === '/abc'
-
-/*
-element  | attribute | property
----------+-----------+----------------
-option   | selected  | defaultSelected (bool)
-label    | for       | htmlFor
-input    | checked   | defaultChecked (bool)
-input    | value     | defaultValue (string)
-select   | multiple  | multiple (bool)
-li       | value     | value (int)
-*/
-
-// https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#reflecting-content-attributes-in-idl-attributes
-// https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes

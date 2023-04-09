@@ -1,14 +1,13 @@
 import {TaggedCreator, CustomCreator} from './types';
 import {createElement, getTaggedCreator, getTaggedCreatorMap} from './create';
-import {defaultConfig} from './config';
 
 export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>
-  createElement(undefined, tagName, defaultConfig, args) as any;
+  createElement(undefined, tagName, args) as any;
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
 export const button: TaggedCreator<HTMLButtonElement> = (...args) =>
-  createElement(undefined, 'button', defaultConfig, [
+  createElement(undefined, 'button', [
     defaultButtonProps,
     ...args, // todo unspread (make recursive create)
   ]) as any;
@@ -130,7 +129,7 @@ export const {
   video,
   wbr,
 } = getTaggedCreatorMap<Result, keyof HTMLElementTagNameMap>(
-  getTaggedCreator(undefined, defaultConfig),
+  getTaggedCreator(undefined),
   [
     'a',
     'abbr',

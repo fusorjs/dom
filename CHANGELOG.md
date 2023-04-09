@@ -15,7 +15,8 @@
 - refactor tests
 - replace only range for dynamic children array (using node start/end indexes), (are they fragments?)
 - support nested children arrays, not just one level (fix html button)
-- implement style, object, data attributes,
+- implement style, object, data attributes
+- createAttribute object and update it directly
 
 ```json
   "exports": {
@@ -47,6 +48,9 @@
 
 Version 2 vs 1 differences:
 
+- Can now automatically set property or attribute.
+- Namespaced attributes are now available.
+- All event options are supported now.
 - event handle can have `any` return value (in v1 it must have been `void`)
 - props can now be any value (in v1 only primitives typechecked)
 - speed and code-complexity improvements
@@ -54,6 +58,7 @@ Version 2 vs 1 differences:
 
 Version 2 breaking changes:
 
+- Removed config, changed prop keys rules, no more `$$`, all possible options are available now, see the docs.
 - When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice). The main reason for this change is: we do not know whether user creates the component or passes it from somewhere else like a cache.
 - upon Child/Prop init/update, the updater function will be called once in v2. In v1 it would keep executing until non-function value would be returned or recursion limit would be reached. As it turns out, the v1 way of `evaluate` is not needed and you ecouraged to manage updator functios yourself for clarity.
 - removed deprecated HTML creators: dir, font, frame, frameset, marquee, param.

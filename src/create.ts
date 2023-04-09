@@ -3,7 +3,6 @@ import {
   Prop,
   DynamicProps,
   SingleChild,
-  Config,
   Creator,
   ElementCreator,
   TaggedCreator,
@@ -12,20 +11,15 @@ import {createProp} from './prop/create';
 import {initChild} from './child';
 import {Component} from './component';
 
-export class SetCreatorConfig {
-  constructor(readonly config: Config) {}
-}
-
 export class Options {
   constructor(readonly options: ElementCreationOptions) {}
 }
 
-export const create: Creator = (element, config, args) => {
-  let {getPropConfig} = config;
+export const create: Creator = (element, args) => {
   let props: DynamicProps | undefined;
   let children: DynamicChild<Element>[] | undefined;
 
-  const length = args.length;
+  const {length} = args;
 
   for (let index = 0; index < length; index++) {
     const arg = args[index];
@@ -36,16 +30,10 @@ export const create: Creator = (element, config, args) => {
       // if (index !== 0) throw new Error('Options must be a first child');
     }
 
-    // set config
-    else if (arg instanceof SetCreatorConfig) {
-      ({getPropConfig} = arg.config);
-    }
-
     // init props
     else if (arg?.constructor === Object) {
-      for (const [_key, val] of Object.entries(arg)) {
-        const {key, type} = getPropConfig(_key);
-        const prop = createProp(element, key, val as Prop, type);
+      for (const [key, val] of Object.entries(arg)) {
+        const prop = createProp(element, key, val as Prop);
 
         if (prop) {
           if (props) props[key] = prop;
@@ -87,7 +75,6 @@ export const create: Creator = (element, config, args) => {
 export const createElement: ElementCreator<Element> = (
   namespace,
   tagName,
-  config,
   args,
 ) => {
   let options: ElementCreationOptions | undefined;
@@ -108,14 +95,14 @@ export const createElement: ElementCreator<Element> = (
     ? document.createElementNS(namespace, tagName, options)
     : document.createElement(tagName, options);
 
-  return create(element, config, args) as any;
+  return create(element, args) as any;
 };
 
 export const getTaggedCreator =
-  (namespace: string | undefined, config: Config) =>
+  (namespace: string | undefined) =>
   <T extends Element>(tagName: string): TaggedCreator<T> =>
   (...args) =>
-    createElement(namespace, tagName, config, args) as any;
+    createElement(namespace, tagName, args) as any;
 
 export const getTaggedCreatorMap = <M, K extends keyof M>(
   getCreator: (tagName: K) => M[K],

@@ -1,5 +1,4 @@
-import {defaultConfig} from './config';
-import {create as createConf, getTaggedCreatorMap} from './create';
+import {create, getTaggedCreatorMap} from './create';
 import {Component} from './component';
 import {Arg, StaticArg} from './types';
 
@@ -7,9 +6,6 @@ export interface CreatorNoConf {
   <E extends Element>(element: E, args: readonly StaticArg[]): E;
   <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
 }
-
-const create: CreatorNoConf = (element, args) =>
-  createConf(element, defaultConfig, args);
 
 test('init empty element', () => {
   const element = document.createElement('div');
@@ -102,7 +98,7 @@ test('init element with dynamic prop override', () => {
 
 test('init element with event handler, it should be static', () => {
   const element = document.createElement('button');
-  const result = create(element, [{onclick: () => {}}]);
+  const result = create(element, [{click$e: () => {}}]);
 
   expect(result).toBe(element);
 

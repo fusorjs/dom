@@ -48,47 +48,22 @@ export interface Props {
 
 export type Arg = Props | Child;
 
-/* CONFIG */
-
-export const enum PropType {
-  ATTRIBUTE,
-  PROPERTY,
-  BUBBLING_EVENT,
-  CAPTURING_EVENT,
-}
-
-export type GetPropConfig = (key: string) => {type: PropType; key: string};
-
-export interface Config {
-  getPropConfig: GetPropConfig;
-}
-
 /* CREATORS */
 
 export interface Creator {
-  <E extends Element>(
-    element: E,
-    config: Config,
-    args: readonly StaticArg[],
-  ): E;
-  <E extends Element>(
-    element: E,
-    config: Config,
-    args: readonly Arg[],
-  ): Component<E>;
+  <E extends Element>(element: E, args: readonly StaticArg[]): E;
+  <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
 }
 
 export interface ElementCreator<E extends Element> {
   (
     namespace: string | undefined,
     tagName: string,
-    config: Config,
     args: readonly StaticArg[],
   ): E;
   (
     namespace: string | undefined,
     tagName: string,
-    config: Config,
     args: readonly Arg[],
   ): Component<E>;
 }
@@ -109,6 +84,7 @@ export interface UpdatableProp {
   readonly update: () => Prop;
   value: Prop;
   isAttr: boolean;
+  namespace?: null | string; // ! undefined for HTMLElement only, without namespace
 }
 
 export interface DynamicProps {

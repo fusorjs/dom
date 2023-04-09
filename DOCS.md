@@ -2,19 +2,49 @@
 
 ## Attributes vs Properties vs Events
 
-There are four distinct types of named parameters:
+Keys:
 
-- **attribute**: normal names, ex: `id`, `href`, `class`.
-- **property**: names end with `$$`, case-sensitive, ex: `value$$`, `checked$$`, `class$$ = className$$`.
-- **bubbling event**: names start with `on`, ex: `onclick`.
-- **capturing event**: names start with `on` and end with `$$`, ex: `onclick$$`.
+- `automatic`: property if already defined on element or complex data value, otherwise attribute
+- `property$p`: set property
+- `attribute$a`: set attribute
+- `event$e`: add event listener
 
-> To overwrite the above rules, see: [Config](#config).
+Three types of manual keys:
+
+- `a`ttribute
+- `p`roperty
+- `e`vent
 
 Values:
 
-- `undefined` attribute value will remove the attribute, otherwise the attribute will be set with stringified value, see: `getString`.
-- Property value will be applied as it is.
+- Automatic properties: objects, arrays.
+- Property values will be applied as they are.
+- Attribute is removed: `"", null, false, undefined`, everything else will be converted to string.
+
+Event keys:
+
+- `event$e`: default bubling event
+- `event$e$capture$once$passive`: all boolean parameters
+
+Complete event:
+
+```js
+div({
+  click$e: {
+    handle: () => 'Clicked!',
+    capture: true,
+    once: true,
+    passive: true,
+    signal: abort,
+  },
+});
+```
+
+> `handle` can also be object with `handleEvent` property
+
+Namespaced attribute keys:
+
+- `"xmlns:xlink$a$http://www.w3.org/1999/xlink"`
 
 ## Children
 
@@ -52,17 +82,9 @@ p(() => cache?.update() ?? (cache = div(() => ++count)));
 
 - Also the same applies to dynamic child arrays: `p(() => [div(() => ++count)])`.
 
-## Config
+## HTML/SVG
 
-HTML/SVG functions are there for your convinience, so you do not have to create your own. However if the need will arise, you totally can do it.
-
-You can customize: naming, behaviour, their number, etc.
-
-Files:
-
-- [config.ts](src/config.ts)
-- [html.ts](src/html.ts)
-- [svg.ts](src/svg.ts)
+HTML/SVG created functions for your convinience and as a reference so you could re-implement them as you see fit to your needs.
 
 ## Custom Elements
 
@@ -88,7 +110,7 @@ const wrapper = div(new Options({is: 'name'}), p('Hello!'));
 
 - A Fusor's HTML/SVG `Component.element` never changes.
 - Your dynamic child function can return different DOM Element or any other value.
-- Dynamic children arrays can have dynamic elements (see: `RECURSION_LIMIT` in config).
+- Dynamic children arrays can have dynamic elements.
 - Use `is` attribute to attach custom element (it must be in the first props object)
 
 ## Functional Notation vs JSX

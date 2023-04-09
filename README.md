@@ -10,6 +10,8 @@ Fusor is a simple, functional Javascript library that declaratively creates and 
 npm install @fusorjs/dom
 ```
 
+JSX is planned, this is a functional notation:
+
 ```js
 import {button, div, p} from '@fusorjs/dom/html';
 
@@ -44,8 +46,6 @@ document.body.append(
   ).element,
 );
 ```
-
-> It is a functional notation, JSX support is planned.
 
 This example will render three buttons on a page:
 
