@@ -24,9 +24,9 @@ Values:
 Event keys:
 
 - `event$e`: default bubling event
-- `event$e$capture$once$passive`: all boolean parameters
+- `event$e$capture$once$passive`: all boolean options
 
-Complete event:
+Set all possible event options:
 
 ```js
 div({
@@ -42,9 +42,9 @@ div({
 
 > `handle` can also be object with `handleEvent` property
 
-Namespaced attribute keys:
+Namespaced attribute keys have `an` type:
 
-- `"xmlns:xlink$a$http://www.w3.org/1999/xlink"`
+- `"xlink:href$an$http://www.w3.org/1999/xlink"`
 
 ## Children
 

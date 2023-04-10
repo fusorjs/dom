@@ -3,138 +3,191 @@ import {createProp} from './create';
 
 const existing = 'existing';
 
-const target = {
-  setter: jest.fn(),
-  getter: jest.fn(),
-  hasser: jest.fn(),
-};
+const createChecker = (instance: Element) => {
+  const target = {
+    hasser: jest.fn(),
+    getter: jest.fn(),
+    setter: jest.fn(),
+  };
 
-const element = new Proxy(target, {
-  set(target, key, value) {
-    target.setter('setProperty', key, value);
+  const supportedMethods = [
+    'setAttribute',
+    'setAttributeNS',
+    'addEventListener',
+  ];
 
-    return true;
-  },
-  get(target, key) {
-    target.getter(key);
+  const element = new Proxy(target, {
+    getPrototypeOf() {
+      return instance;
+    },
+    setPrototypeOf() {
+      throw new Error('Must not be used');
+    },
+    isExtensible() {
+      throw new Error('Must not be used');
+    },
+    preventExtensions() {
+      throw new Error('Must not be used');
+    },
+    getOwnPropertyDescriptor() {
+      throw new Error('Must not be used');
+    },
+    defineProperty() {
+      throw new Error('Must not be used');
+    },
+    has(target, key) {
+      target.hasser(key);
 
-    switch (key) {
-      case 'setAttribute':
-        return (...as: any) => target.setter('setAttribute', ...as);
-      case 'addEventListener':
-        return (...as: any) => target.setter('addEventListener', ...as);
-    }
-  },
-  has(target, key) {
-    target.hasser(key);
+      return key === existing;
+    },
+    get(target, key) {
+      target.getter(key);
 
-    return key === existing;
-  },
-  getPrototypeOf() {
-    return document.createElement('div'); // todo svg
-  },
-}) as any as Element;
+      if (supportedMethods.includes(key.toString())) {
+        return (...as: any) => target.setter(key, ...as);
+      }
+    },
+    set(target, key, value) {
+      target.setter('setProperty', key, value);
 
-test.each(
-  // prettier-ignore
-  [
-    [ '$'                 , ''       , new TypeError(`empty name in property key 1 "$"`)                                       ],
-    [ 'event$e'           , ''       , new TypeError(`not function event property "event$e"`)                                  ],
-    [ 'event$e$capture'   , ''       , new TypeError(`not function event property "event$e$capture"`)                          ],
-    [ 'event$e$once'      , ''       , new TypeError(`not function event property "event$e$once"`)                             ],
-    [ 'event$e$unknown'   , () => {} , new TypeError(`out of capture|once|passive option in property key 3 "event$e$unknown"`) ],
-    [ 'event$e$once$once' , () => {} , new TypeError(`same option declared twice in property key 4 "event$e$once$once"`)       ],
-    [ 'type$x'            , () => {} , new TypeError(`out of a|p|e type in property key 2 "type$x"`)                           ],
+      return true;
+    },
+    deleteProperty() {
+      throw new Error('Must not be used');
+    },
+    ownKeys() {
+      throw new Error('Must not be used');
+    },
+  }) as any as Element;
+
+  test.each(
+    // prettier-ignore
+    [
+    [ '$'                 , ''       , new TypeError(`empty name in key 1 "$"`)                                             ],
+    [ 'prop$p$exta'       , ''       , new TypeError(`excess option in property key 2 "prop$p$exta"`)                       ],
+    [ 'attr$a$exta'       , ''       , new TypeError(`excess option in attribute key 2 "attr$a$exta"`)                      ],
+    [ 'attr$an'           , ''       , new TypeError(`missing namespace option in attribute key 3 "attr$an"`)               ],
+    [ 'attr$an$ns$exta'   , ''       , new TypeError(`excess option in attribute key 4 "attr$an$ns$exta"`)                  ],
+    [ 'event$e'           , ''       , new TypeError(`not function in event "event$e"`)                                     ],
+    [ 'event$e$capture'   , ''       , new TypeError(`not function in event "event$e$capture"`)                             ],
+    [ 'event$e$once'      , ''       , new TypeError(`not function in event "event$e$once"`)                                ],
+    [ 'event$e$unknown'   , () => {} , new TypeError(`out of capture|once|passive option in event key 3 "event$e$unknown"`) ],
+    [ 'event$e$once$once' , () => {} , new TypeError(`same option declared twice in event key 4 "event$e$once$once"`)       ],
+    [ 'type$x'            , () => {} , new TypeError(`out of a|an|p|e type in key 2 "type$x"`)                              ],
   ],
-)('throw %p %p %p', (key, value, expected) => {
-  expect(() => {
-    createProp(element, key, value);
-  }).toThrow(expected);
+  )('throw %p %p %p', (key, value, expected) => {
+    expect(() => {
+      createProp(element, key, value);
+    }).toThrow(expected);
 
-  expect(target.hasser).toHaveBeenCalledTimes(0);
-  expect(target.getter).toHaveBeenCalledTimes(0);
-  expect(target.setter).toHaveBeenCalledTimes(0);
-});
+    expect(target.hasser).toHaveBeenCalledTimes(0);
+    expect(target.getter).toHaveBeenCalledTimes(0);
+    expect(target.setter).toHaveBeenCalledTimes(0);
+  });
 
-test.each(
-  // prettier-ignore
-  [
-          [ existing , ''           , null        , 'setProperty'      , 'static'  , 'scan'   , [ null            ] ] ,
-          [ existing , ''           , 123         , 'setProperty'      , 'static'  , 'scan'   , [ 123             ] ] ,
-          [ existing , '$p'         , 123         , 'setProperty'      , 'static'  , 'figure' , [ 123             ] ] ,
-          [ existing , ''           , () => 123   , 'setProperty'      , 'dynamic' , 'scan'   , [ 123             ] ] ,
-          [ existing , '$p'         , () => 123   , 'setProperty'      , 'dynamic' , 'figure' , [ 123             ] ] ,
-    (v => [ 'object' , ''           , v           , 'setProperty'      , 'static'  , 'figure' , [ v               ] ] )({}),
-    (v => [ 'array'  , ''           , []          , 'setProperty'      , 'static'  , 'figure' , [ v               ] ] )([]),
-          [ 'number' , '$p'         , 123         , 'setProperty'      , 'static'  , 'figure' , [ 123             ] ] ,
-          [ 'func'   , '$p'         , () => 123   , 'setProperty'      , 'dynamic' , 'figure' , [ 123             ] ] ,
-          [ 'null'   , ''           , null        , 'N/A'              , 'nothing' , 'scan'   , [ 'N/A'           ] ] ,
-          [ 'null'   , '$a'         , null        , 'N/A'              , 'nothing' , 'figure' , [ 'N/A'           ] ] ,
-          [ 'string' , ''           , 'asd'       , 'setAttribute'     , 'static'  , 'scan'   , [ 'asd'           ] ] ,
-          [ 'number' , ''           , 123         , 'setAttribute'     , 'static'  , 'scan'   , [ '123'           ] ] ,
-          [ 'string' , '$a'         , 'asd'       , 'setAttribute'     , 'static'  , 'figure' , [ 'asd'           ] ] ,
-          [ 'string' , ''           , () => 'asd' , 'setAttribute'     , 'dynamic' , 'scan'   , [ 'asd'           ] ] ,
-          [ 'number' , ''           , () => 123   , 'setAttribute'     , 'dynamic' , 'scan'   , [ '123'           ] ] ,
-          [ 'string' , '$a'         , () => 'asd' , 'setAttribute'     , 'dynamic' , 'figure' , [ 'asd'           ] ] ,
-    (v => [ 'click'  , '$e'         , v           , 'addEventListener' , 'static'  , 'figure' , [ v               ] ] )(() => 123),
-    (v => [ 'click'  , '$e'         , v           , 'addEventListener' , 'static'  , 'figure' , [ v.handle, v     ] ] )({handle: () => 123}),
-    (v => [ 'click'  , '$e$capture' , v           , 'addEventListener' , 'static'  , 'figure' , [ v, true         ] ] )(() => 123),
-    (v => [ 'click'  , '$e$once'    , v           , 'addEventListener' , 'static'  , 'figure' , [ v, {once: true} ] ] )(() => 123),
-  ],
-)(
-  `create "%s%s" %p %s %s %s %p`,
-  (name, options, value, expectFunc, expectType, expectScan, expectVals) => {
-    const result = createProp(element, name + options, value);
-
-    // * result *
-    switch (expectType) {
-      case 'nothing':
-        expect(result).toBeUndefined();
-        break;
-
-      case 'static':
-        expect(result).toBeUndefined();
-        break;
-
-      case 'dynamic':
-        expect(result).toEqual<UpdatableProp>({
-          update: value as any,
-          value: (value as any)(),
-          isAttr: expectFunc === 'setAttribute',
-        });
-        break;
-    }
-
-    // * setter *
-    if (expectType === 'nothing') {
-      expect(target.setter).toHaveBeenCalledTimes(0);
-    } else {
-      expect(target.setter).toHaveBeenCalledTimes(1);
-      expect(target.setter).toHaveBeenCalledWith(
-        expectFunc,
-        name,
-        ...expectVals,
-      );
-    }
+  return (
+    name: string,
+    options: string,
+    namespace: string | null | undefined,
+    value: any,
+    expectHas: string | undefined,
+    expectGet: string | undefined,
+    expectSet: any[] | undefined,
+    expectRes: boolean,
+  ) => {
+    const result = createProp(
+      element,
+      name + options + (namespace ? '$' + namespace : ''),
+      value,
+    );
 
     // * hasser *
-    if (expectScan === 'scan') {
+    if (expectHas) {
       expect(target.hasser).toHaveBeenCalledTimes(1);
-      expect(target.hasser).toHaveBeenCalledWith(name);
+      expect(target.hasser).toHaveBeenCalledWith(expectHas);
     } else {
       expect(target.hasser).toHaveBeenCalledTimes(0);
     }
 
     // * getter *
-    if (expectType === 'nothing') {
-      expect(target.getter).toHaveBeenCalledTimes(0);
+    if (expectGet) {
+      expect(target.getter).toHaveBeenCalledTimes(1);
+      expect(target.getter).toHaveBeenCalledWith(expectGet);
     } else {
-      if (expectFunc === 'setProperty') {
-        expect(target.getter).toHaveBeenCalledTimes(0);
-      } else {
-        expect(target.getter).toHaveBeenCalledTimes(1);
-        expect(target.getter).toHaveBeenCalledWith(expectFunc);
-      }
+      expect(target.getter).toHaveBeenCalledTimes(0);
     }
-  },
-);
+
+    // * setter *
+    if (expectSet) {
+      expect(target.setter).toHaveBeenCalledTimes(1);
+      expect(target.setter).toHaveBeenCalledWith(
+        expectGet || 'setProperty',
+        ...(namespace === undefined
+          ? [name, ...expectSet]
+          : [namespace, name, ...expectSet]),
+      );
+    } else {
+      expect(target.setter).toHaveBeenCalledTimes(0);
+    }
+
+    // * result *
+    if (expectRes) {
+      expect(result).toEqual<UpdatableProp>({
+        update: value as any,
+        value: (value as any)(),
+        isAttr: expectGet !== undefined,
+        ...(namespace === undefined ? {} : {namespace}),
+      });
+    } else {
+      expect(result).toBeUndefined();
+    }
+  };
+};
+
+describe('html', () => {
+  const checker = createChecker(document.createElement('section'));
+
+  test.each(
+    // prettier-ignore
+    [ //    name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
+          [ existing , ''           , undefined , null        , existing  , undefined          , [ null            ] , false ] ,
+          [ existing , ''           , undefined , 123         , existing  , undefined          , [ 123             ] , false ] ,
+          [ existing , '$p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
+          [ existing , ''           , undefined , () => 123   , existing  , undefined          , [ 123             ] , true  ] ,
+          [ existing , '$p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
+    (v => [ 'prop'   , ''           , undefined , v           , undefined , undefined          , [ v               ] , false ] )({}),
+    (v => [ 'prop'   , ''           , undefined , []          , undefined , undefined          , [ v               ] , false ] )([]),
+          [ 'prop'   , '$p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
+          [ 'prop'   , '$p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
+          [ 'empty'  , ''           , undefined , null        , 'empty'   , undefined          , undefined           , false ] ,
+          [ 'empty'  , '$a'         , undefined , null        , undefined , undefined          , undefined           , false ] ,
+          [ 'attr'   , ''           , undefined , 'asd'       , 'attr'    , 'setAttribute'     , [ 'asd'           ] , false ] ,
+          [ 'attr'   , ''           , undefined , 123         , 'attr'    , 'setAttribute'     , [ '123'           ] , false ] ,
+          [ 'attr'   , '$a'         , undefined , 'asd'       , undefined , 'setAttribute'     , [ 'asd'           ] , false ] ,
+          [ 'attr'   , ''           , undefined , () => 'asd' , 'attr'    , 'setAttribute'     , [ 'asd'           ] , true  ] ,
+          [ 'attr'   , ''           , undefined , () => 123   , 'attr'    , 'setAttribute'     , [ '123'           ] , true  ] ,
+          [ 'attr'   , '$a'         , undefined , () => 'asd' , undefined , 'setAttribute'     , [ 'asd'           ] , true  ] ,
+          [ 'attr'   , '$an'        , 'ns'      , ():any=>123 , undefined , 'setAttributeNS'   , [ '123'           ] , true  ] ,
+          [ 'attr'   , '$an'        , 'ns'      , 123         , undefined , 'setAttributeNS'   , [ '123'           ] , false ] ,
+          [ 'attr'   , '$an'        , 'ns'      , 'abc'       , undefined , 'setAttributeNS'   , [ 'abc'           ] , false ] ,
+    (v => [ 'event'  , '$e'         , undefined , v           , undefined , 'addEventListener' , [ v               ] , false ] )(() => 123),
+    (v => [ 'event'  , '$e'         , undefined , v           , undefined , 'addEventListener' , [ v.handle, v     ] , false ] )({handle: () => 123}),
+    (v => [ 'event'  , '$e'         , undefined , v           , undefined , 'addEventListener' , [ v.handle, v     ] , false ] )({handle: {handleEvent: () => 123}}),
+    (v => [ 'event'  , '$e$capture' , undefined , v           , undefined , 'addEventListener' , [ v, true         ] , false ] )(() => 123),
+    (v => [ 'event'  , '$e$once'    , undefined , v           , undefined , 'addEventListener' , [ v, {once: true} ] , false ] )(() => 123),
+  ], //     name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
+  )(`create "%s%s" %p %s %s %s %p`, checker);
+});
+
+describe('svg', () => {
+  const checker = createChecker(
+    document.createElementNS('http://www.w3.org/2000/svg', 'rect'),
+  );
+
+  test.each(
+    // prettier-ignore
+    [ //    name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
+          [ 'attr'   , '$a'         , null      , () => 'asd' , undefined , 'setAttributeNS'   , [ 'asd'           ] , true  ] ,
+    ], //   name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
+  )(`create "%s%s" %p %s %s %s %p`, checker);
+});

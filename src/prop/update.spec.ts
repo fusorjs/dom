@@ -1,82 +1,93 @@
-import {UpdatableProp} from '../types';
-import {getString, ObjectIs} from '../utils';
-import {getStringTestData} from '../test-data.spec';
-
-import {convertAttr, emptyAttr} from './share';
+import {emptyAttr} from './share';
 import {updateProp} from './update';
 
-const myPropName = 'myPropName'; // not standard
-
-const propTestData = [true, false]
-  .map(isAttr =>
-    getStringTestData.map(
-      ([p, e1]) =>
-        [
-          isAttr,
-          p,
-          (e => (isAttr ? convertAttr(e) : e))(
-            typeof p === 'function' ? p() : p,
-          ),
-          e1,
-        ] as const,
-    ),
-  )
-  .flat();
-
-const element = {
-  setAttribute: jest.fn(),
-  removeAttribute: jest.fn(), // used only in updater
-  set myPropName(v: any) {},
+const target = {
+  getter: jest.fn(),
+  setter: jest.fn(),
 };
 
-const elementSetMyPropName = jest.spyOn(element, myPropName, 'set');
+const supportedMethods = [
+  'setAttribute',
+  'setAttributeNS',
+  'removeAttribute',
+  'removeAttributeNS',
+];
 
-describe('update prop', () => {
-  let dynamic: any;
+const element = new Proxy(target, {
+  getPrototypeOf() {
+    throw new Error('Must not be used');
+  },
+  setPrototypeOf() {
+    throw new Error('Must not be used');
+  },
+  isExtensible() {
+    throw new Error('Must not be used');
+  },
+  preventExtensions() {
+    throw new Error('Must not be used');
+  },
+  getOwnPropertyDescriptor() {
+    throw new Error('Must not be used');
+  },
+  defineProperty() {
+    throw new Error('Must not be used');
+  },
+  has() {
+    throw new Error('Must not be used');
+  },
+  get(target, key) {
+    target.getter(key);
 
-  const updatable: UpdatableProp = {
-    update: () => dynamic,
-    value: dynamic,
-    isAttr: true,
-  };
+    if (supportedMethods.includes(key.toString())) {
+      return (...as: any) => target.setter(key, ...as);
+    }
+  },
+  set(target, key, value) {
+    target.setter('setProperty', key, value);
 
-  test.each(propTestData)(
-    'update attribute %p provided %p expected %p <<< %p <<< %p',
-    (isAttr, provided, expected) => {
-      const isSame = ObjectIs(expected, updatable.value); // before updater
+    return true;
+  },
+  deleteProperty() {
+    throw new Error('Must not be used');
+  },
+  ownKeys() {
+    throw new Error('Must not be used');
+  },
+}) as any as Element;
 
-      dynamic = provided;
-      updatable.isAttr = isAttr;
+const key = 'key';
 
-      updateProp(element as any as Element, myPropName, updatable);
+test.each(
+  // prettier-ignore
+  [
+    [ (): any => 123       , 0   , true  , undefined , 'setAttribute'      , [ '123' ] ],
+    [ (): any => 123       , 0   , true  , 'ns'      , 'setAttributeNS'    , [ '123' ] ],
+    [ (): any => emptyAttr , 123 , true  , undefined , 'removeAttribute'   , [       ] ],
+    [ (): any => emptyAttr , 123 , true  , 'ns'      , 'removeAttributeNS' , [       ] ],
+    [ (): any => 123       , 0   , false , undefined , undefined           , [ 123   ] ],
+    [ (): any => 123       , 123 , false , undefined , undefined           , undefined ],
+  ],
+)(
+  'create %p %p %p %p %s %s %p',
+  (update, value, isAttr, namespace, expectGet, expectSet) => {
+    updateProp(element, key, {update, value, isAttr, namespace});
 
-      if (isSame) {
-        expect(element.setAttribute).not.toHaveBeenCalled();
-        expect(element.removeAttribute).not.toHaveBeenCalled();
-        expect(elementSetMyPropName).not.toHaveBeenCalled();
-      } else {
-        if (isAttr) {
-          if (expected === emptyAttr) {
-            expect(element.setAttribute).not.toHaveBeenCalled();
-            expect(element.removeAttribute).toHaveBeenCalledTimes(1);
-            expect(element.removeAttribute).toHaveBeenCalledWith(myPropName);
-          } else {
-            expect(element.setAttribute).toHaveBeenCalledTimes(1);
-            expect(element.setAttribute).toHaveBeenCalledWith(
-              myPropName,
-              getString(expected),
-            );
-            expect(element.removeAttribute).not.toHaveBeenCalled();
-          }
+    if (expectGet) {
+      expect(target.getter).toHaveBeenCalledTimes(1);
+      expect(target.getter).toHaveBeenCalledWith(expectGet);
+    } else {
+      expect(target.getter).toHaveBeenCalledTimes(0);
+    }
 
-          expect(elementSetMyPropName).not.toHaveBeenCalled();
-        } else {
-          expect(element.setAttribute).not.toHaveBeenCalled();
-          expect(element.removeAttribute).not.toHaveBeenCalled();
-          expect(elementSetMyPropName).toHaveBeenCalledTimes(1);
-          expect(elementSetMyPropName).toHaveBeenCalledWith(expected);
-        }
-      }
-    },
-  );
-});
+    if (expectSet) {
+      expect(target.setter).toHaveBeenCalledTimes(1);
+      expect(target.setter).toHaveBeenCalledWith(
+        expectGet || 'setProperty',
+        ...(namespace ? [namespace, key] : [key]),
+        ...expectSet,
+      );
+    } else {
+      expect(target.setter).toHaveBeenCalledTimes(0);
+    }
+  },
+);

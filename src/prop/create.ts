@@ -13,7 +13,7 @@ export const setDefaultPropSplitter = (s: string) => (defaultPropSplitter = s);
  *           - Otherwise:
  *             - user property if it is defined on the element prototype.
  *             - set as attributes
- * "xmlns:xlink$a$http://www.w3.org/1999/xlink" - attribute
+ * "xlink:href$an$http://www.w3.org/1999/xlink" - attribute
  *
  * property$p
  * attribute$a
@@ -25,9 +25,10 @@ export const setDefaultPropSplitter = (s: string) => (defaultPropSplitter = s);
  */
 export const createProp = (element: Element, key: string, value: Prop) => {
   const split = key.split(defaultPropSplitter);
+  const {length} = split;
   const [name, type] = split;
 
-  if (!name) throw new TypeError(`empty name in property key 1 "${key}"`);
+  if (!name) throw new TypeError(`empty name in key 1 "${key}"`);
 
   switch (
     type ??
@@ -38,6 +39,9 @@ export const createProp = (element: Element, key: string, value: Prop) => {
   ) {
     // *** PROPERTY TYPE ***
     case 'p':
+      if (length > 2)
+        throw new TypeError(`excess option in property key 2 "${key}"`);
+
       // dynamic
       if (typeof value === 'function') {
         const val = value();
@@ -65,9 +69,21 @@ export const createProp = (element: Element, key: string, value: Prop) => {
 
     // *** ATTRIBUTE TYPE ***
     case 'a':
+      if (length > (type === undefined ? 1 : 2))
+        throw new TypeError(`excess option in attribute key 2 "${key}"`);
+    case 'an':
       // https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
       const namespace =
         split[2] || (element instanceof HTMLElement ? undefined : null);
+
+      if (type === 'an') {
+        if (!namespace)
+          throw new TypeError(
+            `missing namespace option in attribute key 3 "${key}"`,
+          );
+        else if (length > 3)
+          throw new TypeError(`excess option in attribute key 4 "${key}"`);
+      }
 
       // dynamic
       if (typeof value === 'function') {
@@ -123,8 +139,6 @@ export const createProp = (element: Element, key: string, value: Prop) => {
 
     // *** EVENT TYPE ***
     case 'e':
-      const {length} = split;
-
       // * all options
       if (length === 2) {
         if (typeof value !== 'function') {
@@ -145,7 +159,7 @@ export const createProp = (element: Element, key: string, value: Prop) => {
             }
           }
 
-          throw new TypeError(`not function event property "${key}"`);
+          throw new TypeError(`not function in event "${key}"`);
         }
 
         element.addEventListener(name, value);
@@ -154,7 +168,7 @@ export const createProp = (element: Element, key: string, value: Prop) => {
       // * capture option
       else if (length === 3 && split[2] === 'capture') {
         if (typeof value !== 'function')
-          throw new TypeError(`not function event property "${key}"`);
+          throw new TypeError(`not function in event "${key}"`);
 
         element.addEventListener(name, value, true);
       }
@@ -162,7 +176,7 @@ export const createProp = (element: Element, key: string, value: Prop) => {
       // * boolean options
       else {
         if (typeof value !== 'function')
-          throw new TypeError(`not function event property "${key}"`);
+          throw new TypeError(`not function in event "${key}"`);
 
         const options: Exclude<AddEventListenerOptions, 'signal'> = {
           capture: undefined,
@@ -175,14 +189,14 @@ export const createProp = (element: Element, key: string, value: Prop) => {
 
           if (!(o in options))
             throw new TypeError(
-              `out of capture|once|passive option in property key ${
+              `out of capture|once|passive option in event key ${
                 i + 1
               } "${key}"`,
             );
 
           if ((options as any)[o])
             throw new TypeError(
-              `same option declared twice in property key ${i + 1} "${key}"`,
+              `same option declared twice in event key ${i + 1} "${key}"`,
             );
 
           (options as any)[o] = true;
@@ -195,6 +209,6 @@ export const createProp = (element: Element, key: string, value: Prop) => {
 
     // *** WRONG TYPE ***
     default:
-      throw new TypeError(`out of a|p|e type in property key 2 "${key}"`);
+      throw new TypeError(`out of a|an|p|e type in key 2 "${key}"`);
   }
 };

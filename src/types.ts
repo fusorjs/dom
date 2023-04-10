@@ -84,6 +84,8 @@ export interface UpdatableProp {
   readonly update: () => Prop;
   value: Prop;
   isAttr: boolean;
+
+  // todo not applicable to properties, split attr and prop
   namespace?: null | string; // ! undefined for HTMLElement only, without namespace
 }
 
