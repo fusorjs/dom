@@ -1,10 +1,18 @@
 import {Prop, UpdatableProp} from '../types';
-import {getString} from '../utils';
+import {getPropertyDescriptor, getString} from '../utils';
 
 import {convertAttr, emptyAttr} from './share';
 
 export let defaultPropSplitter = '$';
 export const setDefaultPropSplitter = (s: string) => (defaultPropSplitter = s);
+
+const detectProperty = (value: any, name: string) => {
+  const d = getPropertyDescriptor(value, name);
+
+  if (d && (d.writable || typeof d.set === 'function')) {
+    return true;
+  }
+};
 
 /**
  * Fusor v2
@@ -33,7 +41,8 @@ export const createProp = (element: Element, key: string, value: Prop) => {
   switch (
     type ??
     // *** AUTOMATIC TYPE ***
-    ((typeof value === 'object' && value !== null) || name in element
+    ((typeof value === 'object' && value !== null) ||
+    detectProperty(element, name)
       ? 'p'
       : 'a')
   ) {

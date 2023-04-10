@@ -2,21 +2,23 @@ import {UpdatableProp} from '../types';
 import {createProp} from './create';
 
 const existing = 'existing';
+const existSet = 'existSet';
 
-const createChecker = (instance: Element) => {
-  const target = {
+const supportedMethods = ['setAttribute', 'setAttributeNS', 'addEventListener'];
+
+const createTarget = () => {
+  return {
     hasser: jest.fn(),
     getter: jest.fn(),
     setter: jest.fn(),
   };
+};
 
-  const supportedMethods = [
-    'setAttribute',
-    'setAttributeNS',
-    'addEventListener',
-  ];
-
-  const element = new Proxy(target, {
+const createElement = <T extends Function>(
+  instance: Element,
+  target: ReturnType<typeof createTarget>,
+) => {
+  return new Proxy(target, {
     getPrototypeOf() {
       return instance;
     },
@@ -29,16 +31,21 @@ const createChecker = (instance: Element) => {
     preventExtensions() {
       throw new Error('Must not be used');
     },
-    getOwnPropertyDescriptor() {
-      throw new Error('Must not be used');
+    getOwnPropertyDescriptor(_, key) {
+      target.hasser(key);
+
+      switch (key) {
+        case existing:
+          return {configurable: true, writable: true};
+        case existSet:
+          return {configurable: true, set: () => {}};
+      }
     },
     defineProperty() {
       throw new Error('Must not be used');
     },
-    has(target, key) {
-      target.hasser(key);
-
-      return key === existing;
+    has() {
+      throw new Error('Must not be used');
     },
     get(target, key) {
       target.getter(key);
@@ -59,32 +66,12 @@ const createChecker = (instance: Element) => {
       throw new Error('Must not be used');
     },
   }) as any as Element;
+};
 
-  test.each(
-    // prettier-ignore
-    [
-    [ '$'                 , ''       , new TypeError(`empty name in key 1 "$"`)                                             ],
-    [ 'prop$p$exta'       , ''       , new TypeError(`excess option in property key 2 "prop$p$exta"`)                       ],
-    [ 'attr$a$exta'       , ''       , new TypeError(`excess option in attribute key 2 "attr$a$exta"`)                      ],
-    [ 'attr$an'           , ''       , new TypeError(`missing namespace option in attribute key 3 "attr$an"`)               ],
-    [ 'attr$an$ns$exta'   , ''       , new TypeError(`excess option in attribute key 4 "attr$an$ns$exta"`)                  ],
-    [ 'event$e'           , ''       , new TypeError(`not function in event "event$e"`)                                     ],
-    [ 'event$e$capture'   , ''       , new TypeError(`not function in event "event$e$capture"`)                             ],
-    [ 'event$e$once'      , ''       , new TypeError(`not function in event "event$e$once"`)                                ],
-    [ 'event$e$unknown'   , () => {} , new TypeError(`out of capture|once|passive option in event key 3 "event$e$unknown"`) ],
-    [ 'event$e$once$once' , () => {} , new TypeError(`same option declared twice in event key 4 "event$e$once$once"`)       ],
-    [ 'type$x'            , () => {} , new TypeError(`out of a|an|p|e type in key 2 "type$x"`)                              ],
-  ],
-  )('throw %p %p %p', (key, value, expected) => {
-    expect(() => {
-      createProp(element, key, value);
-    }).toThrow(expected);
-
-    expect(target.hasser).toHaveBeenCalledTimes(0);
-    expect(target.getter).toHaveBeenCalledTimes(0);
-    expect(target.setter).toHaveBeenCalledTimes(0);
-  });
-
+const createChecker = (
+  element: Element,
+  target: ReturnType<typeof createTarget>,
+) => {
   return (
     name: string,
     options: string,
@@ -145,7 +132,39 @@ const createChecker = (instance: Element) => {
 };
 
 describe('html', () => {
-  const checker = createChecker(document.createElement('section'));
+  const target = createTarget();
+  const element = createElement(document.createElement('section'), target);
+
+  test.each(
+    // prettier-ignore
+    [
+      [ '$'                 , ''       , new TypeError(`empty name in key 1 "$"`)                                             ],
+      [ 'prop$p$exta'       , ''       , new TypeError(`excess option in property key 2 "prop$p$exta"`)                       ],
+      [ 'attr$a$exta'       , ''       , new TypeError(`excess option in attribute key 2 "attr$a$exta"`)                      ],
+      [ 'attr$an'           , ''       , new TypeError(`missing namespace option in attribute key 3 "attr$an"`)               ],
+      [ 'attr$an$ns$exta'   , ''       , new TypeError(`excess option in attribute key 4 "attr$an$ns$exta"`)                  ],
+      [ 'event$e'           , ''       , new TypeError(`not function in event "event$e"`)                                     ],
+      [ 'event$e$capture'   , ''       , new TypeError(`not function in event "event$e$capture"`)                             ],
+      [ 'event$e$once'      , ''       , new TypeError(`not function in event "event$e$once"`)                                ],
+      [ 'event$e$unknown'   , () => {} , new TypeError(`out of capture|once|passive option in event key 3 "event$e$unknown"`) ],
+      [ 'event$e$once$once' , () => {} , new TypeError(`same option declared twice in event key 4 "event$e$once$once"`)       ],
+      [ 'type$x'            , () => {} , new TypeError(`out of a|an|p|e type in key 2 "type$x"`)                              ],
+    ],
+  )('throw %p %p %p', (key, value, expected) => {
+    expect(() => {
+      createProp(element, key, value);
+    }).toThrow(expected);
+
+    expect(target.hasser).toHaveBeenCalledTimes(0);
+    expect(target.getter).toHaveBeenCalledTimes(0);
+    expect(target.setter).toHaveBeenCalledTimes(0);
+  });
+});
+
+describe('html', () => {
+  const target = createTarget();
+  const element = createElement(document.createElement('section'), target);
+  const checker = createChecker(element, target);
 
   test.each(
     // prettier-ignore
@@ -155,6 +174,7 @@ describe('html', () => {
           [ existing , '$p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
           [ existing , ''           , undefined , () => 123   , existing  , undefined          , [ 123             ] , true  ] ,
           [ existing , '$p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
+          [ existSet , ''           , undefined , 123         , existSet  , undefined          , [ 123             ] , false ] ,
     (v => [ 'prop'   , ''           , undefined , v           , undefined , undefined          , [ v               ] , false ] )({}),
     (v => [ 'prop'   , ''           , undefined , []          , undefined , undefined          , [ v               ] , false ] )([]),
           [ 'prop'   , '$p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
@@ -180,9 +200,12 @@ describe('html', () => {
 });
 
 describe('svg', () => {
-  const checker = createChecker(
+  const target = createTarget();
+  const element = createElement(
     document.createElementNS('http://www.w3.org/2000/svg', 'rect'),
+    target,
   );
+  const checker = createChecker(element, target);
 
   test.each(
     // prettier-ignore

@@ -31,6 +31,18 @@ export const stringify = (value: any): string => {
 
 const stringifyField = ([k, v]: [string, any]) => `"${k}":${stringify(v)}`;
 
+export const getPropertyDescriptor = (
+  value: any,
+  property: string,
+): PropertyDescriptor | undefined => {
+  let result;
+
+  do result = Object.getOwnPropertyDescriptor(value, property);
+  while (!result && (value = Object.getPrototypeOf(value)));
+
+  return result;
+};
+
 /** one pass through arrays */
 // export const quickArrayDiff = <T>(
 //   prev: readonly T[],
