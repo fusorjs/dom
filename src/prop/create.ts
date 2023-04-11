@@ -1,5 +1,5 @@
 import {Prop, UpdatableProp} from '../types';
-import {getPropertyDescriptor, getString} from '../utils';
+import {getPropertyDescriptor, getString} from '../share';
 
 import {convertAttr, emptyAttr} from './share';
 

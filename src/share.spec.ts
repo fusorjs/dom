@@ -1,5 +1,5 @@
 import {getStringTestData} from './test-data.spec';
-import {getString, stringify} from './utils';
+import {getString, stringify} from './share';
 
 test.each(getStringTestData)(
   'get string provided %p expected %p',

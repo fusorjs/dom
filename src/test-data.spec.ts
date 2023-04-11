@@ -1,7 +1,7 @@
 // ! Do not remove `spec` from file name
 // ! Otherwise jest will pollute data on `coverage`
 
-import {emptyChild} from './child';
+import {emptyChild} from './child/child';
 import {Component} from './component';
 import {p} from './help/html';
 import {emptyAttr} from './prop/share';

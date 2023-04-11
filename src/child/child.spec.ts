@@ -3,7 +3,7 @@ import {
   SingleChild,
   UpdatableChildren,
   ChildCache,
-} from './types';
+} from '../types';
 import {
   convertChild,
   convertChildNode,
@@ -13,9 +13,9 @@ import {
   initChild,
   updateChild,
 } from './child';
-import {getString, ObjectIs} from './utils';
-import {getStringTestData} from './test-data.spec';
-import {Component} from './component';
+import {getString, ObjectIs} from '../share';
+import {getStringTestData} from '../test-data.spec';
+import {Component} from '../component';
 
 test.each([
   [null, emptyChild],

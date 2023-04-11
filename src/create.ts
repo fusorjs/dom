@@ -1,6 +1,6 @@
 import {DynamicChild, Prop, DynamicProps, SingleChild, Creator} from './types';
 import {createProp} from './prop/create';
-import {initChild} from './child';
+import {initChild} from './child/child';
 import {Component} from './component';
 
 export class Options {

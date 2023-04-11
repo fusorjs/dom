@@ -1,6 +1,6 @@
 import {DynamicChild, DynamicProps} from './types';
 import {updateProp} from './prop/update';
-import {updateChild} from './child';
+import {updateChild} from './child/child';
 
 export class Component<E extends Element> {
   constructor(

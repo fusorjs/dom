@@ -1,4 +1,4 @@
-import {Component} from './component';
+import {Component} from '../component';
 import {
   UpdatableChild,
   ValueNode,
@@ -6,8 +6,8 @@ import {
   Child,
   ChildCache,
   UpdatableChildren,
-} from './types';
-import {getString, ObjectIs} from './utils';
+} from '../types';
+import {getString, ObjectIs} from '../share';
 
 export const emptyChild = '';
 
