@@ -13,14 +13,12 @@
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
 - Maybe:
   - Move create to Component static method?
-  - Make Prop and Child classes with static create and update methods?
+  - Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
 - replace only range for dynamic children array (using node start/end indexes), (are they fragments?)
 - support nested children arrays, not just one level (fix html button)
 - implement style, object, data attributes
 - createAttribute object and update it directly
-
-- before publish do:
-  - refactor tests
+- refactor tests
 
 ## Done
 

@@ -1,6 +1,6 @@
-# @fusorjs/dom
+# Fusor
 
-Fusor is a simple, functional Javascript library that declaratively creates and updates DOM nodes.
+Fusor is a simple Javascript library that helps declaratively create and update DOM elements.
 
 > It fuses DOM elements.
 
@@ -20,7 +20,7 @@ const CounterButton = ({count = 0}) => {
   const btn = button(
     // props:
     {
-      onclick: () => {
+      click$e: () => {
         count += 1;
         btn.update(); // update button text
       },
@@ -47,7 +47,9 @@ document.body.append(
 );
 ```
 
-This example will render three buttons on a page:
+[Codesandbox Playground](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
+
+Fusor will render these three buttons on a page:
 
 ```html
 <div>
@@ -58,74 +60,43 @@ This example will render three buttons on a page:
 </div>
 ```
 
-## Component
-
-A `Component` object holds a DOM Element and manages its dynamic values.
-
-It has two properties:
-
-- `element`: get the associated DOM Element object
-- `update`: propagate dynamic values to the `element` (make changes visible), return `this`.
-
-## Creators
-
-This imported functions are creators:
-
-```js
-import {button, div, p} from '@fusorjs/dom/html';
-```
-
-A creator initializes a respective DOM Element and returns, depending on the presence of **dynamic** values, either:
-
-- this **static** DOM Element
-- new **dynamic** `Component` object
-
-> SVG creators in `@fusorjs/dom/svg`.
-
-## Static vs Dynamic
-
-**Dynamic children** are:
-
-- functions, like: `() => count`
-- `Component` objects
-
-**Dynamic props** are functions, like: `{class: () => editing ? 'editing' : ''}`.
-
-> Prop names that begin with `on...` are **static** event handlers, like: `{onclick: () => {}}`.
-
-Everything else is **static**.
+And every time a button is clicked, Fusor will update its text accordingly.
 
 ## Why Fusor?
 
-- You already know Fusor, if you have read this far.
-- It does one thing and does it well.
-- You control your updation strategy.
-- It uses functional approach.
-- Fusor and Web Components are great together.
+**Simple**
 
-Fusor is:
+- It does two things and does it well.
+- It helps to create and update DOM elements.
+- So it is small, simple, and fast.
+- It is explicit, without black box magic.
 
-- **Simple**: small, explicit, and predictable with sensible defaults.
-- **Flexible**: functional, modular, extensible, configurable, integratable.
-- **Compliant**: 100% compatible with web standards.
-- **Performant**: tiny and fast.
+**Flexible**
 
-## Fusor vs React
+- You control how you create and update your elements.
+- Yet your code gets less verbose than with do-it-all frameworks.
+- It is modular, extensible, configurable, and with sensible defaults.
+- It is functional.
 
-|                      | Fusor        | React                                           |
-| -------------------- | ------------ | ----------------------------------------------- |
-| Objects in Component | Created once | Re-created on each update even with memoization |
-| State, effects, refs | Simple       | Verbose and complex Hooks subsystem             |
-| Updating components  | Explicit     | Complex, diffing, lifecycle, concurrent, ...    |
-| DOM                  | Real         | Virtual                                         |
-| Events               | Native       | Synthetic                                       |
-| Life-cycle           | Native       | Diffing???                                      |
+**Compatible**
+
+- It is 100% compatible with web standards.
+- So it could be integrated with anything.
+- It is written in Typescript.
+
+**Modern**
+
+- It does not reinvent the wheel.
+- It uses native/modern functionality.
+- Such as custom elements for life-cycle events.
 
 ## Next Steps
 
 For more details see the [DOCUMENTATION](DOCS.md).
 
-Check out the [complete todo-list application](https://github.com/fusorjs/todomvc#readme) written with Fusor.
+For usage examples visit the [TUTORIAL](https://fusorjs.github.io/tutorial/) application.
+
+Also, check out the [todo-list application](https://github.com/fusorjs/todomvc#readme) written with Fusor.
 
 ## Contribute
 

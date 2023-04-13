@@ -1,35 +1,79 @@
 # Documentation
 
+## Component
+
+A `Component` object holds a DOM Element and manages its dynamic values.
+
+It has two properties:
+
+- `element`: gets the associated DOM Element object.
+- `update`:
+  - Propagates dynamic values to the `element` (makes changes visible).
+  - Calls all of the component's child updaters.
+  - Returns `this` reference.
+
+## Creators
+
+These imported functions are creators:
+
+```js
+import {button, div, p} from '@fusorjs/dom/html';
+```
+
+A creator initializes a respective DOM Element and returns, depending on the presence of **dynamic** values, either:
+
+- this **static** DOM Element
+- new **dynamic** `Component` object
+
+> SVG creators are in `@fusorjs/dom/svg`.
+
+> There are also "untagged" creators, such as `h` for HTML and `s` for SVG elements. They are used for creating non-standard/custom elements. But could be used for creating normal elements as well `h('div', props, 'hello')`.
+
+## Static vs Dynamic
+
+**Dynamic children** are:
+
+- functions, like: `() => count`
+- `Component` objects
+
+**Dynamic props** are functions, like `{class: () => editing ? 'editing' : ''}`.
+
+> Event handler props are **static**, like `{click$e: () => {}}`.
+
+Everything else is **static**.
+
 ## Attributes vs Properties vs Events
 
-Keys:
+Use keys to define prop types:
 
-- `automatic`: property if already defined on element or complex data value, otherwise attribute
-- `property$p`: set property
-- `attribute$a`: set attribute
-- `event$e`: add event listener
+- `automatic`: set as property, if it is already defined on the element or if it is a complex data value, otherwise set as an attribute.
+- `property$p`: set as a property.
+- `attribute$a`: set as an attribute.
+- `attribute$an$namespace`: set as a namespaced attribute.
+- `event$e`: add an event listener.
 
-Three types of manual keys:
+There are four types of manual prop definition:
 
 - `a`ttribute
+- `an` - `a`ttribute `n`amespaced
 - `p`roperty
 - `e`vent
 
 Values:
 
-- Automatic properties: objects, arrays.
+- Objects and arrays will be set as properties automatically.
 - Property values will be applied as they are.
-- Attribute is removed: `"", null, false, undefined`, everything else will be converted to string.
+- Attribute is removed if equal to `"", null, false, undefined`, everything else will be converted to string.
 
 Event keys:
 
-- `event$e`: default bubling event
+- `event$e`: default bubbling event
 - `event$e$capture$once$passive`: all boolean options
 
 Set all possible event options:
 
 ```js
-div({
+{
   click$e: {
     handle: () => 'Clicked!',
     capture: true,
@@ -37,26 +81,24 @@ div({
     passive: true,
     signal: abort,
   },
-});
+}
 ```
 
-> `handle` can also be object with `handleEvent` property
+> `handle` can also be an object with a `handleEvent` function property.
 
-Namespaced attribute keys have `an` type:
-
-- `"xlink:href$an$http://www.w3.org/1999/xlink"`
+Namespaced attribute example: `"xlink:href$an$http://www.w3.org/1999/xlink"`
 
 ## Children
 
 A child can be of any value:
 
-- Boolean values are not shown, so you could do logical expressions: `isVisible && modalDialog`.
-- Static array values are treated as the usual children (nested arrays not supported yet).
-- Dynamic array values will replace ~~associated children~~ (it is in development, currently **all children will be replaced**, just use a single dynamic children array for now).
+- Boolean values are not shown, so you could do logical expressions like `isVisible && modalDialog`.
+- Static array values are treated as the usual children.
+- Dynamic array values will replace associated children.
 
 ## Updating
 
-When `Component` updates, it calls every associated dynamic:
+When a `Component` updates, it calls every associated dynamic:
 
 - prop function
 - child function
@@ -65,59 +107,76 @@ When `Component` updates, it calls every associated dynamic:
 And then it will update the DOM only if:
 
 - the value has changed
-- the dynamic children array reference has changed
+- the dynamic child array reference has changed
 
-> You should try to update only necessary components for performance.
+> You should call update `update` only when necessary for performance.
 
 ## Caching
 
-- If you create Component in dynamic child, ex: `p(() => div(() => ++count))`, tt will be re-created every time its parent is updated.
-- Yoc can cache it, ex: `` and then:
+If you create Component in dynamic child, for example `p(() => div(() => ++count))`, it will be re-created every time it's parent is updated.
+
+You could cache it in a variable:
 
 ```ts
-let cache: undefined | Component<HTMLElement>;
-// then use it
+let cache;
 p(() => cache?.update() ?? (cache = div(() => ++count)));
 ```
 
-- Also the same applies to dynamic child arrays: `p(() => [div(() => ++count)])`.
+Also the same applies to dynamic child arrays: `p(() => [div(() => ++count)])`.
 
-## HTML/SVG
+## LifeCycle & Custom Elements
 
-HTML/SVG created functions for your convinience and as a reference so you could re-implement them as you see fit to your needs.
+You could implement life-cycle events unsing custom elements, but wait, we already done it for you.
 
-## Custom Elements
+The custom element `fusor-life` and the helper wrapper creator `Life` are there for your service.
 
-Autonomous custom elements:
+Use `Life` creator like this:
+
+```js
+import {Life} from '@fusorjs/dom/life';
+const wrapper = Life(
+  {
+    connected$e: () => {},
+    disconnected$e: () => {},
+    adopted$e: () => {},
+    attributeChanged$e: () => {},
+    // ... other html props
+  },
+  // ... children
+);
+```
+
+Use `h` for autonomous custom elements:
 
 ```js
 import {h, p} from '@fusorjs/dom/html';
+import '@fusorjs/dom/life'; // define fusor-life
 const onconnected = () => console.log('Say hi when connected!');
-const wrapper = h('fusor-events', {onconnected}, p('Hello!'));
+const wrapper = h('fusor-life', {onconnected}, p('Hello!'));
 ```
 
-Customized built-in elements:
+Use `Options` for customized built-in elements:
 
 ```js
-import {Options} from '@fusorjs/dom/core';
+import {Options} from '@fusorjs/dom';
 import {div, p} from '@fusorjs/dom/html';
-const wrapper = div(new Options({is: 'name'}), p('Hello!'));
+const wrapper = div(new Options({is: 'custom-div'}), p('Hello!'));
 ```
 
-> `Options` must be the first or second child
+> `Options` must be a first or a second child.
 
-## More Facts
+## HTML/SVG
 
-- A Fusor's HTML/SVG `Component.element` never changes.
-- Your dynamic child function can return different DOM Element or any other value.
-- Dynamic children arrays can have dynamic elements.
-- Use `is` attribute to attach custom element (it must be in the first props object)
+HTML/SVG creator functions for your convenience.
+They serve as a reference point, so you could easily re-implement them if you need them.
+
+> An HTML/SVG `Component.element` never changes.
 
 ## Functional Notation vs JSX
 
 - Just Javascript, no new syntax, natural comments.
 - No need for a build/compile step/tool.
-- Use many props objects and children arrays in any order.
+- Use multiple props objects and children arrays in any order.
 
 ```js
 div(childrenArray1, propsObject1, childrenArray2, propsObject2);
@@ -127,5 +186,24 @@ div(childrenArray1, propsObject1, childrenArray2, propsObject2);
 
 ## Naming Conventions
 
-- element component names are all lowercased, uppercase your components so you could instantiate them like this: `const unitSelector = UnitSelector()`
-- element event handlers are lovercase (e.g.: `onchange(Event)`). To distingush from your event handlers use camelCase (e.g.: `onChange(value)`)
+HTML/SVG:
+
+- Built-in HTML/SVG creator names are all lowercase for consistency with the spec.
+- HTML events are case-sensitive and mostly lower-cased.
+
+Yours:
+
+- Uppercase your creators like `UnitSelector` so you could distinguish them from built-ins.
+- Also, you could instantiate with lower case variable `const unitSelector = UnitSelector()`.
+- Use camelCase for your event names like `doTheWork`.
+
+## Fusor vs React
+
+|                      | Fusor                       | React                                               |
+| -------------------- | --------------------------- | --------------------------------------------------- |
+| Objects in Component | Created once                | Re-created on each update even with memoization     |
+| State, effects, refs | Variables                   | Verbose and complex Hooks subsystem                 |
+| Updating components  | Explicit                    | Complex, diffing, lifecycle, concurrent, fibers ... |
+| DOM                  | Real                        | Virtual                                             |
+| Events               | Native                      | Synthetic                                           |
+| Life-cycle           | Native with custom elements | Whole tree walking                                  |

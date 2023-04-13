@@ -17,15 +17,15 @@ export type StaticProp =
   | Primitive
   | readonly any[]
   // any object but function
-  | {apply?: never; [k: string]: any}
-  | {call?: never; [k: string]: any};
+  | {apply?: never; readonly [k: string]: any}
+  | {call?: never; readonly [k: string]: any};
 
 export type SingleStaticChild = Primitive | Element | Options; // ? deprecate ?
 
-export type StaticChild = SingleStaticChild | SingleStaticChild[];
+export type StaticChild = SingleStaticChild | readonly SingleStaticChild[];
 
 export interface StaticProps {
-  [key: string]: StaticProp;
+  readonly [key: string]: StaticProp;
   // [kkey: `on${string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
 }
 
@@ -40,10 +40,10 @@ export type SingleChild =
   | (() => Child)
   | Component<Element>;
 
-export type Child = SingleChild | SingleChild[];
+export type Child = SingleChild | readonly SingleChild[];
 
 export interface Props {
-  [key: string]: Prop;
+  readonly [key: string]: Prop;
 }
 
 export type Arg = Props | Child;

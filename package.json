@@ -1,10 +1,10 @@
 {
   "name": "@fusorjs/dom",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "license": "ISC",
   "homepage": "https://github.com/fusorjs/dom#readme",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
-  "description": "Fusor declaratively manages the DOM.",
+  "description": "Fusor is a simple Javascript library that helps declaratively create and update DOM elements.",
   "keywords": [
     "dom",
     "fusor",

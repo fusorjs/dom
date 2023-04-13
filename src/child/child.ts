@@ -181,7 +181,7 @@ export const updateChild = (
 
     updatable.cache = {
       value: nextValue,
-      node: updateSingleChild(element, prevNode, nextValue),
+      node: updateSingleChild(element, prevNode, nextValue as SingleChild),
     };
   }
 };
@@ -190,7 +190,7 @@ export const updateChild = (
 export const updateSingleChild = (
   element: Node,
   prevNode: ValueNode,
-  nextValue: SingleChild | Component<Element>,
+  nextValue: SingleChild,
 ): ValueNode => {
   // replace with different element
   if (nextValue instanceof Element) {
