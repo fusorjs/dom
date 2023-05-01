@@ -138,22 +138,26 @@ describe('html', () => {
   test.each(
     // prettier-ignore
     [
-      [ '$'                 , ''       , new TypeError(`empty name in key 1 "$"`)                                             ],
-      [ 'prop$p$exta'       , ''       , new TypeError(`excess option in property key 2 "prop$p$exta"`)                       ],
-      [ 'attr$a$exta'       , ''       , new TypeError(`excess option in attribute key 2 "attr$a$exta"`)                      ],
-      [ 'attr$an'           , ''       , new TypeError(`missing namespace option in attribute key 3 "attr$an"`)               ],
-      [ 'attr$an$ns$exta'   , ''       , new TypeError(`excess option in attribute key 4 "attr$an$ns$exta"`)                  ],
-      [ 'event$e'           , ''       , new TypeError(`not function in event "event$e"`)                                     ],
-      [ 'event$e$capture'   , ''       , new TypeError(`not function in event "event$e$capture"`)                             ],
-      [ 'event$e$once'      , ''       , new TypeError(`not function in event "event$e$once"`)                                ],
-      [ 'event$e$unknown'   , () => {} , new TypeError(`out of capture|once|passive option in event key 3 "event$e$unknown"`) ],
-      [ 'event$e$once$once' , () => {} , new TypeError(`same option declared twice in event key 4 "event$e$once$once"`)       ],
-      [ 'type$x'            , () => {} , new TypeError(`out of a|an|p|e type in key 2 "type$x"`)                              ],
+      [ '$'                 , ''       , TypeError , `empty name in key 1 "$"`                                             ],
+      [ 'prop$p$exta'       , ''       , TypeError , `excess option in property key 2 "prop$p$exta"`                       ],
+      [ 'attr$a$exta'       , ''       , TypeError , `excess option in attribute key 2 "attr$a$exta"`                      ],
+      [ 'attr$an'           , ''       , TypeError , `missing namespace option in attribute key 3 "attr$an"`               ],
+      [ 'attr$an$ns$exta'   , ''       , TypeError , `excess option in attribute key 4 "attr$an$ns$exta"`                  ],
+      [ 'event$e'           , ''       , TypeError , `not function in event "event$e"`                                     ],
+      [ 'event$e$capture'   , ''       , TypeError , `not function in event "event$e$capture"`                             ],
+      [ 'event$e$once'      , ''       , TypeError , `not function in event "event$e$once"`                                ],
+      [ 'event$e$unknown'   , () => {} , TypeError , `out of capture|once|passive option in event key 3 "event$e$unknown"` ],
+      [ 'event$e$once$once' , () => {} , TypeError , `same option declared twice in event key 4 "event$e$once$once"`       ],
+      [ 'type$x'            , () => {} , TypeError , `out of a|an|p|e type in key 2 "type$x"`                              ],
     ],
-  )('throw %p %p %p', (key, value, expected) => {
+  )('throw %p %p %p', (key, value, expectType, expectMsg) => {
     expect(() => {
       createProp(element, key, value);
-    }).toThrow(expected);
+    }).toThrow(expectType);
+
+    expect(() => {
+      createProp(element, key, value);
+    }).toThrow(expectMsg);
 
     expect(target.hasser).toHaveBeenCalledTimes(0);
     expect(target.getter).toHaveBeenCalledTimes(0);
@@ -179,6 +183,7 @@ describe('html', () => {
     (v => [ 'prop'   , ''           , undefined , []          , undefined , undefined          , [ v               ] , false ] )([]),
           [ 'prop'   , '$p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
           [ 'prop'   , '$p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
+    (v => [ 'prop'   , '$ps'        , undefined , v           , undefined , undefined          , [ v               ] , false ] )(() => 123),
           [ 'empty'  , ''           , undefined , null        , 'empty'   , undefined          , undefined           , false ] ,
           [ 'empty'  , '$a'         , undefined , null        , undefined , undefined          , undefined           , false ] ,
           [ 'attr'   , ''           , undefined , 'asd'       , 'attr'    , 'setAttribute'     , [ 'asd'           ] , false ] ,

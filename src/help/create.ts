@@ -1,6 +1,7 @@
 import {create, Options} from '../create';
 import {ElementCreator, TaggedCreator} from '../types';
 
+/** @deprecated */
 export const createElement: ElementCreator<Element> = (
   namespace,
   tagName,
@@ -15,7 +16,7 @@ export const createElement: ElementCreator<Element> = (
   //   if (typeof is === 'string') options = {is};
   // }
 
-  // Why two args? See: defaultButtonProps = {type: 'button'}
+  // Why two args? See: defaultButtonProps = {type: 'button'} in html.ts. But do not rely on the second option as this probably will change.
   const [arg0, arg1] = args;
   if (arg0 instanceof Options) options = arg0.options;
   if (arg1 instanceof Options) options = arg1.options;

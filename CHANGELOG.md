@@ -1,9 +1,5 @@
 # Changes
 
-## Remaining Questions
-
-- At the moment we do not have `context`, as in React. Maybe we should use props, imported/exported variables, enclosed variables for context so the context will be explicit, not hidden. Or should we introduce it like in React? Implementing it is not hard, but should we? We need some definitive examples if we need the context and absolutely cannot live without it.
-
 ## Todo
 
 - shx to rimraf?
@@ -22,11 +18,11 @@
 
 ## Done
 
-- Component life-cycle methods will not be implemented as they natively implemented in Custom Elements. So you should use them together with Fusor. Previously these alternatives were investigated:
+### Version 2.0.1
 
-  - DOMNodeRemoved is working, but MutationEvent is deprecated.
-  - MutationObserver does not have a way to detect its target unmounting.
-  - WeakRef is not reliable as it could never trigger.
+- added `ps` - `p`roperty `s`tatic type
+- added `defaultPropSplitter`, `setPropSplitter`
+- improved docs
 
 ### Version 2
 
@@ -46,6 +42,14 @@ Version 2 breaking changes:
 - When returning component from a dynamic function, its update method no longer will be called automatically (like in v1). Because sometimes we want to re-create a component on each update (in v1 it would create component and then call update immidiately, doing the same work twice). The main reason for this change is: we do not know whether user creates the component or passes it from somewhere else like a cache.
 - upon Child/Prop init/update, the updater function will be called once in v2. In v1 it would keep executing until non-function value would be returned or recursion limit would be reached. As it turns out, the v1 way of `evaluate` is not needed and you ecouraged to manage updator functios yourself for clarity.
 - removed deprecated HTML creators: dir, font, frame, frameset, marquee, param.
+
+Component life-cycle methods will not be implemented as they natively implemented in Custom Elements. So you should use them together with Fusor. Previously these alternatives were investigated:
+
+- DOMNodeRemoved is working, but MutationEvent is deprecated.
+- MutationObserver does not have a way to detect its target unmounting.
+- WeakRef is not reliable as it could never trigger.
+
+Context api, as in React, will not be implemented. Unless solid proves will be presented that we absolutely need them and cannot live without them. You should use props, or imported/exported global variables, or enclosed variables. So the context will be explicit, not hidden.
 
 ### Version 1
 

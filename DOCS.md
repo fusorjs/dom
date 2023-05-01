@@ -2,13 +2,13 @@
 
 ## Component
 
-A `Component` object holds a DOM Element and manages its dynamic values.
+A `Component` object holds a DOM Element and manages its _dynamic_ values.
 
 It has two properties:
 
 - `element`: gets the associated DOM Element object.
 - `update`:
-  - Propagates dynamic values to the `element` (makes changes visible).
+  - Propagates _dynamic_ values to the `element` (makes changes visible).
   - Calls all of the component's child updaters.
   - Returns `this` reference.
 
@@ -20,10 +20,10 @@ These imported functions are creators:
 import {button, div, p} from '@fusorjs/dom/html';
 ```
 
-A creator initializes a respective DOM Element and returns, depending on the presence of **dynamic** values, either:
+A creator initializes a respective DOM Element and returns, depending on the presence of _dynamic_ values, either:
 
-- this **static** DOM Element
-- new **dynamic** `Component` object
+- this _static_ DOM Element
+- new _dynamic_ `Component` object
 
 > SVG creators are in `@fusorjs/dom/svg`.
 
@@ -38,67 +38,78 @@ A creator initializes a respective DOM Element and returns, depending on the pre
 
 **Dynamic props** are functions, like `{class: () => editing ? 'editing' : ''}`.
 
-> Event handler props are **static**, like `{click$e: () => {}}`.
+> Event handler props are _static_, like `{click$e: () => {}}`.
 
-Everything else is **static**.
+Everything else is _static_.
 
 ## Attributes vs Properties vs Events
 
-Use keys to define prop types:
+To _automatically_ detect whether to set _property_ or _attribute_, do not use a _$-suffix_.
+Set as _property_, if it is already defined on the element or if it is a _complex_ data value, otherwise set as an _attribute_.
+Objects and arrays are _complex_ data.
 
-- `automatic`: set as property, if it is already defined on the element or if it is a complex data value, otherwise set as an attribute.
-- `property$p`: set as a property.
-- `attribute$a`: set as an attribute.
-- `attribute$an$namespace`: set as a namespaced attribute.
-- `event$e`: add an event listener.
+Use a _$-suffix_ to manually define a type:
 
-There are four types of manual prop definition:
-
-- `a`ttribute
+- `a` - `a`ttribute
 - `an` - `a`ttribute `n`amespaced
-- `p`roperty
-- `e`vent
+- `p` - `p`roperty
+- `ps` - `p`roperty `s`tatic
+- `e` - `e`vent
 
-Values:
-
-- Objects and arrays will be set as properties automatically.
-- Property values will be applied as they are.
-- Attribute is removed if equal to `"", null, false, undefined`, everything else will be converted to string.
-
-Event keys:
-
-- `event$e`: default bubbling event
-- `event$e$capture$once$passive`: all boolean options
-
-Set all possible event options:
+Example:
 
 ```js
-{
+div({
+  // auto-detect whether to set property or attribute
+  selected: 123,
+
+  // property
+  checked$p: 123,
+
+  // property static
+  onclick$ps: () => 'Clicked!',
+
+  // attribute
+  class$a: 'visible',
+
+  // attribute with namespace
+  'xlink:href$an$http://www.w3.org/1999/xlink': 'abc',
+
+  // add bubbling event listener
+  click$e: () => 'Clicked!',
+
+  // event with boolean options
+  click$e$capture$once$passive: () => 'Clicked!',
+
+  // all event options
   click$e: {
-    handle: () => 'Clicked!',
+    handle: () => 'Clicked!', // or handle: {handleEvent: () => 'Clicked!'},
     capture: true,
     once: true,
     passive: true,
     signal: abort,
   },
-}
+});
 ```
 
-> `handle` can also be an object with a `handleEvent` function property.
+Values:
 
-Namespaced attribute example: `"xlink:href$an$http://www.w3.org/1999/xlink"`
+- _Property_ values will be applied as they are.
+- _Attribute_ is removed if equal to `"", null, false, undefined`, everything else will be converted to a string.
+
+`defaultPropSplitter = $` and `setPropSplitter('_')` for managing global splitter property setting.
 
 ## Children
 
 A child can be of any value:
 
 - Boolean values are not shown, so you could do logical expressions like `isVisible && modalDialog`.
-- Static array values are treated as the usual children.
-- Dynamic array values will replace associated children.
+- _Static_ array values are treated as the usual children.
+- _Dynamic_ array values will replace associated children.
 
 ## Updating
 
-When a `Component` updates, it calls every associated dynamic:
+When a `Component` updates, it calls every associated _dynamic_:
 
 - prop function
 - child function
@@ -107,13 +118,13 @@ When a `Component` updates, it calls every associated dynamic:
 And then it will update the DOM only if:
 
 - the value has changed
-- the dynamic child array reference has changed
+- the _dynamic_ array reference has changed
 
 > You should call update `update` only when necessary for performance.
 
 ## Caching
 
-If you create Component in dynamic child, for example `p(() => div(() => ++count))`, it will be re-created every time it's parent is updated.
+If you create Component in _dynamic_ child, for example `p(() => div(() => ++count))`, it will be re-created every time it's parent is updated.
 
 You could cache it in a variable:
 
@@ -122,7 +133,7 @@ let cache;
 p(() => cache?.update() ?? (cache = div(() => ++count)));
 ```
 
-Also the same applies to dynamic child arrays: `p(() => [div(() => ++count)])`.
+Also the same applies to _dynamic_ arrays: `p(() => [div(() => ++count)])`.
 
 ## LifeCycle & Custom Elements
 
@@ -163,7 +174,7 @@ import {div, p} from '@fusorjs/dom/html';
 const wrapper = div(new Options({is: 'custom-div'}), p('Hello!'));
 ```
 
-> `Options` must be a first or a second child.
+> `Options` must be the first child.
 
 ## HTML/SVG
 
@@ -199,11 +210,28 @@ Yours:
 
 ## Fusor vs React
 
-|                      | Fusor                       | React                                               |
-| -------------------- | --------------------------- | --------------------------------------------------- |
-| Objects in Component | Created once                | Re-created on each update even with memoization     |
-| State, effects, refs | Variables                   | Verbose and complex Hooks subsystem                 |
-| Updating components  | Explicit                    | Complex, diffing, lifecycle, concurrent, fibers ... |
-| DOM                  | Real                        | Virtual                                             |
-| Events               | Native                      | Synthetic                                           |
-| Life-cycle           | Native with custom elements | Whole tree walking                                  |
+|                       | Fusor                   | React                                           |
+| --------------------- | ----------------------- | ----------------------------------------------- |
+| Component constructor | Explicit, function      | Combined with updater in funtion components     |
+| Objects in Component  | Created once            | Re-created on each update even with memoization |
+| State, effects, refs  | Variables and functions | Complex, hooks subsystem, verbose               |
+| Updating components   | Explicit, flexible      | Implicit, complex, diffing                      |
+| DOM                   | Real                    | Virtual                                         |
+| Events                | Native                  | Synthetic                                       |
+| Life-cycle            | Native, custom elements | Complex, tree walking                           |
+
+### Life-Cycle
+
+|            | Fusor       | fusor-life       | React                                                                                                |
+| ---------- | ----------- | ---------------- | ---------------------------------------------------------------------------------------------------- |
+| Mounting   | constructor | connected        | constructor, getDerivedStateFromProps, render, componentDidMount                                     |
+| Updating   | update      | attributeChanged | getDerivedStateFromProps, shouldComponentUpdate, render, getSnapshotBeforeUpdate, componentDidUpdate |
+| Unmounting |             | disconnected     | componentWillUnmount                                                                                 |
+
+### Separation of concerns
+
+|                  | Fusor        | React                             |
+| ---------------- | ------------ | --------------------------------- |
+| Create Component | Constructor  | Constructor + Update              |
+| Update Component | Update       | Constructor + Update              |
+| Set State        | Set Variable | Set State + Constructror + Update |

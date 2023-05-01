@@ -3,8 +3,11 @@ import {getPropertyDescriptor, getString} from '../share';
 
 import {convertAttr, emptyAttr} from './share';
 
-export let defaultPropSplitter = '$';
-export const setDefaultPropSplitter = (s: string) => (defaultPropSplitter = s);
+export const defaultPropSplitter = '$';
+
+let propSplitter = defaultPropSplitter;
+
+export const setPropSplitter = (s: string) => (propSplitter = s);
 
 const detectProperty = (value: any, name: string) => {
   const d = getPropertyDescriptor(value, name);
@@ -32,7 +35,7 @@ const detectProperty = (value: any, name: string) => {
  * {handle, capture?, once?, passive?, signal?}
  */
 export const createProp = (element: Element, key: string, value: Prop) => {
-  const split = key.split(defaultPropSplitter);
+  const split = key.split(propSplitter);
   const {length} = split;
   const [name, type] = split;
 
@@ -48,11 +51,12 @@ export const createProp = (element: Element, key: string, value: Prop) => {
   ) {
     // *** PROPERTY TYPE ***
     case 'p':
+    case 'ps':
       if (length > 2)
         throw new TypeError(`excess option in property key 2 "${key}"`);
 
       // dynamic
-      if (typeof value === 'function') {
+      if (type !== 'ps' && typeof value === 'function') {
         const val = value();
 
         element[name as 'id'] = val as any;

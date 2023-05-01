@@ -10,7 +10,7 @@ Fusor is a simple Javascript library that helps declaratively create and update 
 npm install @fusorjs/dom
 ```
 
-JSX is planned, this is a functional notation:
+JSX is planned, this is a _functional notation_:
 
 ```js
 import {button, div, p} from '@fusorjs/dom/html';
@@ -64,27 +64,39 @@ And every time a button is clicked, Fusor will update its text accordingly.
 
 ## Why Fusor?
 
-**Simple**
+Fusor is the most lightweight and transparent approach "almost without the library" making full use of the Javascript language constructs and DOM functions.
+
+In Fusor, there are no additional mechanisms for:
+
+- _State_
+- _Properties_
+- _Life-cycle_
+- _Context_
+
+But nevertheless Fusor can replace React, Svelte, Solidjs and others!
+
+### Simple
 
 - It does two things and does it well.
 - It helps to create and update DOM elements.
 - So it is small, simple, and fast.
 - It is explicit, without black box magic.
+- It has zero dependencies.
 
-**Flexible**
+### Flexible
 
 - You control how you create and update your elements.
 - Yet your code gets less verbose than with do-it-all frameworks.
 - It is modular, extensible, configurable, and with sensible defaults.
 - It is functional.
 
-**Compatible**
+### Compatible
 
 - It is 100% compatible with web standards.
 - So it could be integrated with anything.
 - It is written in Typescript.
 
-**Modern**
+### Modern
 
 - It does not reinvent the wheel.
 - It uses native/modern functionality.
@@ -97,6 +109,8 @@ For more details see the [DOCUMENTATION](DOCS.md).
 For usage examples visit the [TUTORIAL](https://fusorjs.github.io/tutorial/) application.
 
 Also, check out the [todo-list application](https://github.com/fusorjs/todomvc#readme) written with Fusor.
+
+Article: [I wanted to improve React](https://gist.github.com/isumix/48b9de9c40ca5498d10224ca63f4876d) - [RU](https://gist.github.com/isumix/bb2f1af6c23aefa672320d0e2c31aae3)
 
 ## Contribute
 
