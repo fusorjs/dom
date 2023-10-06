@@ -78,6 +78,19 @@ export interface TaggedCreator<E extends Element> {
   (...args: readonly Arg[]): Component<E>;
 }
 
+export interface JsxCreator<E extends Element> {
+  (
+    tagName: string | Function,
+    props?: StaticProps,
+    ...children: readonly StaticChild[]
+  ): E;
+  (
+    tagName: string | Function,
+    props?: Props,
+    ...children: readonly Child[]
+  ): Component<E>;
+}
+
 /* UPDATE */
 
 export interface UpdatableProp {

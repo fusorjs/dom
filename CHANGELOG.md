@@ -3,7 +3,6 @@
 ## Todo
 
 - shx to rimraf?
-- jsx support
 - optimize by diffing nodes for dynamic children array
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` (https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments), speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
 - elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
@@ -17,6 +16,11 @@
 - refactor tests
 
 ## Done
+
+### Version 2.0.2
+
+- JSX support added
+- improved docs
 
 ### Version 2.0.1
 
@@ -49,7 +53,7 @@ Component life-cycle methods will not be implemented as they natively implemente
 - MutationObserver does not have a way to detect its target unmounting.
 - WeakRef is not reliable as it could never trigger.
 
-Context api, as in React, will not be implemented. Unless solid proves will be presented that we absolutely need them and cannot live without them. You should use props, or imported/exported global variables, or enclosed variables. So the context will be explicit, not hidden.
+Context (as in React) will not be implemented. Unless solid proves will be presented that we absolutely need it and cannot live without it. You can use props or imported/exported/enclosed/global variables instead. So that the context will be explicit, not hidden. Also the context needed in user components, not in html/svg components in what Fuser is concerned. Therefore the contex should be implemented elsewhere if needed.
 
 ### Version 1
 

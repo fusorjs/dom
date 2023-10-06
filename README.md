@@ -1,119 +1,108 @@
 # Fusor
 
-Fusor is a simple Javascript library that helps declaratively create and update DOM elements.
+Fusor is a simple JavaScript library that helps declaratively create and update DOM elements
 
-> It fuses DOM elements.
+> It combines or _fuses_ elements within the DOM
 
 ## Example
 
-```sh
-npm install @fusorjs/dom
-```
+```jsx
+import {jsx} from '@fusorjs/dom';
 
-JSX is planned, this is a _functional notation_:
+const Page = () => (
+  <div>
+    <p>Hello World</p>
+    <CountingButton />
+    <CountingButton init={22} />
+    <CountingButton init={333} />
+  </div>
+);
 
-```js
-import {button, div, p} from '@fusorjs/dom/html';
+const CountingButton = props => {
+  let state = props.init || 0;
 
-const CounterButton = ({count = 0}) => {
-  // create button Component
-  const btn = button(
-    // props:
-    {
-      click$e: () => {
-        count += 1;
-        btn.update(); // update button text
-      },
-    },
-
-    // children:
-    'Clicked ',
-    () => count, // dynamic value
-    ' times.',
+  const component = (
+    <button
+      click$e={() => {
+        state += 1;
+        component.update();
+      }}
+    >
+      Clicked {() => state} times
+    </button>
   );
 
-  return btn;
+  return component;
 };
 
-document.body.append(
-  div(
-    p('Hello World!'), // static DOM Element
-
-    // create dynamic components:
-    CounterButton({}),
-    CounterButton({count: 22}),
-    CounterButton({count: 333}),
-  ).element,
-);
+document.body.append(Page().element);
 ```
 
-[Codesandbox Playground](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
+[Play with CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.ts)
 
-Fusor will render these three buttons on a page:
+## Fusor is similar to React
 
-```html
-<div>
-  <p>Hello World!</p>
-  <button type="button">Clicked 0 times.</button>
-  <button type="button">Clicked 22 times.</button>
-  <button type="button">Clicked 333 times.</button>
-</div>
-```
+Fusor was inspired by React, and they both share the same ideas:
 
-And every time a button is clicked, Fusor will update its text accordingly.
+- Composable components
+- One-way data flow
+- JSX
 
-## Why Fusor?
+## Fusor is different from React
 
-Fusor is the most lightweight and transparent approach "almost without the library" making full use of the Javascript language constructs and DOM functions.
+The fundamental difference lies in component lifecycle. Unlike React, Fusor better applies the principle of _separation of concerns_ or _single-responsibility principle_
 
-In Fusor, there are no additional mechanisms for:
+### Separation of concerns
 
-- _State_
-- _Properties_
-- _Life-cycle_
-- _Context_
+| Concern                  | Fusor     | React                        |
+| ------------------------ | --------- | ---------------------------- |
+| Component creation       | create()  | create_update()              |
+| Component state changing | state = x | setState(x); create_update() |
+| Component updating       | update()  | create_update()              |
 
-But nevertheless Fusor can replace React, Svelte, Solidjs and others!
+### Consequences of separation of concerns
 
-### Simple
+| Concern        | Fusor                                    | React                                            |
+| -------------- | ---------------------------------------- | ------------------------------------------------ |
+| Component data | Created once on initialization           | Recreated on initialization and every update     |
+| Side effects   | Simply set variables and call update     | Complex and verbose _hooks_ logic                |
+| Updates        | Explicitly update what and when you want | Implicit, heavy, diffing, new _concurrent_ logic |
 
-- It does two things and does it well.
-- It helps to create and update DOM elements.
-- So it is small, simple, and fast.
-- It is explicit, without black box magic.
-- It has zero dependencies.
+### Other differences
 
-### Flexible
+| Feature                | Fusor             | React         |
+| ---------------------- | ----------------- | ------------- |
+| DOM                    | Real              | Virtual       |
+| Events                 | Native            | Synthetic     |
+| Lifecycle              | Native            | Complex logic |
+| Attribute names        | W3C Specification | Mangled       |
+| Web components support | Complete          | Incomplete    |
 
-- You control how you create and update your elements.
-- Yet your code gets less verbose than with do-it-all frameworks.
-- It is modular, extensible, configurable, and with sensible defaults.
-- It is functional.
+## Why Fusor
 
-### Compatible
+- It is simple, lightweight, explicit, flexible and compatible
+- It extensively utilizes modern JavaScript and browser features
+- It follows the principle of doing one thing and doing it well, which is managing DOM elements
+- It has **zero** dependencies and is only around **2kB** in size
 
-- It is 100% compatible with web standards.
-- So it could be integrated with anything.
-- It is written in Typescript.
+## Documentation
 
-### Modern
+Start with this fine [TUTORIAL](TUTORIAL.md)
 
-- It does not reinvent the wheel.
-- It uses native/modern functionality.
-- Such as custom elements for life-cycle events.
+For more in-depth information, please refer to this [REFERENCE](REFERENCE.md)
 
-## Next Steps
+Read the first [article](https://gist.github.com/isumix/48b9de9c40ca5498d10224ca63f4876d) about Fusor
 
-For more details see the [DOCUMENTATION](DOCS.md).
+## Examples
 
-For usage examples visit the [TUTORIAL](https://fusorjs.github.io/tutorial/) application.
+[Analog clock](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9)
 
-Also, check out the [todo-list application](https://github.com/fusorjs/todomvc#readme) written with Fusor.
+[Main usage scenarios](https://fusorjs.github.io/tutorial/): Routing, Request, Lifecycle, SVG, JSX...
 
-Article: [I wanted to improve React](https://gist.github.com/isumix/48b9de9c40ca5498d10224ca63f4876d) - [RU](https://gist.github.com/isumix/bb2f1af6c23aefa672320d0e2c31aae3)
+[Todo-list application](https://github.com/fusorjs/todomvc#readme)
 
 ## Contribute
 
-You are welcome to contribute to this project.
+Your contributions are welcome
 
-Please see [CHANGELOG](CHANGELOG.md) for details.
+Please see [CHANGELOG](CHANGELOG.md) for details
