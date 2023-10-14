@@ -1,15 +1,15 @@
-import {DynamicChild, Prop, DynamicProps, SingleChild, Creator} from './types';
+import {DynamicChild, Prop, DynamicProps, Creator} from './types';
 import {createProp} from './prop/create';
-import {initChild} from './child/child';
 import {Component} from './component';
+import {initChildFlatten} from './child/initFlatten';
 
 export class Options {
   constructor(readonly options: ElementCreationOptions) {}
 }
 
 export const create: Creator = (element, args) => {
-  let props: DynamicProps | undefined;
-  let children: DynamicChild<Element>[] | undefined;
+  let dynamicProps: DynamicProps | undefined;
+  let dynamicChildren: DynamicChild<Element>[] | undefined = [];
 
   const {length} = args;
 
@@ -25,39 +25,30 @@ export const create: Creator = (element, args) => {
     // init props
     else if (arg?.constructor === Object) {
       for (const [key, val] of Object.entries(arg)) {
-        const prop = createProp(element, key, val as Prop);
-
-        if (prop) {
-          if (props) props[key] = prop;
-          else props = {[key]: prop};
+        // for compatibility with JSX, use <Life> component in JSX instead of <fisor-life>
+        if (key === 'children') {
+          initChildFlatten(element, val, dynamicChildren);
+          continue;
         }
-      }
-    }
 
-    // init children
-    else if (Array.isArray(arg)) {
-      for (const a of arg) {
-        const child = initChild(element, a);
+        const dynamicProp = createProp(element, key, val as Prop);
 
-        if (child) {
-          if (children) children.push(child);
-          else children = [child];
+        if (dynamicProp) {
+          if (dynamicProps) dynamicProps[key] = dynamicProp;
+          else dynamicProps = {[key]: dynamicProp};
         }
       }
     }
 
     // init child
     else {
-      const child = initChild(element, arg as SingleChild);
-
-      if (child) {
-        if (children) children.push(child);
-        else children = [child];
-      }
+      initChildFlatten(element, arg, dynamicChildren);
     }
   }
 
-  return props || children
-    ? new Component(element, props, children) // dynamic
+  if (dynamicChildren.length === 0) dynamicChildren = undefined;
+
+  return dynamicProps || dynamicChildren
+    ? new Component(element, dynamicProps, dynamicChildren) // dynamic
     : element; // static
 };

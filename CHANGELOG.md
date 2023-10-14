@@ -17,6 +17,10 @@
 
 ## Done
 
+### Version 2.0.3
+
+- Added JSX support to `<Life>` component
+
 ### Version 2.0.2
 
 - JSX support added
