@@ -1,5 +1,5 @@
-import {TaggedCreator} from '../types';
-import {createElement} from './create';
+import {TaggedInitter} from '../types';
+import {initElementHelper} from './init';
 
 const connected = new Event('connected');
 const disconnected = new Event('disconnected');
@@ -28,5 +28,5 @@ customElements.define(
   },
 );
 
-export const Life: TaggedCreator<HTMLElement> = (...args) =>
-  createElement(undefined, 'fusor-life', args) as any;
+export const Life: TaggedInitter<HTMLElement> = (...args) =>
+  initElementHelper(undefined, 'fusor-life', args) as any;

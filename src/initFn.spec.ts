@@ -1,4 +1,4 @@
-import {create} from './create';
+import {initFn} from './initFn';
 import {Component} from './component';
 import {Arg, StaticArg} from './types';
 
@@ -9,7 +9,7 @@ export interface CreatorNoConf {
 
 test('init empty element', () => {
   const element = document.createElement('div');
-  const result = create(element, []);
+  const result = initFn(element, []);
 
   expect(result).toBe(element);
 
@@ -19,7 +19,7 @@ test('init empty element', () => {
 
 test('init element with static props', () => {
   const element = document.createElement('div');
-  const result = create(element, [
+  const result = initFn(element, [
     {
       title: 'hello',
       hidden: true,
@@ -39,7 +39,7 @@ test('init element with static props', () => {
 
 test('init element with static prop override', () => {
   const element = document.createElement('div');
-  const result = create(element, [{id: 'one'}, {id: 'two'}]);
+  const result = initFn(element, [{id: 'one'}, {id: 'two'}]);
 
   expect(result).toBe(element);
 
@@ -52,7 +52,7 @@ test('init element with dynamic prop', () => {
   let title = 'aaa';
 
   const element = document.createElement('div');
-  const result = create(element, [{title: () => title}]);
+  const result = initFn(element, [{title: () => title}]);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.element).toBe(element);
@@ -74,7 +74,7 @@ test('init element with dynamic prop override', () => {
   let dynamic2 = 222;
 
   const element = document.createElement('div');
-  const result = create(element, [
+  const result = initFn(element, [
     {id: () => dynamic1++},
     {id: () => dynamic2++},
   ]);
@@ -98,7 +98,7 @@ test('init element with dynamic prop override', () => {
 
 test('init element with event handler, it should be static', () => {
   const element = document.createElement('button');
-  const result = create(element, [{click$e: () => {}}]);
+  const result = initFn(element, [{click$e: () => {}}]);
 
   expect(result).toBe(element);
 
@@ -109,7 +109,7 @@ test('init element with event handler, it should be static', () => {
 
 test('init element with static children', () => {
   const element = document.createElement('div');
-  const result = create(element, ['one', 2, 'three']);
+  const result = initFn(element, ['one', 2, 'three']);
 
   expect(result).toBe(element);
   expect(result.attributes.length).toBe(0);
@@ -122,8 +122,8 @@ test('init element with static children', () => {
 
 test('init element with nested static child', () => {
   const element = document.createElement('div');
-  const result = create(element, [
-    create(document.createElement('p'), ['Hi!']),
+  const result = initFn(element, [
+    initFn(document.createElement('p'), ['Hi!']),
   ]);
 
   expect(result).toBe(element);
@@ -137,7 +137,7 @@ test('init element with dynamic child', () => {
   let child = 123;
 
   const element = document.createElement('div');
-  const result = create(element, [() => child]);
+  const result = initFn(element, [() => child]);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.element).toBe(element);
@@ -157,8 +157,8 @@ test('init element with nested dynamic child', () => {
   let count = 0;
 
   const element = document.createElement('div');
-  const result = create(element, [
-    create(document.createElement('p'), [() => ++count]),
+  const result = initFn(element, [
+    initFn(document.createElement('p'), [() => ++count]),
   ]);
 
   expect(result).toBeInstanceOf(Component);
@@ -183,10 +183,10 @@ test('init element with nested dynamic child', () => {
 });
 
 describe('init element changing nested dynamic child', () => {
-  let child: any = create(document.createElement('p'), ['Hi!']);
+  let child: any = initFn(document.createElement('p'), ['Hi!']);
 
   const element = document.createElement('div');
-  const result = create(element, [() => child]);
+  const result = initFn(element, [() => child]);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.element).toBe(element);
@@ -196,8 +196,8 @@ describe('init element changing nested dynamic child', () => {
 
   expect(element.childNodes[0]).toBe(child);
 
-  const one = create(document.createElement('h1'), ['one']);
-  const two = create(document.createElement('h2'), ['two']);
+  const one = initFn(document.createElement('h1'), ['one']);
+  const two = initFn(document.createElement('h2'), ['two']);
 
   test.each([
     ['aaa'],
@@ -205,8 +205,8 @@ describe('init element changing nested dynamic child', () => {
     [two],
     [two],
     ['111'],
-    [create(document.createElement('p'), ['Hello!'])],
-    [create(document.createElement('p'), [() => 'Hello!'])],
+    [initFn(document.createElement('p'), ['Hello!'])],
+    [initFn(document.createElement('p'), [() => 'Hello!'])],
     [one],
     [one],
     ['bbb'],
@@ -229,14 +229,14 @@ test('init element incrementing nested dynamic children', () => {
   let cache: Component<HTMLElement>;
 
   const element = document.createElement('div');
-  const result = create(element, [
-    create(document.createElement('p'), [() => ++count]),
+  const result = initFn(element, [
+    initFn(document.createElement('p'), [() => ++count]),
     ' ',
-    create(document.createElement('p'), [
+    initFn(document.createElement('p'), [
       () =>
         cache
           ? cache.update()
-          : (cache = create(document.createElement('span'), [() => ++count])),
+          : (cache = initFn(document.createElement('span'), [() => ++count])),
     ]),
   ]);
 
@@ -260,15 +260,15 @@ test('init element incrementing nested dynamic children', () => {
 test.each([
   ['aaa', 'aaa'],
   [111, '111'],
-  [create(document.createElement('p'), ['one']), '<p>one</p>'],
-  [create(document.createElement('p'), [() => 'two']), '<p>two</p>'],
-  [() => create(document.createElement('p'), ['three']), '<p>three</p>'],
-  [() => create(document.createElement('p'), [() => 'four']), '<p>four</p>'],
+  [initFn(document.createElement('p'), ['one']), '<p>one</p>'],
+  [initFn(document.createElement('p'), [() => 'two']), '<p>two</p>'],
+  [() => initFn(document.createElement('p'), ['three']), '<p>three</p>'],
+  [() => initFn(document.createElement('p'), [() => 'four']), '<p>four</p>'],
   ['bbb', 'bbb'],
   ['bbb', 'bbb'],
 ])('init element with random child %p to be %p', (provided, expected) => {
   const element = document.createElement('div');
-  const result = create(element, [provided]);
+  const result = initFn(element, [provided]);
 
   expect(element.attributes.length).toBe(0);
   expect(element.childNodes.length).toBe(1);
@@ -288,7 +288,7 @@ test('init element with dynamic prop and child', () => {
   let child = 123;
 
   const element = document.createElement('div');
-  const result = create(element, [{title: () => title}, () => child]);
+  const result = initFn(element, [{title: () => title}, () => child]);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.element).toBe(element);
@@ -312,7 +312,7 @@ test('init element with dynamic prop and child', () => {
 
 test('init element with array of static children', () => {
   const element = document.createElement('div');
-  const result = create(element, [
+  const result = initFn(element, [
     'one',
     [111, 'aaa', 333],
     'two',
@@ -335,7 +335,7 @@ test('init element with array of static children', () => {
 
 test('init element with dynamic array of children', () => {
   const element = document.createElement('div');
-  const result = create(element, [[111, () => 'dynamic', () => [1, 2, 3]]]);
+  const result = initFn(element, [[111, () => 'dynamic', () => [1, 2, 3]]]);
 
   expect(result).toBeInstanceOf(Component);
   expect(result.element).toBe(element);

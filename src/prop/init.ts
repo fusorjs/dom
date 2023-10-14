@@ -34,7 +34,7 @@ const detectProperty = (value: any, name: string) => {
  * or
  * {handle, capture?, once?, passive?, signal?}
  */
-export const createProp = (element: Element, key: string, value: Prop) => {
+export const initProp = (element: Element, key: string, value: Prop) => {
   const split = key.split(propSplitter);
   const {length} = split;
   const [name, type] = split;

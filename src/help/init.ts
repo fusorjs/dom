@@ -1,8 +1,8 @@
-import {create, Options} from '../create';
-import {ElementCreator, TaggedCreator} from '../types';
+import {initFn, Options} from '../initFn';
+import {ElementInitter, TaggedInitter} from '../types';
 
 /** @deprecated */
-export const createElement: ElementCreator<Element> = (
+export const initElementHelper: ElementInitter<Element> = (
   namespace,
   tagName,
   args,
@@ -25,16 +25,16 @@ export const createElement: ElementCreator<Element> = (
     ? document.createElementNS(namespace, tagName, options)
     : document.createElement(tagName, options);
 
-  return create(element, args) as any;
+  return initFn(element, args) as any;
 };
 
-export const getTaggedCreator =
+export const getTaggedInitHelper =
   (namespace: string | undefined) =>
-  <T extends Element>(tagName: string): TaggedCreator<T> =>
+  <T extends Element>(tagName: string): TaggedInitter<T> =>
   (...args) =>
-    createElement(namespace, tagName, args) as any;
+    initElementHelper(namespace, tagName, args) as any;
 
-export const getTaggedCreatorMap = <M, K extends keyof M>(
+export const getTaggedInitMapHelper = <M, K extends keyof M>(
   getCreator: (tagName: K) => M[K],
   tagNames: readonly K[],
 ) => {

@@ -1,21 +1,25 @@
-import {TaggedCreator, CustomCreator} from '../types';
+import {TaggedInitter, CustomInitter} from '../types';
 
-import {createElement, getTaggedCreator, getTaggedCreatorMap} from './create';
+import {
+  initElementHelper,
+  getTaggedInitHelper,
+  getTaggedInitMapHelper,
+} from './init';
 import {htmlTagNames} from './constants';
 
-export const h: CustomCreator<HTMLElement> = (tagName, ...args) =>
-  createElement(undefined, tagName, args) as any;
+export const h: CustomInitter<HTMLElement> = (tagName, ...args) =>
+  initElementHelper(undefined, tagName, args) as any;
 
 const defaultButtonProps = {type: 'button'} as const; // single instance
 
-export const button: TaggedCreator<HTMLButtonElement> = (...args) =>
-  createElement(undefined, 'button', [
+export const button: TaggedInitter<HTMLButtonElement> = (...args) =>
+  initElementHelper(undefined, 'button', [
     defaultButtonProps,
     ...args, // todo unspread (make recursive create)
   ]) as any;
 
 type Result = {
-  [K in keyof HTMLElementTagNameMap]: TaggedCreator<HTMLElementTagNameMap[K]>;
+  [K in keyof HTMLElementTagNameMap]: TaggedInitter<HTMLElementTagNameMap[K]>;
 };
 
 export const {
@@ -130,7 +134,7 @@ export const {
   var: hvar,
   video,
   wbr,
-} = getTaggedCreatorMap<Result, keyof HTMLElementTagNameMap>(
-  getTaggedCreator(undefined),
+} = getTaggedInitMapHelper<Result, keyof HTMLElementTagNameMap>(
+  getTaggedInitHelper(undefined),
   htmlTagNames,
 );

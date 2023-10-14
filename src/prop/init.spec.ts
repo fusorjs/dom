@@ -1,5 +1,5 @@
 import {UpdatableProp} from '../types';
-import {createProp} from './create';
+import {initProp} from './init';
 
 const existing = 'existing';
 const existSet = 'existSet';
@@ -82,7 +82,7 @@ const createChecker = (
     expectSet: any[] | undefined,
     expectRes: boolean,
   ) => {
-    const result = createProp(
+    const result = initProp(
       element,
       name + options + (namespace ? '$' + namespace : ''),
       value,
@@ -152,11 +152,11 @@ describe('html', () => {
     ],
   )('throw %p %p %p', (key, value, expectType, expectMsg) => {
     expect(() => {
-      createProp(element, key, value);
+      initProp(element, key, value);
     }).toThrow(expectType);
 
     expect(() => {
-      createProp(element, key, value);
+      initProp(element, key, value);
     }).toThrow(expectMsg);
 
     expect(target.hasser).toHaveBeenCalledTimes(0);

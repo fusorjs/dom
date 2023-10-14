@@ -1,5 +1,5 @@
 export * from './types';
-export * from './create';
-export * from './component';
-export {defaultPropSplitter, setPropSplitter} from './prop/create';
-export * from './help/jsx';
+export {initFn, Options} from './initFn';
+export {Component} from './component';
+export {defaultPropSplitter, setPropSplitter} from './prop/init';
+export {initJsx as jsx} from './initJsx';

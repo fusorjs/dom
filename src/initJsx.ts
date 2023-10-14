@@ -1,10 +1,10 @@
-import {JsxCreator, Props} from '../types';
-import {create} from '../create';
+import {JsxInitter, Props} from './types';
+import {initFn} from './initFn';
 
-import {htmlTagNames, svgNamespace, svgTagNames} from './constants';
+import {htmlTagNames, svgNamespace, svgTagNames} from './help/constants';
 
 // todo optimize & refactor
-export const jsx: JsxCreator<Element> = (tagName, props, ...children) => {
+export const initJsx: JsxInitter<Element> = (tagName, props, ...children) => {
   if (typeof tagName === 'function') {
     return tagName({...props, children});
   }
@@ -18,14 +18,14 @@ export const jsx: JsxCreator<Element> = (tagName, props, ...children) => {
     ? document.createElementNS(svgNamespace, tagName, options)
     : document.createElement(tagName, options);
 
-  return create(element, [props, ...children]);
+  return initFn(element, [props, ...children]);
 };
 
 type DomElement = Element;
 
-export declare namespace jsx {
+export declare namespace initJsx {
   namespace JSX {
-    type Element = ReturnType<JsxCreator<DomElement>>;
+    type Element = ReturnType<JsxInitter<DomElement>>;
 
     interface IntrinsicElements {
       [tagName: string]: Props;

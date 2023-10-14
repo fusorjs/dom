@@ -1,13 +1,17 @@
-import {CustomCreator, TaggedCreator} from '../types';
+import {CustomInitter, TaggedInitter} from '../types';
 
-import {createElement, getTaggedCreator, getTaggedCreatorMap} from './create';
+import {
+  initElementHelper,
+  getTaggedInitHelper,
+  getTaggedInitMapHelper,
+} from './init';
 import {svgTagNames, svgNamespace} from './constants';
 
-export const s: CustomCreator<SVGElement> = (tagName, ...args) =>
-  createElement(svgNamespace, tagName, args) as any;
+export const s: CustomInitter<SVGElement> = (tagName, ...args) =>
+  initElementHelper(svgNamespace, tagName, args) as any;
 
 type Result = {
-  [K in keyof SVGElementTagNameMap]: TaggedCreator<SVGElementTagNameMap[K]>;
+  [K in keyof SVGElementTagNameMap]: TaggedInitter<SVGElementTagNameMap[K]>;
 };
 
 export const {
@@ -74,7 +78,7 @@ export const {
   tspan,
   use,
   view,
-} = getTaggedCreatorMap<Result, keyof SVGElementTagNameMap>(
-  getTaggedCreator(svgNamespace),
+} = getTaggedInitMapHelper<Result, keyof SVGElementTagNameMap>(
+  getTaggedInitHelper(svgNamespace),
   svgTagNames,
 );

@@ -2,10 +2,9 @@
 
 ## Todo
 
-- shx to rimraf?
 - optimize by diffing nodes for dynamic children array
-- Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` (https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments), speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
-- elements with event handler callbacks (onclick) should be static in typescript https://stackoverflow.com/q/71111120/7138254
+- Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` <https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments>, speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
+- elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>
 - Maybe:
   - Move create to Component static method?
   - Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
@@ -20,6 +19,10 @@
 ### Version 2.0.3
 
 - Added JSX support to `<Life>` component
+
+Internal changes that should not affect you:
+
+- Renamed: functions create... -> init..., type Creator -> Initter
 
 ### Version 2.0.2
 

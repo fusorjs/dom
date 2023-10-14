@@ -1,5 +1,5 @@
-import {DynamicChild, Prop, DynamicProps, Creator} from './types';
-import {createProp} from './prop/create';
+import {DynamicChild, Prop, DynamicProps, FnInitter} from './types';
+import {initProp} from './prop/init';
 import {Component} from './component';
 import {initChildFlatten} from './child/initFlatten';
 
@@ -7,7 +7,7 @@ export class Options {
   constructor(readonly options: ElementCreationOptions) {}
 }
 
-export const create: Creator = (element, args) => {
+export const initFn: FnInitter = (element, args) => {
   let dynamicProps: DynamicProps | undefined;
   let dynamicChildren: DynamicChild<Element>[] | undefined = [];
 
@@ -31,7 +31,7 @@ export const create: Creator = (element, args) => {
           continue;
         }
 
-        const dynamicProp = createProp(element, key, val as Prop);
+        const dynamicProp = initProp(element, key, val as Prop);
 
         if (dynamicProp) {
           if (dynamicProps) dynamicProps[key] = dynamicProp;

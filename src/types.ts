@@ -1,5 +1,5 @@
 import {Component} from './component';
-import {Options} from './create';
+import {Options} from './initFn';
 
 /* STATIC ARGS */
 
@@ -48,14 +48,14 @@ export interface Props {
 
 export type Arg = Props | Child;
 
-/* CREATORS */
+/* INITTERS */
 
-export interface Creator {
+export interface FnInitter {
   <E extends Element>(element: E, args: readonly StaticArg[]): E;
   <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
 }
 
-export interface ElementCreator<E extends Element> {
+export interface ElementInitter<E extends Element> {
   (
     namespace: string | undefined,
     tagName: string,
@@ -68,17 +68,17 @@ export interface ElementCreator<E extends Element> {
   ): Component<E>;
 }
 
-export interface CustomCreator<E extends Element> {
+export interface CustomInitter<E extends Element> {
   (tagName: string, ...args: readonly StaticArg[]): E;
   (tagName: string, ...args: readonly Arg[]): Component<E>;
 }
 
-export interface TaggedCreator<E extends Element> {
+export interface TaggedInitter<E extends Element> {
   (...args: readonly StaticArg[]): E;
   (...args: readonly Arg[]): Component<E>;
 }
 
-export interface JsxCreator<E extends Element> {
+export interface JsxInitter<E extends Element> {
   (
     tagName: string | Function,
     props?: StaticProps,
