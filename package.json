@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "test": "jest src",
-    "testc": "jest src --coverage",
+    "coverage": "jest src --coverage",
     "prettier": "prettier --write .",
     "start": "shx rm -rf dist/*  &&  NODE_ENV=development  tsc -p tsconfig.dist.json --watch",
     "build": "shx rm -rf dist/*  &&  NODE_ENV=production  tsc -p tsconfig.dist.json",
@@ -52,12 +52,12 @@
     }
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
-    "jest": "^29.5.0",
-    "jest-environment-jsdom": "^29.5.0",
-    "prettier": "^2.8.7",
+    "@types/jest": "^29.5.5",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^2.8.8",
     "shx": "^0.3.4",
-    "ts-jest": "^29.1.0",
-    "typescript": "^5.0.4"
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
   }
 }

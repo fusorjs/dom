@@ -38,7 +38,7 @@ const CountingButton = props => {
 document.body.append(Page().element);
 ```
 
-[Play with CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.ts)
+[Play with CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 ## Fusor is similar to React
 
@@ -95,7 +95,7 @@ Read the first [article](https://gist.github.com/isumix/48b9de9c40ca5498d10224ca
 
 ## Examples
 
-[Analog clock](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9)
+[Analog clock](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
 
 [Main usage scenarios](https://fusorjs.github.io/tutorial/): Routing, Request, Lifecycle, SVG, JSX...
 

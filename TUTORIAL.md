@@ -20,7 +20,7 @@ If you're going to use JSX, you will need a build tool, such as TypeScript
 }
 ```
 
-[Full JSX example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.ts)
+[Full JSX example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 ---
 
@@ -144,7 +144,7 @@ const CountingButton = props => {
 };
 ```
 
-[Play with CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.ts)
+[Play with CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 Follow this rules:
 
@@ -186,7 +186,7 @@ document.body.append(fusorComponent.element);
 
 [See the example](https://fusorjs.github.io/tutorial/#Jsx)
 
-[Play with analog clock example](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9)
+[Play with analog clock example](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
 
 ## Next
 
