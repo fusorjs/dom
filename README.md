@@ -18,7 +18,7 @@ const Page = () => (
   </div>
 );
 
-const CountingButton = props => {
+const CountingButton = (props) => {
   let state = props.init || 0;
 
   const component = (

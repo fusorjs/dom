@@ -8,7 +8,7 @@ import {emptyAttr} from './prop/share';
 
 type TestItem = [any, string, string?];
 
-export const getStringTestData = (all => {
+export const getStringTestData = ((all) => {
   return [
     // repeat all items
     ...all,

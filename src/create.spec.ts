@@ -213,7 +213,7 @@ describe('init element changing nested dynamic child', () => {
     ['bbb'],
     [two],
     ['last'],
-  ])('child %p toBe %p', val => {
+  ])('child %p toBe %p', (val) => {
     child = val;
     result.update();
 

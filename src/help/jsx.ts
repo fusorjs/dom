@@ -35,7 +35,7 @@ export declare namespace jsx {
 
 // Exclude<keyof SVGElementTagNameMap, keyof HTMLElementTagNameMap>
 const svgTagNamesSet = new Set(
-  svgTagNames.map(tagName => {
+  svgTagNames.map((tagName) => {
     if (htmlTagNames.includes(tagName as keyof HTMLElementTagNameMap)) {
       const newTagName = 's' + tagName;
 

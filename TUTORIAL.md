@@ -93,7 +93,7 @@ const htmlDivElement3 = (
   <div class="name">Attributes or properties that are not functions</div>
 );
 
-const htmlDivElement4 = <div click$e={event => 'Event handlers'} />;
+const htmlDivElement4 = <div click$e={(event) => 'Event handlers'} />;
 ```
 
 ### What makes a dynamic Fusor component
@@ -126,7 +126,7 @@ For edge cases, please refer to the full [reference](REFERENCE.md#property-and-a
 Create components by encapsulating Fusor components with properties and state inside functions
 
 ```jsx
-const CountingButton = props => {
+const CountingButton = (props) => {
   let state = props.init || 0;
 
   const component = (

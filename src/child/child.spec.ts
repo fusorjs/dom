@@ -25,16 +25,16 @@ test.each([
   [emptyChild, emptyChild],
   [123, 123],
   ['str', 'str'],
-  (e => [e, e])({}),
+  ((e) => [e, e])({}),
 ])('convert child provided %p expected %p', (provided, expected) => {
   expect(convertChild(provided)).toBe(expected);
 });
 
 test.each([
-  (v => [v, v])(document.createElement('div')),
-  (v => [v, v.element])(new Component(document.createElement('div'))),
-  (v => [v, document.createTextNode(getString(v))])('other'),
-  (v => [v, document.createTextNode(getString(v))])(() => {}),
+  ((v) => [v, v])(document.createElement('div')),
+  ((v) => [v, v.element])(new Component(document.createElement('div'))),
+  ((v) => [v, document.createTextNode(getString(v))])('other'),
+  ((v) => [v, document.createTextNode(getString(v))])(() => {}),
 ])('get child node provided %p expected %p', (provided, expected) => {
   if (expected instanceof Text)
     expect(getChildNode(provided)).toEqual(expected);
@@ -57,7 +57,7 @@ const getUpdatable = (e: any) =>
   Array.isArray(e)
     ? {
         arrayRef: e,
-        cache: e.map(e => (typeof e === 'function' ? e() : e)).map(getCache),
+        cache: e.map((e) => (typeof e === 'function' ? e() : e)).map(getCache),
       }
     : {
         cache: getCache(e),
