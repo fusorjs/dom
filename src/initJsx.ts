@@ -1,6 +1,6 @@
 import {JsxInitter, Props} from './types';
+import {Component} from './component';
 import {initFn} from './initFn';
-
 import {htmlTagNames, svgNamespace, svgTagNames} from './help/constants';
 
 // todo optimize & refactor
@@ -25,7 +25,7 @@ type DomElement = Element;
 
 export declare namespace initJsx {
   namespace JSX {
-    type Element = ReturnType<JsxInitter<DomElement>>;
+    type Element = DomElement | Component<DomElement>;
 
     interface IntrinsicElements {
       [tagName: string]: Props;

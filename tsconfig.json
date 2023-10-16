@@ -8,7 +8,9 @@
     "declaration": true,
     "skipLibCheck": true,
     "strict": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "jsx": "react",
+    "jsxFactory": "jsx"
   },
   "include": ["src"]
 }

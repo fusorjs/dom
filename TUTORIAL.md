@@ -8,7 +8,7 @@ npm install @fusorjs/dom
 
 ## Configure
 
-If you're going to use JSX, you will need a build tool, such as TypeScript
+If you are going to use JSX, you will need a build tool. For example, TypeScript will suffice
 
 ```json
 // tsconfig.json
@@ -20,13 +20,13 @@ If you're going to use JSX, you will need a build tool, such as TypeScript
 }
 ```
 
-[Full JSX example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
+[JSX example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 ---
 
-However, you can completely do without JSX or any build tools by using a more robust [functional notation](REFERENCE.md#functional-notation) that is fully interchangeable with JSX
+However, you can completely do without JSX or any build tools by using a more robust [functional notation](REFERENCE.md#functional-notation) that is interchangeable with JSX
 
-[Full functional notation example](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
+[Functional notation example](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
 
 ## Creating DOM
 
@@ -119,7 +119,7 @@ const fusorComponent3 = (
 />
 ```
 
-For edge cases, please refer to the full [reference](REFERENCE.md#property-and-attribute-values)
+For edge cases, please refer to the full [reference](REFERENCE.md#dom-property-and-attribute-values)
 
 ## Making reusable components
 
@@ -144,7 +144,7 @@ const CountingButton = (props) => {
 };
 ```
 
-[Play with CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
+[See CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 Follow this rules:
 
@@ -154,11 +154,10 @@ Follow this rules:
 
 ## Component lifecycle
 
-To help catch lifecycle events, Fusor has a `fusor-life` [custom element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks)
+To help catch lifecycle events, Fusor has a `<fusor-life>` [custom element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks)
 
 ```jsx
-import {jsx} from '@fusorjs/dom';
-import '@fusorjs/dom/life'; // register fusor-life
+import '@fusorjs/dom/life'; // register fusor-life once
 
 let count = 0;
 let timerId: NodeJS.Timer | undefined;
@@ -184,9 +183,9 @@ const fusorComponent = (
 document.body.append(fusorComponent.element);
 ```
 
-[See the example](https://fusorjs.github.io/tutorial/#Jsx)
+[See this example](https://fusorjs.github.io/tutorial/#Jsx)
 
-[Play with analog clock example](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
+[Svg analog clock example](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
 
 ## Next
 

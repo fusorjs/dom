@@ -1,6 +1,6 @@
 # Fusor Reference
 
-This document is still **under construction** and contains mixed examples of both JSX and function notation, although they are interchangeable
+This document contains mixed examples of both JSX and function notation, although they are interchangeable
 
 ## DOM children values
 
@@ -84,13 +84,16 @@ While JSX allows for better visual separation between JavaScript and HTML, there
 
 > The visual separation in React can be hindered by the use of mangled camelCase prop names
 
-Functional notation vs JSX:
+Functional notation is better than JSX in the following ways:
 
-- Faster, lighter, typechecking is better
+- Faster, lighter, flexible
+- Typechecks automatically between static `Element` and dynamic `Component<Element>`
 - No need for a build/compile step/tool
 - Just JavaScript, no new syntax, natural comments
 - You have the ability to use multiple props objects and children arrays in any order, without the need for `...spread`-ing
 - You don't need to capitalize your component names or have a single props object argument in the constructor, although it's recommended for interoperability with JSX
+
+> While functional notation and JSX are fully interchangeable within Fusor components, it's important to pay attention to how you pass `children` to your components if you want both systems to be compatible, see: [jsx-fn-interoperability.spec.tsx]
 
 ```js
 import {button, div, p, h} from '@fusorjs/dom/html';

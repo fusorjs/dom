@@ -16,13 +16,17 @@
 
 ## Done
 
-### Version 2.0.3
+### Version 2.1.1
 
 - Added JSX support to `<Life>` component
 
+Breaking changes:
+
+- Jsx return type fixed to `DomElement | Component<DomElement>` insted of just `Component<DomElement>`
+
 Internal changes that should not affect you:
 
-- Renamed: functions create... -> init..., type Creator -> Initter
+- Renamed functions and types create... -> init...
 
 ### Version 2.0.2
 
