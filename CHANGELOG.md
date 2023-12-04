@@ -8,17 +8,33 @@
 - Maybe:
   - Move create to Component static method?
   - Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
+  - implement style, object, data attributes
 - replace only range for dynamic children array (using node start/end indexes), (are they fragments?)
-- support nested children arrays, not just one level (fix html button)
-- implement style, object, data attributes
 - createAttribute object and update it directly
 - refactor tests
+- creator returns two [element, component?] independent trees, so we can omit creating excessive layers of components when only deep child is dynamic
 
 ## Done
+
+### Version 2.2.1
+
+- new `$e$update` option to update target component after the event handler completes
+- new `mount` property to trigger the provided callback when element connects to the DOM. Callback also has self component reference if it is a dynamic component. Return function to execute when disconnect occurs.
+- improved docs
+
+Deprecation:
+
+- `Life` and `<fusor-life>` in favour of `mount`.
+
+Breaking changes:
+
+- Removed default `button({type="button"})` from functional notation, in JSX it wasn't introduced.
+- Deprecated `Options` class, use `is` prop instead.
 
 ### Version 2.1.1
 
 - Added JSX support to `<Life>` component
+- Added support for nested child arrays flattening
 
 Breaking changes:
 
@@ -64,7 +80,18 @@ Component life-cycle methods will not be implemented as they natively implemente
 - MutationObserver does not have a way to detect its target unmounting.
 - WeakRef is not reliable as it could never trigger.
 
-Context (as in React) will not be implemented. Unless solid proves will be presented that we absolutely need it and cannot live without it. You can use props or imported/exported/enclosed/global variables instead. So that the context will be explicit, not hidden. Also the context needed in user components, not in html/svg components in what Fuser is concerned. Therefore the contex should be implemented elsewhere if needed.
+#### Context (as in React)
+
+The context will not be implemented unless solid evidence will be provided that we absolutely need it and cannot live without it.
+The context needed in user components, not in html/svg components in which Fuser is concerned about.
+Therefore the contex should be implemented outside of Fusor if needed.
+
+The posible context implementations:
+
+- Module variables could be export/import-ed.
+- CSS variables could be used for themes.
+- Pass `context` property object explicitly.
+- Use a context monad.
 
 ### Version 1
 

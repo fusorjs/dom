@@ -1,5 +1,11 @@
 import {Component} from './component';
-import {Options} from './initFn';
+
+export interface Distinct<Name> {
+  __DISTINCT: Name;
+}
+
+export type NamespaceUri = string & Distinct<'NamespaceUri'>;
+export type TagName = string & Distinct<'TagName'>;
 
 /* STATIC ARGS */
 
@@ -20,7 +26,7 @@ export type StaticProp =
   | {apply?: never; readonly [k: string]: any}
   | {call?: never; readonly [k: string]: any};
 
-export type SingleStaticChild = Primitive | Element | Options; // ? deprecate ?
+export type SingleStaticChild = Primitive | Element;
 
 export type StaticChild = SingleStaticChild | readonly SingleStaticChild[];
 
@@ -50,6 +56,13 @@ export type Arg = Props | Child;
 
 /* INITTERS */
 
+export type LifeUnmount = () => void;
+export type LifeMount = (self?: Component<Element>) => LifeUnmount | undefined;
+export interface LifeOptions {
+  mount?: LifeMount;
+  unmount?: LifeUnmount;
+}
+
 export interface FnInitter {
   <E extends Element>(element: E, args: readonly StaticArg[]): E;
   <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
@@ -57,13 +70,13 @@ export interface FnInitter {
 
 export interface ElementInitter<E extends Element> {
   (
-    namespace: string | undefined,
-    tagName: string,
+    namespace: NamespaceUri | undefined,
+    tagName: TagName,
     args: readonly StaticArg[],
   ): E;
   (
-    namespace: string | undefined,
-    tagName: string,
+    namespace: NamespaceUri | undefined,
+    tagName: TagName,
     args: readonly Arg[],
   ): Component<E>;
 }
@@ -80,12 +93,12 @@ export interface TaggedInitter<E extends Element> {
 
 export interface JsxInitter<E extends Element> {
   (
-    tagName: string | Function,
+    tagName: TagName | Function,
     props?: StaticProps,
     ...children: readonly StaticChild[]
   ): E;
   (
-    tagName: string | Function,
+    tagName: TagName | Function,
     props?: Props,
     ...children: readonly Child[]
   ): Component<E>;

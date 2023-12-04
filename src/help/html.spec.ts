@@ -61,13 +61,12 @@ test('static button', () => {
   const result = button({aaa: '111'}, 'bbb');
 
   expect(result).toBeInstanceOf(HTMLButtonElement);
-  expect(result.attributes.length).toBe(2);
+  expect(result.attributes.length).toBe(1);
   expect(result.childNodes.length).toBe(1);
-  expect(result.outerHTML).toBe('<button type="button" aaa="111">bbb</button>');
+  expect(result.outerHTML).toBe('<button aaa="111">bbb</button>');
 });
 
 test('correct typescript typings', () => {
-  expect(button().type).toBe('button'); // default override
   expect(form().enctype).toBe('application/x-www-form-urlencoded');
   expect(form().method).toBe('get');
   expect(select().multiple).toBe(false);
@@ -196,14 +195,14 @@ test('toggle button color', () => {
 
   expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="">Clicked 0 times!</button>',
+    '<button style="">Clicked 0 times!</button>',
   );
 
   counterElement.click();
   counterElement.click();
 
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="">Clicked 2 times!</button>',
+    '<button style="">Clicked 2 times!</button>',
   );
 
   toggleElement.click();
@@ -213,7 +212,7 @@ test('toggle button color', () => {
 
   expect(toggleElement.innerHTML).toBe('On');
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="color: green;">Clicked 5 times!</button>',
+    '<button style="color: green;">Clicked 5 times!</button>',
   );
 
   toggleElement.click();
@@ -221,7 +220,7 @@ test('toggle button color', () => {
 
   expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe(
-    '<button type="button" style="">Clicked 6 times!</button>',
+    '<button style="">Clicked 6 times!</button>',
   );
 
   toggleElement.click();

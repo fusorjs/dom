@@ -1,4 +1,4 @@
-import {CustomInitter, TaggedInitter} from '../types';
+import {CustomInitter, TagName, TaggedInitter} from '../types';
 
 import {
   initElementHelper,
@@ -8,7 +8,7 @@ import {
 import {svgTagNames, svgNamespace} from './constants';
 
 export const s: CustomInitter<SVGElement> = (tagName, ...args) =>
-  initElementHelper(svgNamespace, tagName, args) as any;
+  initElementHelper(svgNamespace, tagName as TagName, args) as any;
 
 type Result = {
   [K in keyof SVGElementTagNameMap]: TaggedInitter<SVGElementTagNameMap[K]>;

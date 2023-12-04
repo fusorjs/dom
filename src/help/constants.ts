@@ -1,3 +1,5 @@
+import {NamespaceUri} from '../types';
+
 export const htmlTagNames: readonly (keyof HTMLElementTagNameMap)[] = [
   'a',
   'abbr',
@@ -178,4 +180,4 @@ export const svgTagNames: readonly (keyof SVGElementTagNameMap)[] = [
   'view',
 ];
 
-export const svgNamespace = 'http://www.w3.org/2000/svg';
+export const svgNamespace = 'http://www.w3.org/2000/svg' as NamespaceUri;

@@ -2,31 +2,24 @@ import {DynamicChild, Prop, DynamicProps, FnInitter} from './types';
 import {initProp} from './prop/init';
 import {Component} from './component';
 import {initChildFlatten} from './child/initFlatten';
-
-export class Options {
-  constructor(readonly options: ElementCreationOptions) {}
-}
+import {elementComponent} from './element-component';
 
 export const initFn: FnInitter = (element, args) => {
+  const {length} = args;
+
+  if (length === 0) return element; // static
+
   let dynamicProps: DynamicProps | undefined;
   let dynamicChildren: DynamicChild<Element>[] | undefined = [];
-
-  const {length} = args;
 
   for (let index = 0; index < length; index++) {
     const arg = args[index];
 
-    // skip options
-    if (arg instanceof Options) {
-      // ! Do not throw, as arrays could be reused, so we won't have to mutate/re-create them !
-      // if (index !== 0) throw new Error('Options must be a first child');
-    }
-
     // init props
-    else if (arg?.constructor === Object) {
+    if (arg?.constructor === Object) {
       for (const [key, val] of Object.entries(arg)) {
-        // for compatibility with JSX, use <Life> component in JSX instead of <fisor-life>
         if (key === 'children') {
+          // for compatibility with JSX
           initChildFlatten(element, val, dynamicChildren);
           continue;
         }
@@ -48,7 +41,15 @@ export const initFn: FnInitter = (element, args) => {
 
   if (dynamicChildren.length === 0) dynamicChildren = undefined;
 
-  return dynamicProps || dynamicChildren
-    ? new Component(element, dynamicProps, dynamicChildren) // dynamic
-    : element; // static
+  // * Static Element
+
+  if (!(dynamicProps || dynamicChildren)) return element;
+
+  // * Dynamic Component
+
+  const component = new Component(element, dynamicProps, dynamicChildren);
+
+  elementComponent.set(element, component);
+
+  return component;
 };

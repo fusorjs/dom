@@ -1,106 +1,67 @@
 # Fusor
 
-Fusor is a simple JavaScript library that helps declaratively create and update DOM elements
+Fusor is a simple JavaScript library that declaratively manages DOM
 
-> It combines or **fuses** elements within the DOM
+> It **fuses** elements
 
 ## Example
 
+[Playground](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
+
 ```jsx
-const CountingButton = (props: {init?: number}) => {
-  let state = props.init || 0;
+const CountingButton = ({init: count = 0}) => (
+  <button click$e$update={() => (count += 1)}>
+    Clicked {() => count} times
+  </button>
+);
 
-  const component = (
-    <button
-      click$e={() => {
-        state += 1;
-        component.update();
-      }}
-    >
-      Clicked {() => state} times
-    </button>
-  );
-
-  return component;
-};
-
-const Page = () => (
+const App = () => (
   <div>
-    <p>Hello World</p>
+    <p>Hello Fusor</p>
     <CountingButton />
     <CountingButton init={22} />
     <CountingButton init={333} />
   </div>
 );
 
-document.body.append(Page().element);
+document.body.append(App().element);
 ```
 
-[See CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
+The `click$e$update` means:
 
-## Fusor is similar to React
+- `click`
+- `e`vent handler
+- `update` DOM when handler completes
+- `$` separator symbol
+- [full reference](docs/reference.md#keys)
 
-Fusor was inspired by React, and they both share the same ideas:
+## Fusor vs React
 
-- Composable components
-- One-way data flow
-- JSX
-
-## Fusor is different from React
-
-The fundamental difference lies in component lifecycle. Unlike React, Fusor better applies the principle of _separation of concerns_ or _single-responsibility principle_
-
-### Separation of concerns
-
-| Concern                  | Fusor     | React                        |
-| ------------------------ | --------- | ---------------------------- |
-| Component creation       | create()  | create_update()              |
-| Component state changing | state = x | setState(x); create_update() |
-| Component updating       | update()  | setState(x); create_update() |
-
-### Consequences of separation of concerns
-
-| Concern        | Fusor                                    | React                                            |
-| -------------- | ---------------------------------------- | ------------------------------------------------ |
-| Component data | Created once on initialization           | Recreated on initialization and every update     |
-| Side effects   | Simply set variables and call update     | Complex and verbose _hooks_ logic                |
-| Updates        | Explicitly update what and when you want | Implicit, heavy, diffing, new _concurrent_ logic |
-
-### Other differences
-
-| Feature                | Fusor             | React         |
-| ---------------------- | ----------------- | ------------- |
-| DOM                    | Real              | Virtual       |
-| Events                 | Native            | Synthetic     |
-| Lifecycle              | Native            | Complex logic |
-| Attribute names        | W3C Specification | Mangled       |
-| Web components support | Complete          | Incomplete    |
+Check [Fusor vs React](docs/fusor-vs-react.md) comparison
 
 ## Why Fusor
 
 - It is simple, lightweight, explicit, flexible and compatible
 - It extensively utilizes modern JavaScript and browser features
-- It follows the principle of doing one thing and doing it well, which is managing DOM elements
+- It follows the principle of doing one thing and doing it well (managing DOM elements)
 - It has **zero** dependencies and is only around **2kB** in size
 
 ## Documentation
 
-Start with this fine [TUTORIAL](TUTORIAL.md)
+- [TUTORIAL](docs/tutorial.md)
+- [Fusor vs React](docs/fusor-vs-react.md)
+- [Reference](docs/reference.md)
+- [Functional Notation](docs/functional-notation.md)
+- [Optimisation](docs/optimisation.md)
 
-For more in-depth information, please refer to this [REFERENCE](REFERENCE.md)
+## Applications
 
-Read the first [article](https://dev.to/isumix/i-wanted-to-improve-react-1ihm) about Fusor
-
-## Examples
-
-[Svg analog clock](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
-
-[Main usage scenarios](https://fusorjs.github.io/tutorial/): Routing, Request, Lifecycle, SVG, JSX, etc...
-
-[Todo-list application](https://github.com/fusorjs/todomvc#readme)
+- [Tutorial](https://fusorjs.github.io/tutorial/) - routing, request, lifecycle, SVG, JSX...
+- [Todo-list](https://github.com/fusorjs/todomvc#readme)
+- [SVG analog clock](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
 
 ## Contribute
 
 Your contributions are welcome
 
-Please see [CHANGELOG](CHANGELOG.md) for details
+See [CHANGELOG](CHANGELOG.md) for details

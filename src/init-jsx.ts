@@ -2,24 +2,7 @@ import {JsxInitter, Props} from './types';
 import {Component} from './component';
 import {initFn} from './initFn';
 import {htmlTagNames, svgNamespace, svgTagNames} from './help/constants';
-
-// todo optimize & refactor
-export const initJsx: JsxInitter<Element> = (tagName, props, ...children) => {
-  if (typeof tagName === 'function') {
-    return tagName({...props, children});
-  }
-
-  const is = props?.is;
-  let options: ElementCreationOptions | undefined;
-
-  if (typeof is === 'string') options = {is};
-
-  const element = svgTagNamesSet.has(tagName)
-    ? document.createElementNS(svgNamespace, tagName, options)
-    : document.createElement(tagName, options);
-
-  return initFn(element, [props, ...children]);
-};
+import {initElement} from './init-element';
 
 type DomElement = Element;
 
@@ -28,10 +11,28 @@ export declare namespace initJsx {
     type Element = DomElement | Component<DomElement>;
 
     interface IntrinsicElements {
+      // todo is: string;
+      // todo mount: string;
       [tagName: string]: Props;
     }
   }
 }
+
+// todo optimize & refactor
+export const initJsx: JsxInitter<Element> = (tagName, props, ...children) => {
+  if (typeof tagName === 'function') {
+    return tagName({...props, children});
+  }
+
+  const isSvgTag = svgTagNamesSet.has(tagName);
+  const element = initElement(
+    isSvgTag ? svgNamespace : undefined,
+    tagName,
+    props,
+  );
+
+  return initFn(element, [props, ...children]);
+};
 
 // Exclude<keyof SVGElementTagNameMap, keyof HTMLElementTagNameMap>
 const svgTagNamesSet = new Set(

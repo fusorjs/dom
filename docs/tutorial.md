@@ -20,13 +20,13 @@ If you are going to use JSX, you will need a build tool. For example, TypeScript
 }
 ```
 
-[JSX example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
+[JSX Playground](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 ---
 
-However, you can completely do without JSX or any build tools by using a more robust [functional notation](REFERENCE.md#functional-notation) that is interchangeable with JSX
+However, you can completely go without JSX or any build tools by using [functional notation](functional-notation.md) that is interchangeable with JSX
 
-[Functional notation example](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
+[FN Playground](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
 
 ## Creating DOM
 
@@ -63,16 +63,13 @@ setInterval(() => {
 
 ## Fusor component
 
-```ts
+```js
 class Component {
-  // Never changes
-  private domElement: Element;
+  // Return DOM Element of this Component
+  get element();
 
-  // Return domElement
-  get element(): Element;
-
-  // Update the attributes and children of the domElement, return this
-  update(): Component;
+  // Update the Element's attributes and children recursively
+  update();
 }
 ```
 
@@ -85,7 +82,7 @@ const htmlDivElement1 = <div>Children that are not functions</div>;
 
 const htmlDivElement2 = (
   <div>
-    Children that are other <b>static</b> DOM elements {htmlDivElement1}
+    Children made of other <b>static</b> DOM elements {htmlDivElement1}
   </div>
 );
 
@@ -108,7 +105,7 @@ const fusorComponent3 = (
 );
 ```
 
-## DOM attributes, properties, events
+## Keys: attributes, properties, events
 
 ```jsx
 <div
@@ -119,11 +116,13 @@ const fusorComponent3 = (
 />
 ```
 
-For edge cases, please refer to the full [reference](REFERENCE.md#dom-property-and-attribute-values)
+See full [reference](reference.md#keys) on keys
 
 ## Making reusable components
 
-Create components by encapsulating Fusor components with properties and state inside functions
+Create components by encapsulating Fusor components with properties and state in functions
+
+[Playground](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 ```jsx
 const CountingButton = (props) => {
@@ -144,49 +143,61 @@ const CountingButton = (props) => {
 };
 ```
 
-[See CountingButton example](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
+The above could be shortened to:
 
-Follow this rules:
+```jsx
+const CountingButton = ({init: count = 0}) => (
+  <button click$e$update={() => (count += 1)}>
+    Clicked {() => count} times
+  </button>
+);
+```
 
-- Fusor component (HTML/SVG/custom-element tag) names start with lowercase letters
+## Component rules
+
+- Fusor component names (HTML/SVG) start with lowercase letters
 - Your component names must be capitalized
 - Your components can take a single `props` object argument
 
 ## Component lifecycle
 
-To help catch lifecycle events, Fusor has a `<fusor-life>` [custom element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks)
+1. Initialization of component
+2. Mount to DOM
+3. Update DOM
+4. Unmount from DOM
 
 ```jsx
-import '@fusorjs/dom/life'; // register fusor-life once
-
-let count = 0;
-let timerId: NodeJS.Timer | undefined;
-
-const fusorComponent = (
-  <fusor-life
-    // mount
-    connected$e={() => {
-      timerId = setInterval(() => {
+const CounterComponent = (count = 0) => (
+  <div
+    // 2. Mount
+    mount={(self) => {
+      const timerId = setInterval(() => {
         count++;
-        fusorComponent.update();
+        self.update(); // 3. Update
       }, 1000);
-    }}
-    // unmount
-    disconnected$e={() => {
-      clearInterval(timerId);
+
+      // 4. Unmount
+      return () => clearInterval(timerId);
     }}
   >
     Since mounted {() => count} seconds elapsed
-  </fusor-life>
+  </div>
 );
 
-document.body.append(fusorComponent.element);
+// 1. Initialization
+const component = CounterComponent();
+
+document.body.append(component.element);
 ```
 
-[See this example](https://fusorjs.github.io/tutorial/#Jsx)
+[Lifecycle example](https://fusorjs.github.io/tutorial/#Jsx)
 
-[Svg analog clock example](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
+[SVG analog clock](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
 
 ## Next
 
-For more in-depth information, please refer to this [REFERENCE](REFERENCE.md)
+- [Tutorial App](https://fusorjs.github.io/tutorial/) - routing, request, lifecycle, SVG, JSX...
+- [Reference](reference.md)
+- [Fusor vs React](fusor-vs-react.md)
+- [Functional Notation](functional-notation.md)
+- [Optimisation](optimisation.md)

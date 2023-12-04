@@ -1,4 +1,4 @@
-import {TaggedInitter, CustomInitter} from '../types';
+import {TaggedInitter, CustomInitter, TagName} from '../types';
 
 import {
   initElementHelper,
@@ -8,15 +8,7 @@ import {
 import {htmlTagNames} from './constants';
 
 export const h: CustomInitter<HTMLElement> = (tagName, ...args) =>
-  initElementHelper(undefined, tagName, args) as any;
-
-const defaultButtonProps = {type: 'button'} as const; // single instance
-
-export const button: TaggedInitter<HTMLButtonElement> = (...args) =>
-  initElementHelper(undefined, 'button', [
-    defaultButtonProps,
-    ...args, // todo unspread (make recursive create)
-  ]) as any;
+  initElementHelper(undefined, tagName as TagName, args) as any;
 
 type Result = {
   [K in keyof HTMLElementTagNameMap]: TaggedInitter<HTMLElementTagNameMap[K]>;
@@ -37,7 +29,7 @@ export const {
   blockquote,
   body,
   br,
-  button: hbutton,
+  button,
   canvas,
   caption,
   cite,

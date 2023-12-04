@@ -138,17 +138,17 @@ describe('html', () => {
   test.each(
     // prettier-ignore
     [
-      [ '$'                 , ''       , TypeError , `empty name in key 1 "$"`                                             ],
-      [ 'prop$p$exta'       , ''       , TypeError , `excess option in property key 2 "prop$p$exta"`                       ],
-      [ 'attr$a$exta'       , ''       , TypeError , `excess option in attribute key 2 "attr$a$exta"`                      ],
-      [ 'attr$an'           , ''       , TypeError , `missing namespace option in attribute key 3 "attr$an"`               ],
-      [ 'attr$an$ns$exta'   , ''       , TypeError , `excess option in attribute key 4 "attr$an$ns$exta"`                  ],
-      [ 'event$e'           , ''       , TypeError , `not function in event "event$e"`                                     ],
-      [ 'event$e$capture'   , ''       , TypeError , `not function in event "event$e$capture"`                             ],
-      [ 'event$e$once'      , ''       , TypeError , `not function in event "event$e$once"`                                ],
-      [ 'event$e$unknown'   , () => {} , TypeError , `out of capture|once|passive option in event key 3 "event$e$unknown"` ],
-      [ 'event$e$once$once' , () => {} , TypeError , `same option declared twice in event key 4 "event$e$once$once"`       ],
-      [ 'type$x'            , () => {} , TypeError , `out of a|an|p|e type in key 2 "type$x"`                              ],
+      [ '$'                 , ''       , TypeError , `empty name in key 1 "$"`                                                    ],
+      [ 'prop$p$exta'       , ''       , TypeError , `excess option in property key 2 "prop$p$exta"`                              ],
+      [ 'attr$a$exta'       , ''       , TypeError , `excess option in attribute key 2 "attr$a$exta"`                             ],
+      [ 'attr$an'           , ''       , TypeError , `missing namespace option in attribute key 3 "attr$an"`                      ],
+      [ 'attr$an$ns$exta'   , ''       , TypeError , `excess option in attribute key 4 "attr$an$ns$exta"`                         ],
+      [ 'event$e'           , ''       , TypeError , `not function in event "event$e"`                                            ],
+      [ 'event$e$capture'   , ''       , TypeError , `not function in event "event$e$capture"`                                    ],
+      [ 'event$e$once'      , ''       , TypeError , `not function in event "event$e$once"`                                       ],
+      [ 'event$e$unknown'   , () => {} , TypeError , `out of capture|once|passive|update option in event key 3 "event$e$unknown"` ],
+      [ 'event$e$once$once' , () => {} , TypeError , `same option declared twice in event key 4 "event$e$once$once"`              ],
+      [ 'type$x'            , () => {} , TypeError , `out of a|an|p|e type in key 2 "type$x"`                                     ],
     ],
   )('throw %p %p %p', (key, value, expectType, expectMsg) => {
     expect(() => {

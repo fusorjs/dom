@@ -1,5 +1,6 @@
 import {Prop, UpdatableProp} from '../types';
 import {getPropertyDescriptor, getString} from '../share';
+import {elementComponent} from '../element-component';
 
 import {convertAttr, emptyAttr} from './share';
 
@@ -30,11 +31,15 @@ const detectProperty = (value: any, name: string) => {
  * attribute$a
  * "xmlns:xlink$a$http://www.w3.org/1999/xlink" - attribute
  * event$e
- * event$e$capture$once$passive
+ * event$e$capture$once$passive$update
  * or
  * {handle, capture?, once?, passive?, signal?}
  */
 export const initProp = (element: Element, key: string, value: Prop) => {
+  if (key === 'is') return;
+  if (key === 'mount') return;
+  if (key === 'umount') throw TypeError(`"umount" property not supported`);
+
   const split = key.split(propSplitter);
   const {length} = split;
   const [name, type] = split;
@@ -156,15 +161,35 @@ export const initProp = (element: Element, key: string, value: Prop) => {
       if (length === 2) {
         if (typeof value !== 'function') {
           if (value?.constructor === Object) {
-            const {handle} = value as any;
+            const handle = (value as any)
+              .handle as EventListenerOrEventListenerObject;
 
             if (
               typeof handle === 'function' ||
               typeof handle?.handleEvent === 'function'
             ) {
+              // if ((value as any).update) {
+              //   const handler = handle;
+              //   handle = (...args: any[]) => {
+              //     (handler?.handleEvent || handler)(...args);
+              //     component.update();
+              //   };
+              //   component.__hasUpdatableEvents = true;
+              // }
+
               element.addEventListener(
                 name,
-                handle,
+                (value as any).update
+                  ? 'handleEvent' in handle
+                    ? (event: Event) => {
+                        handle.handleEvent(event);
+                        elementComponent.get(element)?.update();
+                      }
+                    : (event: Event) => {
+                        handle(event);
+                        elementComponent.get(element)?.update();
+                      }
+                  : handle,
                 value as AddEventListenerOptions,
               );
 
@@ -191,10 +216,13 @@ export const initProp = (element: Element, key: string, value: Prop) => {
         if (typeof value !== 'function')
           throw new TypeError(`not function in event "${key}"`);
 
-        const options: Exclude<AddEventListenerOptions, 'signal'> = {
+        const options: Exclude<AddEventListenerOptions, 'signal'> & {
+          update?: true;
+        } = {
           capture: undefined,
           once: undefined,
           passive: undefined,
+          update: undefined,
         };
 
         for (let i = 2; i < length; i++) {
@@ -202,7 +230,7 @@ export const initProp = (element: Element, key: string, value: Prop) => {
 
           if (!(o in options))
             throw new TypeError(
-              `out of capture|once|passive option in event key ${
+              `out of capture|once|passive|update option in event key ${
                 i + 1
               } "${key}"`,
             );
@@ -215,7 +243,16 @@ export const initProp = (element: Element, key: string, value: Prop) => {
           (options as any)[o] = true;
         }
 
-        element.addEventListener(name, value, options);
+        element.addEventListener(
+          name,
+          options.update
+            ? (event: Event) => {
+                value(event);
+                elementComponent.get(element)?.update();
+              }
+            : value,
+          options,
+        );
       }
 
       break;

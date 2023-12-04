@@ -1,5 +1,6 @@
-import {initFn, Options} from '../initFn';
-import {ElementInitter, TaggedInitter} from '../types';
+import {initElement} from '../init-element';
+import {initFn} from '../initFn';
+import {ElementInitter, NamespaceUri, TagName, TaggedInitter} from '../types';
 
 /** @deprecated */
 export const initElementHelper: ElementInitter<Element> = (
@@ -7,32 +8,21 @@ export const initElementHelper: ElementInitter<Element> = (
   tagName,
   args,
 ) => {
-  let options: ElementCreationOptions | undefined;
-
-  /* Using Options class is a better aproach */
-  // const arg = args[0];
-  // if (arg?.constructor === Object) {
-  //   const {is} = arg as any;
-  //   if (typeof is === 'string') options = {is};
-  // }
-
-  // Why two args? See: defaultButtonProps = {type: 'button'} in html.ts. But do not rely on the second option as this probably will change.
-  const [arg0, arg1] = args;
-  if (arg0 instanceof Options) options = arg0.options;
-  if (arg1 instanceof Options) options = arg1.options;
-
-  const element = namespace
-    ? document.createElementNS(namespace, tagName, options)
-    : document.createElement(tagName, options);
+  const [props] = args as any;
+  const element = initElement(
+    namespace,
+    tagName,
+    props?.constructor === Object ? props : undefined,
+  );
 
   return initFn(element, args) as any;
 };
 
 export const getTaggedInitHelper =
-  (namespace: string | undefined) =>
+  (namespace: NamespaceUri | undefined) =>
   <T extends Element>(tagName: string): TaggedInitter<T> =>
   (...args) =>
-    initElementHelper(namespace, tagName, args) as any;
+    initElementHelper(namespace, tagName as TagName, args) as any;
 
 export const getTaggedInitMapHelper = <M, K extends keyof M>(
   getCreator: (tagName: K) => M[K],
