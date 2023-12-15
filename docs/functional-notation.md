@@ -10,7 +10,7 @@ Functional notation is better than JSX in the following ways:
 - Typechecks automatically between static `Element` and dynamic `Component<Element>`
 - No need for a build/compile step/tool
 - Just JavaScript, no new syntax
-- natural comments, try in JSX comment a block of code that contains `{/* comment */}`
+- Natural comments, try in JSX comment a block of code that contains `{/* comment */}`
 - You have the ability to use multiple props objects and children arrays in any order, without the need for `...spread`-ing
 - You don't need to capitalize your component names or have a single props object argument in the constructor, although it's recommended for interoperability with JSX
 

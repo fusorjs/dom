@@ -41,7 +41,7 @@ Check [Fusor vs React](docs/fusor-vs-react.md) comparison
 
 ## Why Fusor
 
-- It is simple, lightweight, explicit, flexible and compatible
+- It is **simple**, lightweight, explicit, flexible and compatible
 - It extensively utilizes modern JavaScript and browser features
 - It follows the principle of doing one thing and doing it well (managing DOM elements)
 - It has **zero** dependencies and is only around **2kB** in size

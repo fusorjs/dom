@@ -25,21 +25,12 @@ The fundamental difference lies in the separation of concerns within the compone
 |                     | Fusor                                   | React                                                       |
 | ------------------- | --------------------------------------- | ----------------------------------------------------------- |
 | Component data      | Created once on initialization          | Created on initialization and **recreated** on every update |
-| Side effects        | Normal JavaScript flow                  | Complex and verbose _hooks_ logic                           |
-| Component updates   | Explicit, update what and when you need | Implicit and heavyweight                                    |
-| Component functions | Pure                                    | Not pure, React Context is required and mutated             |
+| Side effects        | Normal JavaScript flow                  | Complex and verbose _hooks_ mechanics                       |
+| Component updates   | Explicit, update what and when you need | Implicit, complex                                           |
+| Component functions | Pure                                    | Context is required                                         |
 | Library size (gz)   | ~2kB                                    | ~44kB                                                       |
 
-## Lifecycle
-
-|            | Fusor   | React                                                                                                |
-| ---------- | ------- | ---------------------------------------------------------------------------------------------------- |
-| Creating   | create  |                                                                                                      |
-| Mounting   | mount   | constructor, getDerivedStateFromProps, render, componentDidMount                                     |
-| Updating   | update  | getDerivedStateFromProps, shouldComponentUpdate, render, getSnapshotBeforeUpdate, componentDidUpdate |
-| Unmounting | unmount | componentWillUnmount                                                                                 |
-
-## Samples
+## Code samples
 
 |                    | Fusor                           | React                           | Comment                           |
 | ------------------ | ------------------------------- | ------------------------------- | --------------------------------- |
@@ -51,10 +42,19 @@ The fundamental difference lies in the separation of concerns within the compone
 
 ## Other differences
 
-|                        | Fusor             | React         |
-| ---------------------- | ----------------- | ------------- |
-| DOM                    | Real              | Virtual       |
-| Events                 | Native            | Synthetic     |
-| Lifecycle              | Native            | Complex logic |
-| Attribute names        | W3C Specification | Mangled       |
-| Web components support | Complete          | Incomplete    |
+|                        | Fusor             | React             |
+| ---------------------- | ----------------- | ----------------- |
+| DOM                    | Real              | Virtual           |
+| Events                 | Native            | Synthetic         |
+| Lifecycle              | Native            | Complex mechanics |
+| Attribute names        | W3C Specification | Mangled           |
+| Web components support | Complete          | Incomplete        |
+
+## TODO Lifecycle
+
+|            | Fusor   | React                                                                                                |
+| ---------- | ------- | ---------------------------------------------------------------------------------------------------- |
+| Creating   | create  |                                                                                                      |
+| Mounting   | mount   | constructor, getDerivedStateFromProps, render, componentDidMount                                     |
+| Updating   | update  | getDerivedStateFromProps, shouldComponentUpdate, render, getSnapshotBeforeUpdate, componentDidUpdate |
+| Unmounting | unmount | componentWillUnmount                                                                                 |
