@@ -1,5 +1,5 @@
 import {DynamicChild, SingleChild} from '../types';
-import {initChild} from './child';
+import {initChild} from './init';
 
 export const initChildFlatten = <E extends Element>(
   element: E,
