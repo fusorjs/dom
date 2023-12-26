@@ -1,9 +1,10 @@
-import {elementComponent} from './element-component';
-import {Distinct, LifeMount, LifeUnmount, TagName} from './types';
+import {elementExtrasName, globalName} from './share';
+import {Distinct, ElementExtras, TagName} from './types';
 
 type LifeElementName = string & Distinct<'MountName'>;
 
 const allDefinedTags: Record<TagName, LifeElementName> = {};
+const customPrefix = globalName + '-life-';
 
 export const getLifeElementName = (tag: TagName) => {
   {
@@ -12,7 +13,7 @@ export const getLifeElementName = (tag: TagName) => {
     if (name) return name;
   }
 
-  const name = ('fusorjs-life-' + tag) as LifeElementName;
+  const name = (customPrefix + tag) as LifeElementName;
 
   allDefinedTags[tag] = name;
 
@@ -27,17 +28,20 @@ export const getLifeElementName = (tag: TagName) => {
       constructor() {
         super();
       }
-      mount?: LifeMount = undefined;
-      unmount?: LifeUnmount = undefined;
+      [elementExtrasName]?: ElementExtras;
       connectedCallback() {
-        const {mount} = this;
+        const extras = this[elementExtrasName];
+
+        if (!extras) return;
+
+        const {mount} = extras;
 
         if (!mount) return;
 
-        this.unmount = mount(elementComponent.get(this));
+        extras.unmount = mount(extras.component);
       }
       disconnectedCallback() {
-        this.unmount?.();
+        this[elementExtrasName]?.unmount?.();
       }
     },
     {

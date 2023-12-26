@@ -1,4 +1,5 @@
 import {Component} from './component';
+import {elementExtrasName} from './share';
 
 export interface Distinct<Name> {
   __DISTINCT: Name;
@@ -58,14 +59,19 @@ export type Arg = Props | Child;
 
 export type LifeUnmount = () => void;
 export type LifeMount = (self?: Component<Element>) => LifeUnmount | undefined;
-export interface LifeOptions {
+export interface ElementExtras {
   mount?: LifeMount;
   unmount?: LifeUnmount;
+  component?: Component<Element>;
+}
+/** This is internal and could change (maybe to WeakMap) */
+export interface ElementWithExtras extends Element {
+  [elementExtrasName]?: ElementExtras;
 }
 
 export interface FnInitter {
-  <E extends Element>(element: E, args: readonly StaticArg[]): E;
-  <E extends Element>(element: E, args: readonly Arg[]): Component<E>;
+  <E extends ElementWithExtras>(element: E, args: readonly StaticArg[]): E;
+  <E extends ElementWithExtras>(element: E, args: readonly Arg[]): Component<E>;
 }
 
 export interface ElementInitter<E extends Element> {

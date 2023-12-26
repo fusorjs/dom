@@ -1,12 +1,13 @@
-import {LifeOptions, NamespaceUri, Props, TagName} from './types';
+import {ElementWithExtras, NamespaceUri, Props, TagName} from './types';
 import {getLifeElementName} from './init-life';
+import {elementExtrasName} from './share';
 
 export const initElement = (
   namespace: NamespaceUri | undefined,
   tagName: TagName,
   props?: Props,
 ) => {
-  let element: Element | undefined;
+  let element: ElementWithExtras | undefined;
   let options: ElementCreationOptions | undefined;
 
   const is = props?.is;
@@ -33,7 +34,9 @@ export const initElement = (
       is: getLifeElementName(tagName),
     });
 
-    (element as Element & LifeOptions).mount = mount;
+    element[elementExtrasName] = {
+      mount,
+    };
   } else {
     element = namespace
       ? document.createElementNS(namespace, tagName, options)

@@ -1,6 +1,5 @@
-import {Prop, UpdatableProp} from '../types';
-import {getPropertyDescriptor, getString} from '../share';
-import {elementComponent} from '../element-component';
+import {ElementWithExtras, Prop, UpdatableProp} from '../types';
+import {elementExtrasName, getPropertyDescriptor, getString} from '../share';
 
 import {convertAttr, emptyAttr} from './share';
 
@@ -35,7 +34,11 @@ const detectProperty = (value: any, name: string) => {
  * or
  * {handle, capture?, once?, passive?, signal?}
  */
-export const initProp = (element: Element, key: string, value: Prop) => {
+export const initProp = (
+  element: ElementWithExtras,
+  key: string,
+  value: Prop,
+) => {
   if (key === 'is') return;
   if (key === 'mount') return;
   if (key === 'umount') throw TypeError(`"umount" property not supported`);
@@ -183,11 +186,11 @@ export const initProp = (element: Element, key: string, value: Prop) => {
                   ? 'handleEvent' in handle
                     ? (event: Event) => {
                         handle.handleEvent(event);
-                        elementComponent.get(element)?.update();
+                        element[elementExtrasName]?.component?.update();
                       }
                     : (event: Event) => {
                         handle(event);
-                        elementComponent.get(element)?.update();
+                        element[elementExtrasName]?.component?.update();
                       }
                   : handle,
                 value as AddEventListenerOptions,
@@ -248,7 +251,7 @@ export const initProp = (element: Element, key: string, value: Prop) => {
           options.update
             ? (event: Event) => {
                 value(event);
-                elementComponent.get(element)?.update();
+                element[elementExtrasName]?.component?.update();
               }
             : value,
           options,

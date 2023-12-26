@@ -1,5 +1,8 @@
 import {Component} from './component';
 
+export const globalName = 'fusorjs';
+export const elementExtrasName = ('_' + globalName) as '_fusorjs';
+
 export const ObjectIs = Object.is;
 
 /** Get string value of anything. */

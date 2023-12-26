@@ -1,8 +1,8 @@
 import {DynamicChild, Prop, DynamicProps, FnInitter} from './types';
-import {initProp} from './prop/init';
+import {elementExtrasName} from './share';
 import {Component} from './component';
+import {initProp} from './prop/init';
 import {initChildFlatten} from './child/initFlatten';
-import {elementComponent} from './element-component';
 
 export const initFn: FnInitter = (element, args) => {
   const {length} = args;
@@ -48,8 +48,14 @@ export const initFn: FnInitter = (element, args) => {
   // * Dynamic Component
 
   const component = new Component(element, dynamicProps, dynamicChildren);
+  const extras = element[elementExtrasName];
 
-  elementComponent.set(element, component);
+  if (extras) extras.component = component;
+  else {
+    element[elementExtrasName] = {
+      component,
+    };
+  }
 
   return component;
 };
