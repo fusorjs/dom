@@ -1,4 +1,4 @@
-import {getStringTestData} from './test-data.spec';
+import {getStringTestData} from './common.spec';
 import {getString, stringify} from './share';
 
 test.each(getStringTestData)(

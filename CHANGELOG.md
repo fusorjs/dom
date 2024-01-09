@@ -1,18 +1,65 @@
-# Changes
+# Fusor Development
+
+## Goals
+
+- Use less memory by reusing arrays and object and not recreating them.
+- Use less cpu cycles by using plain JavaScript as much as posible, not having complex diffing logic, and being able to fine-tune updating logic.
+- Keep it fast
+- Keep it simple
+- Keep it explicit
+- Keep it functional
+- Delegate extra functionality to other libraries: (lifecycle, state, context, diffing, clsx)
+
+> All tasks are movind down from top to bottom
+
+## Maybe
+
+- Move create to Component static method?
+- Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
+- implement style, object, data attributes
+- createAttribute object and update it directly
+
+### Version 3
+
+- omit creating excessive layers of components when only deep child is dynamic
+  - maybe creator returns two maybe [element, component?] independent trees
+  - maybe creator returns just element, and we get `update` from events
+- maybe not call child component.update() automatically from the parent
+- remove fusor-life
 
 ## Todo
 
-- optimize by diffing nodes for dynamic children array
+- Optimize by diffing nodes for dynamic children array
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` <https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments>, speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
 - elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>
-- Maybe:
-  - Move create to Component static method?
-  - Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
-  - implement style, object, data attributes
-- replace only range for dynamic children array (using node start/end indexes), (are they fragments?)
-- createAttribute object and update it directly
 - refactor tests
 - creator returns two [element, component?] independent trees, so we can omit creating excessive layers of components when only deep child is dynamic
+- Implement iterator support the same way as for static/dynamic arrays.
+- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
+
+### Important
+
+- create "sugar" syntax to subscribe/usubscribe to observable values
+- Make modern "jsx-runtime" integration (to avoid importing JSX):
+  - <https://stackoverflow.com/questions/41557309/typescript-jsx-without-react>
+  - <https://preactjs.com/guide/v10/getting-started/> <https://github.com/preactjs/preact>
+  - <https://dev.to/devsmitra/how-to-create-the-app-using-jsx-without-react-k08>
+  - <https://www.typescriptlang.org/docs/handbook/jsx.html>
+  - Develop JavaScript + webpack + Babel starter kit
+
+## In Progress
+
+### Version 2.2.2
+
+- Replace only the relevant nodes for dynamic children arrays (previously all element children were replaced)
+- Use functions inside dynamic arrays to add more flexibility for the outputted values
+- Performance improvements.
+
+> > > > todo
+
+- Change license from ISC to better known MIT.
+- Refactor child tests
+- Use nested dynamic arrays, they will be applied to element
 
 ## Done
 
@@ -85,13 +132,15 @@ Component life-cycle methods will not be implemented as they natively implemente
 The context will not be implemented unless solid evidence will be provided that we absolutely need it and cannot live without it.
 The context needed in user components, not in html/svg components in which Fuser is concerned about.
 Therefore the contex should be implemented outside of Fusor if needed.
+Therefore Fusor components are more pure and FP ready.
 
 The posible context implementations:
 
-- Module variables could be export/import-ed.
+- Pass "context" as properties explicitly to child components.
+- Dispatch custom events and bubble them up to the parent components.
+- Import/export module/global variables.
 - CSS variables could be used for themes.
-- Pass `context` property object explicitly.
-- Use a context monad.
+- Maybe use a context monad?
 
 ### Version 1
 

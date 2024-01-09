@@ -45,32 +45,3 @@ export const getPropertyDescriptor = (
 
   return result;
 };
-
-/** one pass through arrays */
-// export const quickArrayDiff = <T>(
-//   prev: readonly T[],
-//   next: readonly T[],
-//   compare: (index: number, prev: T, next: T) => void,
-//   append: (index: number, next: T) => void,
-//   remove: (index: number, prev: T) => void,
-// ) => {
-//   const prevLen = prev.length;
-//   const nextLen = next.length;
-
-//   let i = 0;
-
-//   // compare
-//   for (const minLen = Math.min(prevLen, nextLen); i < minLen; i++) {
-//     compare(i, prev[i], next[i]);
-//   }
-
-//   // append
-//   for (; i < nextLen; i++) {
-//     append(i, next[i]);
-//   }
-
-//   // remove
-//   for (; i < prevLen; i++) {
-//     remove(i, prev[i]);
-//   }
-// };

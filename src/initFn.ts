@@ -2,7 +2,7 @@ import {DynamicChild, Prop, DynamicProps, FnInitter} from './types';
 import {elementExtrasName} from './share';
 import {Component} from './component';
 import {initProp} from './prop/init';
-import {initChildFlatten} from './child/initFlatten';
+import {initFlatChild} from './child/initFlatChild';
 
 export const initFn: FnInitter = (element, args) => {
   const {length} = args;
@@ -20,7 +20,7 @@ export const initFn: FnInitter = (element, args) => {
       for (const [key, val] of Object.entries(arg)) {
         if (key === 'children') {
           // for compatibility with JSX
-          initChildFlatten(element, val, dynamicChildren);
+          initFlatChild(element, val, dynamicChildren);
           continue;
         }
 
@@ -35,7 +35,7 @@ export const initFn: FnInitter = (element, args) => {
 
     // init child
     else {
-      initChildFlatten(element, arg, dynamicChildren);
+      initFlatChild(element, arg, dynamicChildren);
     }
   }
 

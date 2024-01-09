@@ -6,7 +6,7 @@ Fusor is a simple JavaScript library that declaratively manages DOM
 
 ## Example
 
-[Playground](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
+[Playground](https://codesandbox.io/p/sandbox/fusor-intro-jsx-r96fgd?file=%2Fsrc%2Findex.tsx)
 
 ```jsx
 const CountingButton = ({init: count = 0}) => (
@@ -32,12 +32,13 @@ The `click$e$update` means:
 - `click`
 - `e`vent handler
 - `update` DOM when handler completes
-- `$` separator symbol
+- `$` separator symbol (configurable)
 - [full reference](docs/reference.md#keys)
 
-## Fusor vs React
+## Fusor vs Other
 
-Check [Fusor vs React](docs/fusor-vs-react.md) comparison
+- Fusor has fine-grained control over DOM updates
+- [Fusor vs React](docs/fusor-vs-react.md)
 
 ## Why Fusor
 
@@ -46,10 +47,12 @@ Check [Fusor vs React](docs/fusor-vs-react.md) comparison
 - It follows the principle of doing one thing and doing it well (managing DOM elements)
 - It has **zero** dependencies and is only around **2kB** in size
 
+## Get Started
+
+Start with this [TUTORIAL](docs/tutorial.md)
+
 ## Documentation
 
-- [TUTORIAL](docs/tutorial.md)
-- [Fusor vs React](docs/fusor-vs-react.md)
 - [Reference](docs/reference.md)
 - [Functional Notation](docs/functional-notation.md)
 - [Optimisation](docs/optimisation.md)
@@ -58,7 +61,7 @@ Check [Fusor vs React](docs/fusor-vs-react.md) comparison
 
 - [Tutorial](https://fusorjs.github.io/tutorial/) - routing, request, lifecycle, SVG, JSX...
 - [Todo-list](https://github.com/fusorjs/todomvc#readme)
-- [SVG analog clock](https://codesandbox.io/s/fusor-analog-clock-jsx-hqs5x9?file=/src/index.tsx)
+- [SVG analog clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx)
 
 ## Contribute
 

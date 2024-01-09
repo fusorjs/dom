@@ -196,8 +196,17 @@ document.body.append(component.element);
 
 ## Next
 
-- [Tutorial App](https://fusorjs.github.io/tutorial/) - routing, request, lifecycle, SVG, JSX...
+This is all you need to start developing with Fusor.
+
+For more detailed information read:
+
 - [Reference](reference.md)
-- [Fusor vs React](fusor-vs-react.md)
 - [Functional Notation](functional-notation.md)
 - [Optimisation](optimisation.md)
+- [Fusor vs React](fusor-vs-react.md)
+
+Also check these demo applications:
+
+- [Tutorial](https://fusorjs.github.io/tutorial/) - routing, request, lifecycle, SVG, JSX...
+- [Todo-list](https://github.com/fusorjs/todomvc#readme)
+- [SVG analog clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx)

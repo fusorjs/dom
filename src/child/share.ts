@@ -1,7 +1,3 @@
-import {Component} from '../component';
-import {ValueNode} from '../types';
-import {getString} from '../share';
-
 export const emptyChild = '';
 
 export const convertChild = (value: any) => {
@@ -14,18 +10,4 @@ export const convertChild = (value: any) => {
   }
 
   return value;
-};
-
-export const getChildNode = (value: any): ValueNode => {
-  if (value instanceof Element) {
-    return value;
-  } else if (value instanceof Component) {
-    return value.element;
-  } else {
-    return document.createTextNode(getString(value));
-  }
-};
-
-export const convertChildNode = (value: any): ValueNode => {
-  return getChildNode(convertChild(value));
 };

@@ -235,39 +235,39 @@ test('init & update dynamic children array', () => {
   const app = div(() => [counter, p(counter)]);
 
   expect(app.element.innerHTML).toBe('2<p>1</p>'); // <p> init called first
-  expect(app.element.childNodes.length).toBe(2);
+  expect(app.element.childNodes.length).toBe(3);
 
   app.update();
 
   expect(app.element.innerHTML).toBe('4<p>3</p>'); // <p> re-created first
-  expect(app.element.childNodes.length).toBe(2);
+  expect(app.element.childNodes.length).toBe(3);
 });
 
 test('dynamic children array', () => {
   let dynamic: Child = 'text';
 
-  const app = div(() => dynamic, 123);
+  const app = div(() => dynamic, 'WWW');
 
-  expect(app.element.innerHTML).toBe('text123');
+  expect(app.element.innerHTML).toBe('textWWW');
   expect(app.element.childNodes.length).toBe(2);
 
   dynamic = [1, 2, 3];
   app.update();
 
-  expect(app.element.innerHTML).toBe('123');
-  expect(app.element.childNodes.length).toBe(3);
+  expect(app.element.innerHTML).toBe('123WWW');
+  expect(app.element.childNodes.length).toBe(5);
 
   dynamic = ['a', 'b'];
   app.update();
 
-  expect(app.element.innerHTML).toBe('ab');
-  expect(app.element.childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('abWWW');
+  expect(app.element.childNodes.length).toBe(4);
 
   dynamic = 'one';
   app.update();
 
-  expect(app.element.innerHTML).toBe('one');
-  expect(app.element.childNodes.length).toBe(1);
+  expect(app.element.innerHTML).toBe('oneWWW');
+  expect(app.element.childNodes.length).toBe(3); // +1 terminator
 
   let count = 0;
 
@@ -275,31 +275,31 @@ test('dynamic children array', () => {
 
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
-  expect(app.element.childNodes.length).toBe(1);
+  expect(app.element.innerHTML).toBe('<p>1</p>WWW');
+  expect(app.element.childNodes.length).toBe(3);
 
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
-  expect(app.element.childNodes.length).toBe(1);
+  expect(app.element.innerHTML).toBe('<p>1</p>WWW');
+  expect(app.element.childNodes.length).toBe(3);
 
   dynamic.update();
 
-  expect(app.element.innerHTML).toBe('<p>2</p>');
-  expect(app.element.childNodes.length).toBe(1);
+  expect(app.element.innerHTML).toBe('<p>2</p>WWW');
+  expect(app.element.childNodes.length).toBe(3);
 
   count = 1;
   dynamic = [p(() => count), () => count];
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>1</p>1');
-  expect(app.element.childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('<p>1</p>1WWW');
+  expect(app.element.childNodes.length).toBe(4);
 
   count = 2;
   app.update();
 
-  expect(app.element.innerHTML).toBe('<p>1</p>1'); // same array, does not update
-  expect(app.element.childNodes.length).toBe(2);
+  expect(app.element.innerHTML).toBe('<p>1</p>1WWW'); // same array, does not update
+  expect(app.element.childNodes.length).toBe(4);
 });
 
 it('should update dynamic array components whith different arrays', () => {

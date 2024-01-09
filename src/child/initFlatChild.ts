@@ -1,7 +1,7 @@
 import {DynamicChild, SingleChild} from '../types';
-import {initChild} from './init';
+import {initChild} from './initChild';
 
-export const initChildFlatten = <E extends Element>(
+export const initFlatChild = <E extends Element>(
   element: E,
   childValue: any,
   dynamicChildren: DynamicChild<Element>[],
@@ -9,7 +9,7 @@ export const initChildFlatten = <E extends Element>(
   // init array of children
   if (Array.isArray(childValue)) {
     for (const val of childValue) {
-      initChildFlatten(element, val, dynamicChildren);
+      initFlatChild(element, val, dynamicChildren);
     }
   }
 

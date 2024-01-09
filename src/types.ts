@@ -33,7 +33,7 @@ export type StaticChild = SingleStaticChild | readonly SingleStaticChild[];
 
 export interface StaticProps {
   readonly [key: string]: StaticProp;
-  // [kkey: `on${string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
+  // [key: `{string}$e{string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
 }
 
 export type StaticArg = StaticProps | StaticChild;
@@ -55,19 +55,26 @@ export interface Props {
 
 export type Arg = Props | Child;
 
-/* INITTERS */
+/* EXTRAS */
 
 export type LifeUnmount = () => void;
 export type LifeMount = (self?: Component<Element>) => LifeUnmount | undefined;
+
+/** Internal api */
 export interface ElementExtras {
   mount?: LifeMount;
   unmount?: LifeUnmount;
   component?: Component<Element>;
 }
-/** This is internal and could change (maybe to WeakMap) */
+
+/** This is internal and could change (maybe to WeakMap)
+ * @deprecated pass "extras" to custom-element constructor and to init functions
+ */
 export interface ElementWithExtras extends Element {
   [elementExtrasName]?: ElementExtras;
 }
+
+/* INITTERS */
 
 export interface FnInitter {
   <E extends ElementWithExtras>(element: E, args: readonly StaticArg[]): E;
@@ -128,19 +135,23 @@ export interface DynamicProps {
 export type ValueNode = Text | Element;
 
 export interface ChildCache {
-  value: Child; // ! not StaticChild
+  value: string | Element | Component<Element>;
   node: ValueNode;
 }
 
 export interface UpdatableChild {
   readonly update: () => Child;
   cache: ChildCache;
+  terminator: Text | null; // keep for performance
+  arrayRef: null; // keep for performance
 }
 
 export type UpdatableChildren = {
   readonly update: () => Child;
-  arrayRef: Child[];
   cache: ChildCache[];
+  /** Empty node after the last array node (used for insertion before it if array is empty) */
+  terminator: Text; // ! Comment will pollute innerHTML with "<!---->"
+  arrayRef: Child[]; // ? remove in v3 ?
 };
 
 export type DynamicChild<E extends Element> =

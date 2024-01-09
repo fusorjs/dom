@@ -4,10 +4,15 @@
 
 ### Child
 
+- `function` is executed and its return value is subjet to the following rules, dynamic value is configured to be able to `update` it in the future and `Component` is created.
+- `Component` instance provides its `element`
 - `true, false, null, undefined` are converted to empty text node to enable logical expressions: `isVisible && <ModalDialog />`
-- Static arrays are flattened
-- Dynamic arrays will affect associated children (**TODO**, currently all children)
+- Static `Array` values are applied to the element according rules above, including nested arrays
 - Everything else is converted into a text node
+- Dynamic `Array` (returned from function) updates associated children (terminator node added at the end), it differs from static arrays in that it does not add dynamic values to component
+
+> Nested arrays for added performance benefit of not needing to flatten them and to not recreate multiple arrays objects copies
+> Functions in dynamic arrays are for added benefit of performance and flexibility to create dynamic arrays once and not recreate them when data change is needed
 
 ### Property
 
@@ -17,7 +22,7 @@
 
 - `"", null, false, undefined` - attribute is removed
 - `true` - attribute is set to `""`
-- Everything else is converted into string and set with attribute.
+- Everything else is converted to string and set with attribute.
 
 ### When DOM is updated?
 
