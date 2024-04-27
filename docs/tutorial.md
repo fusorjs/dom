@@ -6,12 +6,17 @@
 npm install @fusorjs/dom
 ```
 
-## Configure
+You can completely go without JSX or any build tools by using [functional notation](functional-notation.md) that is interchangeable with JSX
 
-If you are going to use JSX, you will need a build tool. For example, TypeScript will suffice
+[FN Playground](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
+
+## Configure JSX
+
+If you going to use JSX, you will need a build tool. For example, TypeScript compiler will suffice
+
+> tsconfig.json
 
 ```json
-// tsconfig.json
 {
   "compilerOptions": {
     "jsx": "react",
@@ -23,10 +28,6 @@ If you are going to use JSX, you will need a build tool. For example, TypeScript
 [JSX Playground](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
 ---
-
-However, you can completely go without JSX or any build tools by using [functional notation](functional-notation.md) that is interchangeable with JSX
-
-[FN Playground](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
 
 ## Creating DOM
 

@@ -28,7 +28,7 @@ The fundamental difference lies in the separation of concerns within the compone
 | Side effects        | Normal JavaScript flow                  | Complex and verbose _hooks_ mechanics                       |
 | Component updates   | Explicit, update what and when you need | Implicit, complex                                           |
 | Component functions | Pure                                    | Context is required                                         |
-| Library size (gz)   | ~2kB                                    | ~44kB                                                       |
+| Library size (gz)   | ~4KiB                                   | ~44KiB                                                      |
 
 ## Code samples
 

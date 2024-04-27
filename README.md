@@ -15,7 +15,7 @@ Fusor is a simple JavaScript library that declaratively creates and updates DOM 
   - DOM updates
   - Diffing strategy
   - State management
-- Lightweight (**~3kB** and **zero** dependencies)
+- Lightweight (**~4KiB** and **zero** dependencies)
 
 ## FN Example
 

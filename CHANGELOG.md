@@ -1,6 +1,6 @@
 # Fusor Development
 
-> All tasks are movind down from top to bottom
+> Everything is flowing down to [Done](#done)
 
 ## Maybe
 
@@ -26,12 +26,19 @@
 - refactor tests
 - creator returns two [element, component?] independent trees, so we can omit creating excessive layers of components when only deep child is dynamic
 - Implement iterator support the same way as for static/dynamic arrays.
-- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
 
 ### Important
 
 - create "sugar" syntax to subscribe/usubscribe to observable values
 - bind event handlers this to component or provide as argument (so fn-intro-example could be smaller)
+- Use nested dynamic arrays, they will be applied to element
+
+## In Progress
+
+### Version 2.2.3
+
+- adapt toturial for functional-notation (put more accent into FN as distinguished feature)
+- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
 - Make modern "jsx-runtime" integration (to avoid importing JSX):
   - <https://stackoverflow.com/questions/41557309/typescript-jsx-without-react>
   - <https://preactjs.com/guide/v10/getting-started/> <https://github.com/preactjs/preact>
@@ -39,21 +46,15 @@
   - <https://www.typescriptlang.org/docs/handbook/jsx.html>
   - Develop JavaScript + webpack + Babel starter kit
 
-## In Progress
+## Done
 
 ### Version 2.2.2
 
-- Replace only the relevant nodes for dynamic children arrays (previously all element children were replaced)
+- Replace only the relevant nodes for dynamic children arrays (previously all element's children were replaced)
 - Use functions inside dynamic arrays to add more flexibility for the outputted values
 - Performance improvements.
 - Change license from ISC to better known MIT.
 - Refactor child tests
-
-> > > > todo
-
-- Use nested dynamic arrays, they will be applied to element
-
-## Done
 
 ### Version 2.2.1
 
