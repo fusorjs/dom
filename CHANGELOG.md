@@ -1,15 +1,5 @@
 # Fusor Development
 
-## Goals
-
-- Use less memory by reusing arrays and object and not recreating them.
-- Use less cpu cycles by using plain JavaScript as much as posible, not having complex diffing logic, and being able to fine-tune updating logic.
-- Keep it fast
-- Keep it simple
-- Keep it explicit
-- Keep it functional
-- Delegate extra functionality to other libraries: (lifecycle, state, context, diffing, clsx)
-
 > All tasks are movind down from top to bottom
 
 ## Maybe
@@ -24,6 +14,7 @@
 - omit creating excessive layers of components when only deep child is dynamic
   - maybe creator returns two maybe [element, component?] independent trees
   - maybe creator returns just element, and we get `update` from events
+- remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance
 - maybe not call child component.update() automatically from the parent
 - remove fusor-life
 
@@ -40,6 +31,7 @@
 ### Important
 
 - create "sugar" syntax to subscribe/usubscribe to observable values
+- bind event handlers this to component or provide as argument (so fn-intro-example could be smaller)
 - Make modern "jsx-runtime" integration (to avoid importing JSX):
   - <https://stackoverflow.com/questions/41557309/typescript-jsx-without-react>
   - <https://preactjs.com/guide/v10/getting-started/> <https://github.com/preactjs/preact>
@@ -54,11 +46,11 @@
 - Replace only the relevant nodes for dynamic children arrays (previously all element children were replaced)
 - Use functions inside dynamic arrays to add more flexibility for the outputted values
 - Performance improvements.
+- Change license from ISC to better known MIT.
+- Refactor child tests
 
 > > > > todo
 
-- Change license from ISC to better known MIT.
-- Refactor child tests
 - Use nested dynamic arrays, they will be applied to element
 
 ## Done
