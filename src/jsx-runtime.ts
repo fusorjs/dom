@@ -4,17 +4,32 @@ import {initFn} from './initFn';
 import {htmlTagNames, svgNamespace, svgTagNames} from './help/constants';
 import {initElement} from './init-element';
 
-type DomElement = Element;
+// <https://dev.to/afl_ext/how-to-render-jsx-to-whatever-you-want-with-a-custom-jsx-renderer-cjk>
+// <https://dev.to/devsmitra/how-to-create-the-app-using-jsx-without-react-k08>
+// <https://www.typescriptlang.org/docs/handbook/jsx.html>
+// <https://preactjs.com/guide/v10/getting-started/> <https://github.com/preactjs/preact>
+// <https://github.com/itsjavi/jsx-runtime>
+// <https://stackoverflow.com/questions/41557309/typescript-jsx-without-react>
+
+type MyElement = Element;
+
+interface MyIntrinsicElements {
+  // todo is: string;
+  // todo mount: string;
+  [tagName: string]: Props;
+}
+
+declare global {
+  namespace JSX {
+    type Element = MyElement | Component<MyElement>;
+    type IntrinsicElements = MyIntrinsicElements;
+  }
+}
 
 export declare namespace initJsx {
   namespace JSX {
-    type Element = DomElement | Component<DomElement>;
-
-    interface IntrinsicElements {
-      // todo is: string;
-      // todo mount: string;
-      [tagName: string]: Props;
-    }
+    type Element = MyElement | Component<MyElement>;
+    type IntrinsicElements = MyIntrinsicElements;
   }
 }
 
@@ -33,6 +48,10 @@ export const initJsx: JsxInitter<Element> = (tagName, props, ...children) => {
 
   return initFn(element, [props, ...children]);
 };
+
+export const jsx = initJsx;
+export const jsxs = initJsx;
+export const jsxDEV = initJsx;
 
 // Exclude<keyof SVGElementTagNameMap, keyof HTMLElementTagNameMap>
 const svgTagNamesSet = new Set(

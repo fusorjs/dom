@@ -37,15 +37,15 @@ The current DOM value will be updated only if:
 
 ### Set property or attribute automatically
 
-Do not use `$` suffix:
+Do not use `_` suffix:
 
 - Set a property if value is of reference type: `Object`, `Array`, `Function`... (not `null`)
-- Set a property if it is already exists on the element
+- Set a property if it already exists on the element
 - Set an attribute otherwise
 
 ### Enforce the type
 
-Use `$` suffix:
+Use `_` suffix:
 
 - `a` - `a`ttribute
 - `an` - `a`ttribute `n`amespaced
@@ -62,7 +62,7 @@ Use `$` suffix:
 
 ### Change splitter
 
-Use `setPropSplitter('_')` to change the global suffix splitter from `$`
+Use `setPropSplitter('$')` to change the global suffix splitter from `_`
 
 ### Example
 
@@ -74,20 +74,20 @@ Use `setPropSplitter('_')` to change the global suffix splitter from `$`
   style="color:red"
   selected={123}
   // property
-  checked$p={456}
+  checked_p={456}
   // property static
-  onclick$ps={() => 'Clicked!'}
-  customFunction$ps={() => 'Custom component function property'}
+  onclick_ps={() => 'Clicked!'}
+  customFunction_ps={() => 'Custom component function property'}
   // attribute
-  myprop$a="visible"
+  myprop_a="visible"
   // attribute with namespace
-  {...{'xlink:href$an$http://www.w3.org/1999/xlink': 'abc'}}
+  {...{'xlink:href_an_http://www.w3.org/1999/xlink': 'abc'}}
   // bubbling event listener
-  click$e={() => 'Clicked!'}
+  click_e={() => 'Clicked!'}
   // all boolean event options
-  click$e$capture$once$passive$update={() => 'Clicked!'}
+  click_e_capture_once_passive_update={() => 'Clicked!'}
   // all event options
-  click$e={{
+  click_e={{
     handle: () => 'Clicked!', // or handle: {handleEvent: () => 'Clicked!'},
     capture: true,
     once: true,
@@ -102,4 +102,34 @@ Use `setPropSplitter('_')` to change the global suffix splitter from `$`
     return () => 'unmount';
   }}
 />
+```
+
+## JSX
+
+### Configure
+
+If you going to use JSX, you will need a build tool. For example, TypeScript compiler will suffice.
+
+> `tsconfig.json` or `jsconfig.json`
+
+Modern way:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@fusorjs/dom"
+  }
+}
+```
+
+Old way: (must `import {jsx} from '@fusorjs/dom'` in every `[j|t]sx` file)
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "jsx"
+  }
+}
 ```

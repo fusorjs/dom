@@ -1,6 +1,6 @@
 # Fusor Development
 
-> Everything is flowing down to [Done](#done)
+> Everything is moving down from [Maybe](#maybe) to [Done](#done).
 
 ## Maybe
 
@@ -8,45 +8,72 @@
 - Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
 - implement style, object, data attributes
 - createAttribute object and update it directly
+- Optimize by diffing nodes for dynamic children array
+- elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>. Or in version 3 will be deprecated.
 
 ### Version 3
 
-- omit creating excessive layers of components when only deep child is dynamic
-  - maybe creator returns two maybe [element, component?] independent trees
-  - maybe creator returns just element, and we get `update` from events
+- Avoid creating excessive layers of components when only deep child is dynamic (compression)
+
+```ts
+// creator returns `Element` or temporary object
+// @internal do not rely on this structure
+interface Component {
+  element: Element;
+  props?: DynamicProps;
+  children?: DynamicChild[]; // only contains components, zipped, now wrappers
+}
+type getElement = (value: Element | Component) => Element;
+// throw error if updating Element
+type update = (value: Element | Component) => void; // recursive
+type updateCurrent = (value: Element | Component) => void;
+```
+
 - remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance
-- maybe not call child component.update() automatically from the parent
-- remove fusor-life
+- maybe not call child component.update() automatically from the parent, or have a prop `notUpdate` to stop update propagation further down the tree
+- move `h` and `s` to the core, out of `html` and `svg` respectively
+- remove deprecated
 
 ## Todo
 
-- Optimize by diffing nodes for dynamic children array
+- Optimize `development` and `production` modes.
+- Override a splitter for a current prop key, mybe like `_$$_name$$e` from `_` to `$$` or (`_"___"xlink:href___an___http://www.w3.org/1999/xlink`)
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` <https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments>, speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
-- elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>
-- refactor tests
-- creator returns two [element, component?] independent trees, so we can omit creating excessive layers of components when only deep child is dynamic
+- Ability to `update` manually in event handlers.
 - Implement iterator support the same way as for static/dynamic arrays.
+- Move "extras" out of element, only keep track of it where needed (Component). Using `__extra` properties in (mounted in DOM) elements could lead to performance degradation.
+- Optimize build with rollup to be in line with ~4KiB size claim
 
 ### Important
 
 - create "sugar" syntax to subscribe/usubscribe to observable values
 - bind event handlers this to component or provide as argument (so fn-intro-example could be smaller)
 - Use nested dynamic arrays, they will be applied to element
+- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
 
 ## In Progress
 
-### Version 2.2.3
-
-- adapt toturial for functional-notation (put more accent into FN as distinguished feature)
-- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
-- Make modern "jsx-runtime" integration (to avoid importing JSX):
-  - <https://stackoverflow.com/questions/41557309/typescript-jsx-without-react>
-  - <https://preactjs.com/guide/v10/getting-started/> <https://github.com/preactjs/preact>
-  - <https://dev.to/devsmitra/how-to-create-the-app-using-jsx-without-react-k08>
-  - <https://www.typescriptlang.org/docs/handbook/jsx.html>
-  - Develop JavaScript + webpack + Babel starter kit
-
 ## Done
+
+### Version 2.3.1
+
+- Add modern `jsx-runtime` integration to avoid `import {jsx} from '@fusorjs/dom'` in every `jsx` file. Add to `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@fusorjs/dom"
+  }
+}
+```
+
+- Develop a JavaScript + Webpack + Babel starting skeleton Apps.
+- Improved docs.
+
+Breaking changes:
+
+- Make `_` default splitter instead of `$` to avoid JQuery confusion (quick fix `setPropSplitter('$')`)
 
 ### Version 2.2.2
 

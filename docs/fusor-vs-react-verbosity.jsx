@@ -25,7 +25,7 @@
   {
     const CountingButton = () => {
       let count = 0;
-      return <button click$e$update={() => (count += 1)}>Clicked {() => count} times</button>;
+      return <button click_e_update={() => (count += 1)}>Clicked {() => count} times</button>;
     };
   }
 
@@ -33,7 +33,7 @@
   {
     const CountingButton = () => {
       let count = 0;
-      return button({ click$e$update: () => (count += 1) }, "Clicked ", () => count, " times.");
+      return button({click_e_update: () => (count += 1)}, 'Clicked ', () => count, ' times.');
     };
   }
 }
@@ -51,7 +51,7 @@
       };
     };
     const AnalogClock = () => {
-      const [{ secondsDegree, minutesDegree, hoursDegree }, setDegrees] = useState(createDegrees);
+      const [{secondsDegree, minutesDegree, hoursDegree}, setDegrees] = useState(createDegrees);
       useEffect(() => {
         const timerId = setInterval(() => setDegrees(createDegrees()), 1000);
         return () => clearInterval(timerId);
@@ -103,7 +103,7 @@
     };
   }
 
-  // Fusor FN - lines: 22, verbosity: 784
+  // Fusor FN - lines: 22, verbosity: 785
   {
     const AnalogClock = () => {
       let secondsDegree, minutesDegree, hoursDegree;
@@ -124,7 +124,7 @@
             return () => clearInterval(timerId);
           },
         },
-        svg({ viewBox: "0 0 100 100" }, circle({ class: "face", cx: "50", cy: "50", r: "45" }), g(rect({ class: "hour", x: "47.5", y: "12.5", width: "5", height: "40", rx: "2.5", ry: "2.55", transform: () => `rotate(${hoursDegree} 50 50)` }), rect({ class: "min", x: "48.5", y: "12.5", width: "3", height: "40", rx: "2", ry: "2", transform: () => `rotate(${minutesDegree} 50 50)` }), line({ class: "sec", x1: "50", y1: "50", x2: "50", y2: "16", transform: () => `rotate(${secondsDegree} 50 50)` })))
+        svg({viewBox: '0 0 100 100'}, circle({class: 'face', cx: '50', cy: '50', r: '45'}), g(rect({class: 'hour', x: '47.5', y: '12.5', width: '5', height: '40', rx: '2.5', ry: '2.55', transform: () => `rotate(${hoursDegree} 50 50)`}), rect({class: 'min', x: '48.5', y: '12.5', width: '3', height: '40', rx: '2', ry: '2', transform: () => `rotate(${minutesDegree} 50 50)`}), line({class: 'sec', x1: '50', y1: '50', x2: '50', y2: '16', transform: () => `rotate(${secondsDegree} 50 50)`}))),
       );
     };
   }
@@ -144,7 +144,7 @@
           setData(undefined);
           setError(undefined);
           abortRef.current = new AbortController();
-          const response = await fetch("https://jsonplaceholder.typicode.com/users", { signal: abortRef.current.signal });
+          const response = await fetch('https://jsonplaceholder.typicode.com/users', {signal: abortRef.current.signal});
           setData(await response.json());
         } catch (e) {
           setError(e);
@@ -184,13 +184,13 @@
         </section>
       );
     };
-    const UserRow = ({ id, username, name, email }) => (
+    const UserRow = ({id, username, name, email}) => (
       <tr>
         <td>{id}</td>
         <td>{username}</td>
         <td>{name}</td>
         <td>
-          <a href={"mailto:" + email}>{email}</a>
+          <a href={'mailto:' + email}>{email}</a>
         </td>
       </tr>
     );
@@ -208,7 +208,7 @@
           error = undefined;
           abort = new AbortController();
           wrapper.update();
-          const response = await fetch("https://jsonplaceholder.typicode.com/users", { signal: abort.signal });
+          const response = await fetch('https://jsonplaceholder.typicode.com/users', {signal: abort.signal});
           data = await response.json();
         } catch (e) {
           error = e;
@@ -221,10 +221,10 @@
         <section mount={() => () => abort?.abort()}>
           <p>This is a proper way to do api requests. Using loading state, aborting and handling errors.</p>
           <div>
-            <button disabled={() => abort !== undefined} click$e={getUsers}>
+            <button disabled={() => abort !== undefined} click_e={getUsers}>
               Request users
             </button>
-            <button disabled={() => abort === undefined} click$e={() => abort?.abort()}>
+            <button disabled={() => abort === undefined} click_e={() => abort?.abort()}>
               Abort
             </button>
           </div>
@@ -255,13 +255,13 @@
       );
       return wrapper;
     };
-    const UserRow = ({ id, username, name, email }) => (
+    const UserRow = ({id, username, name, email}) => (
       <tr>
         <td>{id}</td>
         <td>{username}</td>
         <td>{name}</td>
         <td>
-          <a href={"mailto:" + email}>{email}</a>
+          <a href={'mailto:' + email}>{email}</a>
         </td>
       </tr>
     );
@@ -279,7 +279,7 @@
           error = undefined;
           abort = new AbortController();
           wrapper.update();
-          const response = await fetch("https://jsonplaceholder.typicode.com/users", { signal: abort.signal });
+          const response = await fetch('https://jsonplaceholder.typicode.com/users', {signal: abort.signal});
           data = await response.json();
         } catch (e) {
           error = e;
@@ -289,27 +289,27 @@
         }
       };
       const wrapper = section(
-        { mount: () => () => abort?.abort() },
-        p("This is a proper way to do api requests. Using loading state, aborting and handling errors."),
+        {mount: () => () => abort?.abort()},
+        p('This is a proper way to do api requests. Using loading state, aborting and handling errors.'),
         div(
-          button("Request users", {
+          button('Request users', {
             disabled: () => abort !== undefined,
-            click$e: getUsers,
+            click_e: getUsers,
           }),
-          button("Abort", {
+          button('Abort', {
             disabled: () => abort === undefined,
-            click$e: () => abort?.abort(),
-          })
+            click_e: () => abort?.abort(),
+          }),
         ),
         div(
-          () => abort && p("Loading..."),
-          () => error && p("Error: ", error?.message || error, { class: "error" }),
-          () => data && table(thead(tr(th("Id"), th("User"), th("Name"), th("Email"))), tbody(data.map((i) => UserRow(i))))
-        )
+          () => abort && p('Loading...'),
+          () => error && p('Error: ', error?.message || error, {class: 'error'}),
+          () => data && table(thead(tr(th('Id'), th('User'), th('Name'), th('Email'))), tbody(data.map((i) => UserRow(i)))),
+        ),
       );
       return wrapper;
     };
-    const UserRow = ({ id, username, name, email }) => tr(td(id), td(username), td(name), td(a(email, { href: "mailto:" + email })));
+    const UserRow = ({id, username, name, email}) => tr(td(id), td(username), td(name), td(a(email, {href: 'mailto:' + email})));
   }
 }
 

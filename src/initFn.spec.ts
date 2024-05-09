@@ -98,7 +98,7 @@ test('init element with dynamic prop override', () => {
 
 test('init element with event handler, it should be static', () => {
   const element = document.createElement('button');
-  const result = initFn(element, [{click$e: () => {}}]);
+  const result = initFn(element, [{click_e: () => {}}]);
 
   expect(result).toBe(element);
 

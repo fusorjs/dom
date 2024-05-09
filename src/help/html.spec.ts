@@ -83,7 +83,7 @@ test('stateless button changes global counter onclick', () => {
 
   const btn = button(
     {
-      click$e: () => {
+      click_e: () => {
         counter += 1;
         btn.update();
       },
@@ -115,7 +115,7 @@ test('stateful counter button instances are clicked', () => {
   const CounterButton = (counter = 0) => {
     const btn = button(
       {
-        click$e: () => {
+        click_e: () => {
           counter += 1;
           btn.update();
         },
@@ -169,7 +169,7 @@ test('toggle button color', () => {
 
   const tgl = button(
     {
-      click$e: () => {
+      click_e: () => {
         toggle = !toggle;
         tgl.update();
       },
@@ -181,7 +181,7 @@ test('toggle button color', () => {
 
   const cnt = button(
     {
-      click$e: () => {
+      click_e: () => {
         counter += 1;
         cnt.update();
       },

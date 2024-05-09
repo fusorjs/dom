@@ -1,91 +1,98 @@
 # Fusor
 
-Fusor is a simple JavaScript library that declaratively creates and updates DOM elements
+Fusor is a simple JavaScript library that helps declaratively create and update DOM elements.
 
-> It **fuses** elements
+> It **fuses** DOM elements together.
 
-## Goals
+## Example
 
-- **Performance**
-- **Simple**, explicit and flexible API
-- Compatible and integrable with other tools
-- Do one thing and do it well (manage DOM elements)
-- Simple things should be simple, complex things should be possible (Alan Kay)
-- **Fine-grained control** over:
-  - DOM updates
-  - Diffing strategy
-  - State management
-- Lightweight (**~4KiB** and **zero** dependencies)
-
-## FN Example
-
-- Functional-notation button counter (hyper-notation also available)
-- **No transpilation needed**
-
-[Playground](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
-
-```js
-import {button, div, p} from '@fusorjs/dom/html';
-
-const CountingButton = (count = 0) => {
-  const component = button(
-    {
-      click$e: () => {
-        count += 1;
-        component.update();
-      },
-    },
-    'Clicked ',
-    () => count,
-    ' times',
-  );
-  return component;
-};
-
-const App = () =>
-  div(
-    p('Hello Fusor'),
-    CountingButton(),
-    CountingButton(22),
-    CountingButton(333),
-  );
-
-document.body.append(App().element);
-```
-
-The `click$e` means:
-
-- `click` name
-- `e`vent handler
-- `$` separator symbol (configurable)
-
-See the [complete key reference](docs/reference.md#keys)
-
-## JSX Example
-
-- Same counter button implemented with JSX
-- Adds the option to `update` the component after the click event
-
-[Playground](https://codesandbox.io/p/sandbox/fusor-intro-jsx-r96fgd?file=%2Fsrc%2Findex.tsx)
+### Create DOM
 
 ```jsx
-const CountingButton = ({init: count = 0}) => (
-  <button click$e$update={() => (count += 1)}>
-    Clicked {() => count} times
-  </button>
-);
+document.body.append(<div>The ultimate answer is {42}</div>); // JSX
+```
+
+### Update DOM
+
+```jsx
+let count = 0;
+const answer = <div>Seconds {() => count} elapsed</div>;
+
+document.body.append(answer.element);
+
+setInterval(() => {
+  count += 1;
+  answer.update();
+}, 1000);
+```
+
+### Reusable Component
+
+> `click_e` - means click event handler - [view all W3C standard compliant options](docs/reference.md#keys)
+
+```jsx
+const CountingButton = ({count = 0}) => {
+  const btn = (
+    <button
+      click_e={() => {
+        // click event handler
+        count += 1;
+        btn.update();
+      }}
+    >
+      Clicked {() => count} times
+    </button>
+  );
+  return btn;
+};
 
 const App = () => (
   <div>
-    <p>Hello Fusor</p>
+    <p>Three click-counting buttons</p>
     <CountingButton />
-    <CountingButton init={22} />
-    <CountingButton init={333} />
+    <CountingButton count={22} />
+    <CountingButton count={333} />
   </div>
 );
 
 document.body.append(App().element);
 ```
+
+<!-- const CountingButton = ({init: count = 0}) => (
+  // click_e_update: click event handler, update DOM after a call
+  <button click_e_update={() => (count += 1)}>
+    Clicked {() => count} times
+  </button>
+); -->
+
+> [**Playground**](https://codesandbox.io/p/sandbox/fusor-intro-tsx-r96fgd?file=%2Fsrc%2Findex.tsx)
+
+<!-- > `click_e_update` means: `click` `e`vent handler `update`s DOM after the call [...reference.](docs/reference.md#keys)
+
+Property key `click_e_update` means:
+
+- `click` name
+- `e`vent handler
+- `update` DOM after the event
+- `_` configurable separator symbol
+- [keys reference](docs/reference.md#keys) -->
+
+## Not a React clone
+
+While Fusor shares some concepts with React, it distinguishes itself by adopting a more flexible and minimalist approach. Essentially, the complexity of hooks, lifecycle, and concurrency is replaced by fine-grained DOM update control.
+
+> [Fusor vs React comparison](docs/fusor-vs-react.md)
+
+## Goals
+
+### Simplicity + Minimalism + Flexibility + Performance
+
+- Small, **simple**, explicit and flexible API.
+- Standards compliant and integrable with other tools.
+- Do one thing and do it well (manage DOM elements), **outsource**: state, lifecycle, context, diffing, etc.
+- Simple things should be simple, complex things should be possible (Alan Kay). **Fine-grained control** over DOM updates.
+- Efficient CPU and memory usage by reusing given objects and arrays without their recreation nor modification. Avoid arrays flattening, object's `rest`ing or `spread`ing operations.
+- Lightweight (**~4KiB** with **zero** dependencies).
 
 ## Documentation
 
@@ -95,14 +102,16 @@ document.body.append(App().element);
 - [Optimisation](docs/optimisation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
 
-## Demo
+## Demos
 
-- [Tutorial](https://fusorjs.github.io/tutorial/) - routing, request, lifecycle, SVG, JSX...
+- [Use cases](https://fusorjs.github.io/tutorial/) (routing, request, lifecycle, SVG, JSX...)
 - [Todo-list](https://github.com/fusorjs/todomvc#readme)
 - [SVG analog clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx)
+- [FN counting button](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
+- [JSX counting button](https://codesandbox.io/p/sandbox/fusor-intro-jsx-r96fgd?file=%2Fsrc%2Findex.tsx)
 
 ## Contribute
 
-Contributions are welcome
+Your contributions are welcome!
 
-See [CHANGELOG](CHANGELOG.md) for details
+See [CHANGELOG](CHANGELOG.md) for details.

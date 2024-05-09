@@ -3,10 +3,10 @@ import {Component, jsx} from '..';
 test.each(
   // prettier-ignore
   [
-    [<button click$e={() => {}} />                        , HTMLButtonElement],
-    [<button click$e$update={() => {}} />                 , HTMLButtonElement],
-    [<button click$e={{handle: () => {}}} />              , HTMLButtonElement],
-    [<button click$e={{update: true, handle: () => {}}} />, HTMLButtonElement],
+    [<button click_e={() => {}} />                        , HTMLButtonElement],
+    [<button click_e_update={() => {}} />                 , HTMLButtonElement],
+    [<button click_e={{handle: () => {}}} />              , HTMLButtonElement],
+    [<button click_e={{update: true, handle: () => {}}} />, HTMLButtonElement],
   ],
 )('must not create component', (value, _class) => {
   expect(value).toBeInstanceOf(_class);
@@ -17,7 +17,7 @@ test.each([
     () => {
       let count = 0;
       return (
-        <button click$e={() => (count += 1)}>
+        <button click_e={() => (count += 1)}>
           Clicked {() => count} times
         </button>
       );
@@ -28,7 +28,7 @@ test.each([
     () => {
       let count = 0;
       return (
-        <button click$e$update={() => (count += 1)}>
+        <button click_e_update={() => (count += 1)}>
           Clicked {() => count} times
         </button>
       );
@@ -40,7 +40,7 @@ test.each([
       let count = 0;
       return (
         <button
-          click$e={{
+          click_e={{
             handle: () => (count += 1),
             update: true,
           }}
@@ -56,7 +56,7 @@ test.each([
       let count = 0;
       return (
         <button
-          click$e={{
+          click_e={{
             handle: {handleEvent: () => (count += 1)},
             update: true,
           }}

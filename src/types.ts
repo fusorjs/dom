@@ -33,7 +33,7 @@ export type StaticChild = SingleStaticChild | readonly SingleStaticChild[];
 
 export interface StaticProps {
   readonly [key: string]: StaticProp;
-  // [key: `{string}$e{string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
+  // [key: `{string}_e{string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
 }
 
 export type StaticArg = StaticProps | StaticChild;
@@ -166,12 +166,12 @@ export type DynamicChild<E extends Element> =
 
 // export interface StaticProps2 {
 //   [key: string]: StaticProp;
-//   [kkey: `on${string}`]: Function;
+//   [kkey: `on_{string}`]: Function;
 // }
-// type EventName = `on${string}`;
+// type EventName = `on_{string}`;
 // interface StaticProps2 {
 //   // [key: string]: StaticProp;
-//   // [key: `on${string}`]: Function;
+//   // [key: `on_{string}`]: Function;
 //   [K: EventName | string]: typeof K extends EventName ? Function : StaticProp;
 //   // [K: string]: typeof K extends EventName ? Function : StaticProp;
 // }

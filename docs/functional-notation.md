@@ -1,8 +1,36 @@
 # Functional Notation
 
-While JSX allows for better visual separation between JavaScript and HTML, there is an alternative syntax that exists
+While JSX arguably allows for better visual separation between JavaScript and HTML, a more flexible alternative syntax exists.
 
-> The visual separation in React can be hindered by the use of mangled/camelCase prop names
+## Example
+
+```js
+import {button, div, p} from '@fusorjs/dom/html';
+
+const CountingButton = (count = 0) =>
+  button(
+    {
+      click_e_update: () => (count += 1),
+    },
+    'Clicked ',
+    () => count,
+    ' times.',
+  );
+
+const App = () =>
+  div(
+    p('Hello Fusor'),
+    CountingButton(),
+    CountingButton(22),
+    CountingButton(333),
+  );
+
+document.body.append(App().element);
+```
+
+> [**Playground**](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
+
+## FN vs JSX
 
 Functional notation is better than JSX in the following ways:
 
@@ -12,6 +40,7 @@ Functional notation is better than JSX in the following ways:
 - Just JavaScript, no new syntax
 - Natural comments, try in JSX comment a block of code that contains `{/* comment */}`
 - You have the ability to use multiple props objects and children arrays in any order, without the need for `...spread`-ing
+- You can use nested arrays without flattening
 - You don't need to capitalize your component names or have a single props object argument in the constructor, although it's recommended for interoperability with JSX
 
 > While functional notation and JSX are fully interchangeable within Fusor components, it's important to pay attention to how you pass `children` to your components if you want both systems to be compatible, see: [interoperability](../src/spec/jsx-fn-interoperability.spec.tsx)
@@ -22,6 +51,8 @@ import {svg, g, rect, s} from '@fusorjs/dom/svg';
 
 div(childrenArray1, propsObject1, childrenArray2, propsObject2);
 ```
+
+## Hyper Notation
 
 > The "untagged" creators, such as `h` for HTML and `s` for SVG elements, are used for creating custom-elements but can also be used for creating standard elements `h('div', props, 'hello')`.
 

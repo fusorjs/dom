@@ -3,6 +3,7 @@ import {Component} from './component';
 export const globalName = 'fusorjs';
 export const elementExtrasName = ('_' + globalName) as '_fusorjs';
 
+// ? do we need it if we compare strings ?
 export const ObjectIs = Object.is;
 
 /** Get string value of anything. */

@@ -3,13 +3,13 @@ import {elementExtrasName, getPropertyDescriptor, getString} from '../share';
 
 import {convertAttr, emptyAttr} from './share';
 
-export const defaultPropSplitter = '$';
+export const defaultPropSplitter = '_';
 
 let propSplitter = defaultPropSplitter;
 
 export const setPropSplitter = (s: string) => (propSplitter = s);
 
-const detectProperty = (value: any, name: string) => {
+const isProperty = (value: any, name: string) => {
   const d = getPropertyDescriptor(value, name);
 
   if (d && (d.writable || typeof d.set === 'function')) {
@@ -17,28 +17,15 @@ const detectProperty = (value: any, name: string) => {
   }
 };
 
-/**
- * Fusor v2
- * automatic - attr or prop,
- *           - if `preferProp`:`property`|`attribute` is set in Config it will be default
- *           - Otherwise:
- *             - user property if it is defined on the element prototype.
- *             - set as attributes
- * "xlink:href$an$http://www.w3.org/1999/xlink" - attribute
- *
- * property$p
- * attribute$a
- * "xmlns:xlink$a$http://www.w3.org/1999/xlink" - attribute
- * event$e
- * event$e$capture$once$passive$update
- * or
- * {handle, capture?, once?, passive?, signal?}
- */
 export const initProp = (
   element: ElementWithExtras,
   key: string,
   value: Prop,
 ) => {
+  // todo development only
+  if (key === '__self') return; // React debug info: https://github.com/facebook/react/pull/4596
+  if (key === '__source') return; // React debug info: https://github.com/facebook/react/pull/4596
+
   if (key === 'is') return;
   if (key === 'mount') return;
   if (key === 'umount') throw TypeError(`"umount" property not supported`);
@@ -52,8 +39,7 @@ export const initProp = (
   switch (
     type ??
     // *** AUTOMATIC TYPE ***
-    ((typeof value === 'object' && value !== null) ||
-    detectProperty(element, name)
+    ((typeof value === 'object' && value !== null) || isProperty(element, name)
       ? 'p'
       : 'a')
   ) {
@@ -262,6 +248,6 @@ export const initProp = (
 
     // *** WRONG TYPE ***
     default:
-      throw new TypeError(`out of a|an|p|e type in key 2 "${key}"`);
+      throw new TypeError(`out of a|an|p|ps|e type in key 2 "${key}"`);
   }
 };

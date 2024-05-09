@@ -84,7 +84,7 @@ const createChecker = (
   ) => {
     const result = initProp(
       element,
-      name + options + (namespace ? '$' + namespace : ''),
+      name + options + (namespace ? '_' + namespace : ''),
       value,
     );
 
@@ -138,17 +138,17 @@ describe('html', () => {
   test.each(
     // prettier-ignore
     [
-      [ '$'                 , ''       , TypeError , `empty name in key 1 "$"`                                                    ],
-      [ 'prop$p$exta'       , ''       , TypeError , `excess option in property key 2 "prop$p$exta"`                              ],
-      [ 'attr$a$exta'       , ''       , TypeError , `excess option in attribute key 2 "attr$a$exta"`                             ],
-      [ 'attr$an'           , ''       , TypeError , `missing namespace option in attribute key 3 "attr$an"`                      ],
-      [ 'attr$an$ns$exta'   , ''       , TypeError , `excess option in attribute key 4 "attr$an$ns$exta"`                         ],
-      [ 'event$e'           , ''       , TypeError , `not function in event "event$e"`                                            ],
-      [ 'event$e$capture'   , ''       , TypeError , `not function in event "event$e$capture"`                                    ],
-      [ 'event$e$once'      , ''       , TypeError , `not function in event "event$e$once"`                                       ],
-      [ 'event$e$unknown'   , () => {} , TypeError , `out of capture|once|passive|update option in event key 3 "event$e$unknown"` ],
-      [ 'event$e$once$once' , () => {} , TypeError , `same option declared twice in event key 4 "event$e$once$once"`              ],
-      [ 'type$x'            , () => {} , TypeError , `out of a|an|p|e type in key 2 "type$x"`                                     ],
+      [ '_'                 , ''       , TypeError , `empty name in key 1 "_"`                                                    ],
+      [ 'prop_p_exta'       , ''       , TypeError , `excess option in property key 2 "prop_p_exta"`                              ],
+      [ 'attr_a_exta'       , ''       , TypeError , `excess option in attribute key 2 "attr_a_exta"`                             ],
+      [ 'attr_an'           , ''       , TypeError , `missing namespace option in attribute key 3 "attr_an"`                      ],
+      [ 'attr_an_ns_exta'   , ''       , TypeError , `excess option in attribute key 4 "attr_an_ns_exta"`                         ],
+      [ 'event_e'           , ''       , TypeError , `not function in event "event_e"`                                            ],
+      [ 'event_e_capture'   , ''       , TypeError , `not function in event "event_e_capture"`                                    ],
+      [ 'event_e_once'      , ''       , TypeError , `not function in event "event_e_once"`                                       ],
+      [ 'event_e_unknown'   , () => {} , TypeError , `out of capture|once|passive|update option in event key 3 "event_e_unknown"` ],
+      [ 'event_e_once_once' , () => {} , TypeError , `same option declared twice in event key 4 "event_e_once_once"`              ],
+      [ 'type_x'            , () => {} , TypeError , `out of a|an|p|ps|e type in key 2 "type_x"`                                     ],
     ],
   )('throw %p %p %p', (key, value, expectType, expectMsg) => {
     expect(() => {
@@ -175,31 +175,31 @@ describe('html', () => {
     [ //    name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
           [ existing , ''           , undefined , null        , existing  , undefined          , [ null            ] , false ] ,
           [ existing , ''           , undefined , 123         , existing  , undefined          , [ 123             ] , false ] ,
-          [ existing , '$p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
+          [ existing , '_p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
           [ existing , ''           , undefined , () => 123   , existing  , undefined          , [ 123             ] , true  ] ,
-          [ existing , '$p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
+          [ existing , '_p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
           [ existSet , ''           , undefined , 123         , existSet  , undefined          , [ 123             ] , false ] ,
     (v => [ 'prop'   , ''           , undefined , v           , undefined , undefined          , [ v               ] , false ] )({}),
     (v => [ 'prop'   , ''           , undefined , []          , undefined , undefined          , [ v               ] , false ] )([]),
-          [ 'prop'   , '$p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
-          [ 'prop'   , '$p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
-    (v => [ 'prop'   , '$ps'        , undefined , v           , undefined , undefined          , [ v               ] , false ] )(() => 123),
+          [ 'prop'   , '_p'         , undefined , 123         , undefined , undefined          , [ 123             ] , false ] ,
+          [ 'prop'   , '_p'         , undefined , () => 123   , undefined , undefined          , [ 123             ] , true  ] ,
+    (v => [ 'prop'   , '_ps'        , undefined , v           , undefined , undefined          , [ v               ] , false ] )(() => 123),
           [ 'empty'  , ''           , undefined , null        , 'empty'   , undefined          , undefined           , false ] ,
-          [ 'empty'  , '$a'         , undefined , null        , undefined , undefined          , undefined           , false ] ,
+          [ 'empty'  , '_a'         , undefined , null        , undefined , undefined          , undefined           , false ] ,
           [ 'attr'   , ''           , undefined , 'asd'       , 'attr'    , 'setAttribute'     , [ 'asd'           ] , false ] ,
           [ 'attr'   , ''           , undefined , 123         , 'attr'    , 'setAttribute'     , [ '123'           ] , false ] ,
-          [ 'attr'   , '$a'         , undefined , 'asd'       , undefined , 'setAttribute'     , [ 'asd'           ] , false ] ,
+          [ 'attr'   , '_a'         , undefined , 'asd'       , undefined , 'setAttribute'     , [ 'asd'           ] , false ] ,
           [ 'attr'   , ''           , undefined , () => 'asd' , 'attr'    , 'setAttribute'     , [ 'asd'           ] , true  ] ,
           [ 'attr'   , ''           , undefined , () => 123   , 'attr'    , 'setAttribute'     , [ '123'           ] , true  ] ,
-          [ 'attr'   , '$a'         , undefined , () => 'asd' , undefined , 'setAttribute'     , [ 'asd'           ] , true  ] ,
-          [ 'attr'   , '$an'        , 'ns'      , ():any=>123 , undefined , 'setAttributeNS'   , [ '123'           ] , true  ] ,
-          [ 'attr'   , '$an'        , 'ns'      , 123         , undefined , 'setAttributeNS'   , [ '123'           ] , false ] ,
-          [ 'attr'   , '$an'        , 'ns'      , 'abc'       , undefined , 'setAttributeNS'   , [ 'abc'           ] , false ] ,
-    (v => [ 'event'  , '$e'         , undefined , v           , undefined , 'addEventListener' , [ v               ] , false ] )(() => 123),
-    (v => [ 'event'  , '$e'         , undefined , v           , undefined , 'addEventListener' , [ v.handle, v     ] , false ] )({handle: () => 123}),
-    (v => [ 'event'  , '$e'         , undefined , v           , undefined , 'addEventListener' , [ v.handle, v     ] , false ] )({handle: {handleEvent: () => 123}}),
-    (v => [ 'event'  , '$e$capture' , undefined , v           , undefined , 'addEventListener' , [ v, true         ] , false ] )(() => 123),
-    (v => [ 'event'  , '$e$once'    , undefined , v           , undefined , 'addEventListener' , [ v, {once: true} ] , false ] )(() => 123),
+          [ 'attr'   , '_a'         , undefined , () => 'asd' , undefined , 'setAttribute'     , [ 'asd'           ] , true  ] ,
+          [ 'attr'   , '_an'        , 'ns'      , ():any=>123 , undefined , 'setAttributeNS'   , [ '123'           ] , true  ] ,
+          [ 'attr'   , '_an'        , 'ns'      , 123         , undefined , 'setAttributeNS'   , [ '123'           ] , false ] ,
+          [ 'attr'   , '_an'        , 'ns'      , 'abc'       , undefined , 'setAttributeNS'   , [ 'abc'           ] , false ] ,
+    (v => [ 'event'  , '_e'         , undefined , v           , undefined , 'addEventListener' , [ v               ] , false ] )(() => 123),
+    (v => [ 'event'  , '_e'         , undefined , v           , undefined , 'addEventListener' , [ v.handle, v     ] , false ] )({handle: () => 123}),
+    (v => [ 'event'  , '_e'         , undefined , v           , undefined , 'addEventListener' , [ v.handle, v     ] , false ] )({handle: {handleEvent: () => 123}}),
+    (v => [ 'event'  , '_e_capture' , undefined , v           , undefined , 'addEventListener' , [ v, true         ] , false ] )(() => 123),
+    (v => [ 'event'  , '_e_once'    , undefined , v           , undefined , 'addEventListener' , [ v, {once: true} ] , false ] )(() => 123),
   ], //     name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
   )(`create "%s%s" %p %s %s %s %p`, checker);
 });
@@ -215,7 +215,7 @@ describe('svg', () => {
   test.each(
     // prettier-ignore
     [ //    name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
-          [ 'attr'   , '$a'         , null      , () => 'asd' , undefined , 'setAttributeNS'   , [ 'asd'           ] , true  ] ,
+          [ 'attr'   , '_a'         , null      , () => 'asd' , undefined , 'setAttributeNS'   , [ 'asd'           ] , true  ] ,
     ], //   name     | options      | namespace | value       | expectHas | expectGet          | expectSet           | expectRes
   )(`create "%s%s" %p %s %s %s %p`, checker);
 });

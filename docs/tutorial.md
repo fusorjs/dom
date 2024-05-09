@@ -6,33 +6,31 @@
 npm install @fusorjs/dom
 ```
 
-You can completely go without JSX or any build tools by using [functional notation](functional-notation.md) that is interchangeable with JSX
+## Configure
 
-[FN Playground](https://codesandbox.io/s/fusor-intro-cvbhsk?file=/src/index.js)
+Fusor supports different styles of defining components:
 
-## Configure JSX
+| Notation   | Sample                    | Description          |
+| ---------- | ------------------------- | -------------------- |
+| JSX        | `<div>Hello world</div>`  | Transpilation needed |
+| Functional | `div('Hello world')`      | The most flexible    |
+| Hyper      | `h('div', 'Hello world')` | The most flexible    |
 
-If you going to use JSX, you will need a build tool. For example, TypeScript compiler will suffice
+You can use all of them interchangeably. [Functional/Hyper Notation](functional-notation.md) is simpler to set up, does not require transpilation and available in JSX automatically.
 
-> tsconfig.json
+### Starter Project Examples
 
-```json
-{
-  "compilerOptions": {
-    "jsx": "react",
-    "jsxFactory": "jsx"
-  }
-}
-```
+- **JSX**
+  - JavaScript - [Webpack Github](https://github.com/fusorjs/starter-dom-jsx-source-webpack)
+  - TypeScript - [Parcel Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-tsx-r96fgd?file=%2Fsrc%2Findex.tsx)
+- **Functional Notation**
+  - JavaScript - [Parcel Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
+  - TypeScript - [Parcel Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-ts-h3wlp5?file=%2Fsrc%2Findex.ts)
 
-[JSX Playground](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
-
----
-
-## Creating DOM
+## Creating static DOM nodes
 
 ```jsx
-let value = 0;
+const value = 0;
 
 const htmlDivElement = (
   <div>
@@ -43,7 +41,9 @@ const htmlDivElement = (
 document.body.append(htmlDivElement);
 ```
 
-## Updating DOM
+<!-- const htmlDivElement2 = div(p('Static ', value, ' content')); -->
+
+## Updating a dynamic DOM node
 
 ```jsx
 let value = 0;
@@ -62,21 +62,18 @@ setInterval(() => {
 }, 1000);
 ```
 
-## Fusor component
+## What is a Fusor component?
 
 ```js
 class Component {
-  // Return DOM Element of this Component
-  get element();
-
-  // Update the Element's attributes and children recursively
-  update();
+  element; // DOM Element of this Component
+  update(); // Update dynamic attributes and children recursively
 }
 ```
 
-## Static vs dynamic
+## Static vs Dynamic
 
-### What makes a static DOM tree
+### What makes a static DOM node?
 
 ```jsx
 const htmlDivElement1 = <div>Children that are not functions</div>;
@@ -91,10 +88,10 @@ const htmlDivElement3 = (
   <div class="name">Attributes or properties that are not functions</div>
 );
 
-const htmlDivElement4 = <div click$e={(event) => 'Event handlers'} />;
+const htmlDivElement4 = <div click_e={(event) => 'Event handlers'} />;
 ```
 
-### What makes a dynamic Fusor component
+### What makes a dynamic Fusor component?
 
 ```jsx
 const fusorComponent1 = <div>{() => count} child is a function </div>;
@@ -110,10 +107,10 @@ const fusorComponent3 = (
 
 ```jsx
 <div
-  name="set property or attribute automatically"
-  name$a="set attribute"
-  name$p="set property"
-  name$e={() => 'set event handler'}
+  name1="automatic, attribute or property"
+  name2_a="attribute"
+  name3_p="property"
+  name4_e={() => 'handle event'}
 />
 ```
 
@@ -121,7 +118,7 @@ See full [reference](reference.md#keys) on keys
 
 ## Making reusable components
 
-Create components by encapsulating Fusor components with properties and state in functions
+Create your components by encapsulating Fusor components with state and properties inside functions.
 
 [Playground](https://codesandbox.io/s/fusor-intro-jsx-r96fgd?file=/src/index.tsx)
 
@@ -131,7 +128,7 @@ const CountingButton = (props) => {
 
   const component = (
     <button
-      click$e={() => {
+      click_e={() => {
         state += 1;
         component.update();
       }}
@@ -142,33 +139,44 @@ const CountingButton = (props) => {
 
   return component;
 };
+
+const App = () => (
+  <div>
+    <p>Hello Fusor</p>
+    <CountingButton />
+    <CountingButton init={22} />
+    <CountingButton init={333} />
+  </div>
+);
+
+document.body.append(App().element);
 ```
 
-The above could be shortened to:
+The `CountingButton` component could be shortened to:
 
 ```jsx
-const CountingButton = ({init: count = 0}) => (
-  <button click$e$update={() => (count += 1)}>
-    Clicked {() => count} times
+const CountingButton = ({init: state = 0}) => (
+  <button click_e_update={() => (state += 1)}>
+    Clicked {() => state} times
   </button>
 );
 ```
 
-## Component rules
+## JSX rules
 
 - Fusor component names (HTML/SVG) start with lowercase letters
-- Your component names must be capitalized
+- Your component names must be Capitalized
 - Your components can take a single `props` object argument
 
 ## Component lifecycle
 
-1. Initialization of component
+1. Initialization/Creation of component
 2. Mount to DOM
 3. Update DOM
 4. Unmount from DOM
 
 ```jsx
-const CounterComponent = (count = 0) => (
+const CounterComponent = ({count = 0}) => (
   <div
     // 2. Mount
     mount={(self) => {
@@ -185,11 +193,13 @@ const CounterComponent = (count = 0) => (
   </div>
 );
 
-// 1. Initialization
+// 1. Initialization/Creation
 const component = CounterComponent();
 
 document.body.append(component.element);
 ```
+
+> SVG elements cannot have a lifecycle yet, but there is a proposal
 
 [Lifecycle example](https://fusorjs.github.io/tutorial/#Jsx)
 
