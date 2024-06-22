@@ -16,13 +16,13 @@ document.body.append(<div>The ultimate answer is {42}</div>); // JSX
 
 ```jsx
 let count = 0;
-const answer = <div>Seconds {() => count} elapsed</div>;
+const secs = <div>Seconds {() => count} elapsed</div>;
 
-document.body.append(answer.element);
+document.body.append(secs.element);
 
 setInterval(() => {
   count += 1;
-  answer.update();
+  secs.update();
 }, 1000);
 ```
 
@@ -77,9 +77,9 @@ Property key `click_e_update` means:
 - `_` configurable separator symbol
 - [keys reference](docs/reference.md#keys) -->
 
-## Not a React clone
+## Different from React/Solid
 
-While Fusor shares some concepts with React, it distinguishes itself by adopting a more flexible and minimalist approach. Essentially, the complexity of hooks, lifecycle, and concurrency is replaced by fine-grained DOM update control.
+While Fusor shares some concepts with React/Solid, it distinguishes itself by adopting a more flexible and minimalist approach. Essentially, the complexity of hooks, lifecycle, and concurrency is replaced by fine-grained DOM update control.
 
 > [Fusor vs React comparison](docs/fusor-vs-react.md)
 

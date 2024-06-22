@@ -1,5 +1,7 @@
 import {Component} from './component';
 
+export const DEVELOPMENT = true; // TODO
+
 export const globalName = 'fusorjs';
 export const elementExtrasName = ('_' + globalName) as '_fusorjs';
 

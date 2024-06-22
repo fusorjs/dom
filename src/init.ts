@@ -4,7 +4,7 @@ import {Component} from './component';
 import {initProp} from './prop/init';
 import {initFlatChild} from './child/initFlatChild';
 
-export const initFn: FnInitter = (element, args) => {
+export const init: FnInitter = (element, args) => {
   const {length} = args;
 
   if (length === 0) return element; // static

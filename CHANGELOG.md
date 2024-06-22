@@ -1,6 +1,10 @@
 # Fusor Development
 
-> Everything is moving down from [Maybe](#maybe) to [Done](#done).
+## Rules
+
+- Avoid adding your custom props to DOM element objects: for data normalization, may degrade performance (mounted elements), may conflict with standard props.
+- Reuse given objects and arrays without their recreation nor modification. Avoid arrays flattening, avoid object's `rest`ing or `spread`ing operations.
+- Tasks are flowing down from [Maybe](#maybe) to [Done](#done).
 
 ## Maybe
 
@@ -10,48 +14,47 @@
 - createAttribute object and update it directly
 - Optimize by diffing nodes for dynamic children array
 - elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>. Or in version 3 will be deprecated.
-
-### Version 3
-
-- Avoid creating excessive layers of components when only deep child is dynamic (compression)
-
-```ts
-// creator returns `Element` or temporary object
-// @internal do not rely on this structure
-interface Component {
-  element: Element;
-  props?: DynamicProps;
-  children?: DynamicChild[]; // only contains components, zipped, now wrappers
-}
-type getElement = (value: Element | Component) => Element;
-// throw error if updating Element
-type update = (value: Element | Component) => void; // recursive
-type updateCurrent = (value: Element | Component) => void;
-```
-
-- remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance
-- maybe not call child component.update() automatically from the parent, or have a prop `notUpdate` to stop update propagation further down the tree
-- move `h` and `s` to the core, out of `html` and `svg` respectively
-- remove deprecated
+- Move "extras" out of DOM element objects (see the first rule). At the moment cannot remove it because it is used in `connectedCallback`.
 
 ## Todo
 
 - Optimize `development` and `production` modes.
 - Override a splitter for a current prop key, mybe like `_$$_name$$e` from `_` to `$$` or (`_"___"xlink:href___an___http://www.w3.org/1999/xlink`)
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` <https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments>, speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
-- Ability to `update` manually in event handlers.
 - Implement iterator support the same way as for static/dynamic arrays.
-- Move "extras" out of element, only keep track of it where needed (Component). Using `__extra` properties in (mounted in DOM) elements could lead to performance degradation.
 - Optimize build with rollup to be in line with ~4KiB size claim
-
-### Important
-
-- create "sugar" syntax to subscribe/usubscribe to observable values
-- bind event handlers this to component or provide as argument (so fn-intro-example could be smaller)
 - Use nested dynamic arrays, they will be applied to element
 - Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
 
+### Version 3
+
+- Avoid creating excessive layers of components when only deep child is dynamic (compression)
+- Create "sugar" syntax to subscribe/usubscribe to observable values.
+- Ability to `update` manually in event handlers. Bind event handlers with this component or provide as argument (so fn-intro-example could be smaller).
+- Maybe remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance
+- Maybe not call child component.update() automatically from the parent, or have a prop `notUpdate` to stop update propagation further down the tree
+- remove deprecated (Life)
+
+```ts
+// @internal library use only
+interface Component {
+  element: Element;
+  props?: DynamicProps;
+  children?: DynamicChild[]; // only contains components, zipped, now wrappers
+}
+type init = (data: any) => Element | Component;
+type getElement = (value: Element | Component) => Element;
+// throw error if updating not Component
+type update = (value: Element | Component) => void; // recursive
+type updateCurrent = (value: Element | Component) => void;
+```
+
 ## In Progress
+
+### Version 2.3.2
+
+- Prepare global `getElement` and `update` api for version 3.
+- Move `h` and `s` to the core, out of `html` and `svg` respectively.
 
 ## Done
 

@@ -1,5 +1,5 @@
-import {initElement} from '../init-element';
-import {initFn} from '../initFn';
+import {createElement} from '../createElement';
+import {init} from '../init';
 import {ElementInitter, NamespaceUri, TagName, TaggedInitter} from '../types';
 
 /** @deprecated */
@@ -9,13 +9,13 @@ export const initElementHelper: ElementInitter<Element> = (
   args,
 ) => {
   const [props] = args as any;
-  const element = initElement(
+  const element = createElement(
     namespace,
     tagName,
     props?.constructor === Object ? props : undefined,
   );
 
-  return initFn(element, args) as any;
+  return init(element, args) as any;
 };
 
 export const getTaggedInitHelper =

@@ -1,8 +1,8 @@
 import {JsxInitter, Props} from './types';
 import {Component} from './component';
-import {initFn} from './initFn';
+import {init} from './init';
 import {htmlTagNames, svgNamespace, svgTagNames} from './help/constants';
-import {initElement} from './init-element';
+import {createElement} from './createElement';
 
 // <https://dev.to/afl_ext/how-to-render-jsx-to-whatever-you-want-with-a-custom-jsx-renderer-cjk>
 // <https://dev.to/devsmitra/how-to-create-the-app-using-jsx-without-react-k08>
@@ -40,13 +40,13 @@ export const initJsx: JsxInitter<Element> = (tagName, props, ...children) => {
   }
 
   const isSvgTag = svgTagNamesSet.has(tagName);
-  const element = initElement(
+  const element = createElement(
     isSvgTag ? svgNamespace : undefined,
     tagName,
     props,
   );
 
-  return initFn(element, [props, ...children]);
+  return init(element, [props, ...children]);
 };
 
 export const jsx = initJsx;

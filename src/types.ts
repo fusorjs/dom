@@ -60,16 +60,14 @@ export type Arg = Props | Child;
 export type LifeUnmount = () => void;
 export type LifeMount = (self?: Component<Element>) => LifeUnmount | undefined;
 
-/** Internal api */
+/** @internal */
 export interface ElementExtras {
   mount?: LifeMount;
   unmount?: LifeUnmount;
   component?: Component<Element>;
 }
 
-/** This is internal and could change (maybe to WeakMap)
- * @deprecated pass "extras" to custom-element constructor and to init functions
- */
+/** @internal */
 export interface ElementWithExtras extends Element {
   [elementExtrasName]?: ElementExtras;
 }
