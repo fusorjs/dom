@@ -21,11 +21,11 @@ You can use all of them interchangeably. [Functional/Hyper Notation](functional-
 ### Starter Project Examples
 
 - **JSX**
-  - JavaScript - [Webpack Github](https://github.com/fusorjs/starter-dom-jsx-source-webpack)
-  - TypeScript - [Parcel Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-tsx-r96fgd?file=%2Fsrc%2Findex.tsx)
+  - JavaScript - Webpack - [Github](https://github.com/fusorjs/starter-dom-jsx-source-webpack) - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-jsx-webpack-4m7r37?file=%2Fsrc%2Fapp.jsx)
+  - TypeScript - Parcel - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-tsx-r96fgd?file=%2Fsrc%2Findex.tsx)
 - **Functional Notation**
-  - JavaScript - [Parcel Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
-  - TypeScript - [Parcel Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-ts-h3wlp5?file=%2Fsrc%2Findex.ts)
+  - JavaScript - Parcel - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
+  - TypeScript - Parcel - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-ts-h3wlp5?file=%2Fsrc%2Findex.ts)
 
 ## Creating static DOM nodes
 

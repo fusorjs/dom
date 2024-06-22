@@ -28,7 +28,7 @@ setInterval(() => {
 
 ### Reusable Component
 
-> `click_e` - means click event handler - [view all W3C standard compliant options](docs/reference.md#keys)
+> `click_e` - means click event handler - [view all W3C standards-compliant options](docs/reference.md#keys)
 
 ```jsx
 const CountingButton = ({count = 0}) => {
@@ -65,7 +65,7 @@ document.body.append(App().element);
   </button>
 ); -->
 
-> [**Playground**](https://codesandbox.io/p/sandbox/fusor-intro-tsx-r96fgd?file=%2Fsrc%2Findex.tsx)
+> [**Playground**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
 <!-- > `click_e_update` means: `click` `e`vent handler `update`s DOM after the call [...reference.](docs/reference.md#keys)
 
