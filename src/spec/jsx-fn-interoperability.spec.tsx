@@ -1,5 +1,5 @@
-import {StaticArg, StaticChild, jsx} from '..';
-import {h} from '../help/html';
+import {jsx, h} from '..';
+import {StaticArg, StaticChild} from '../types';
 
 describe('children wrapper', () => {
   const IdiomaticJsx = ({children}: {children?: StaticChild}) => {

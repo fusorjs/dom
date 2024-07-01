@@ -1,10 +1,4 @@
-import {
-  ElementWithExtras,
-  LifeMount,
-  NamespaceUri,
-  Props,
-  TagName,
-} from './types';
+import {ElementWithExtras, Mount, NamespaceUri, Props, TagName} from './types';
 import {getLifeElementName} from './getLifeElementName';
 import {DEVELOPMENT, elementExtrasName} from './share';
 
@@ -28,14 +22,12 @@ export const createElement = (
     if (DEVELOPMENT) {
       if (is)
         throw new TypeError(
-          `cannot use both properties together "mount" and "is": ${
-            is as ElementCreationOptions['is']
-          }`,
+          `cannot use both properties "mount" and "is" together`,
         );
 
       if (namespace)
         throw new TypeError(
-          '"mount" property is not allowed in namespace: ' + namespace,
+          '"mount" property is not supported with namespaces yet',
         ); // https://github.com/WICG/webcomponents/issues/634
 
       if (typeof mount !== 'function')
@@ -47,7 +39,7 @@ export const createElement = (
     });
 
     element[elementExtrasName] = {
-      mount: mount as LifeMount,
+      mount: mount as Mount,
     };
   } else {
     element = namespace

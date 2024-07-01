@@ -1,4 +1,4 @@
-import {ProxyLog, ProxyTarget, logger, elm} from '../common.spec';
+import {ProxyLog, ProxyTarget, logger, elm} from '../lib/proxyLogger';
 
 import {UpdatableChild, UpdatableChildren} from '../types';
 import {Component} from '../component';
@@ -42,7 +42,11 @@ test.each<
         },
       };
     },
-    ['update apply ', 'text1 getPrototypeOf', 'text1 set nodeValue 123'],
+    [
+      'update apply >> 123',
+      'main.replaceChild',
+      'main.replaceChild apply Text(123) text1 >> #2',
+    ],
   ],
 
   [
@@ -69,7 +73,7 @@ test.each<
         },
       };
     },
-    ['update apply '],
+    ['update apply >> 13'],
   ],
 
   [
@@ -96,7 +100,7 @@ test.each<
         },
       };
     },
-    ['update apply '],
+    ['update apply >> "13"'],
   ],
 
   [
@@ -123,7 +127,7 @@ test.each<
         },
       };
     },
-    ['update apply '],
+    ['update apply >> false'],
   ],
 
   [
@@ -151,7 +155,7 @@ test.each<
         },
       };
     },
-    ['update apply '],
+    ['update apply >> arrayRef'],
   ],
 
   [
@@ -204,34 +208,33 @@ test.each<
       };
     },
     [
-      'update apply ',
+      'update apply >> arrayRef',
 
-      'arrayRef get length',
-      'arrayRef get 0',
-      'text1 getPrototypeOf',
-      'text1 set nodeValue 11',
+      'arrayRef.length >> 5',
+      'arrayRef.0 >> 11',
+      'main.replaceChild',
+      'main.replaceChild apply Text(11) text1 >> #4',
 
-      'arrayRef get 1',
+      'arrayRef.1 >> div1',
       'div1 getPrototypeOf',
-      'main get replaceChild',
-      'main run replaceChild div1 text2',
+      'main.replaceChild',
+      'main.replaceChild apply div1 text2 >> #8',
 
-      'arrayRef get 2',
-      'arrayRef run 2 ',
-      'text3 getPrototypeOf',
-      'text3 set nodeValue 33',
+      'arrayRef.2',
+      'arrayRef.2 apply >> 33',
+      'main.replaceChild',
+      'main.replaceChild apply Text(33) text3 >> #12',
 
-      'arrayRef get 3',
+      'arrayRef.3 >> component1',
       'component1 getPrototypeOf', // instanceof Element
       'component1 getPrototypeOf', // instanceof Component
-      'component1 get element',
-      'main get replaceChild',
-      'main run replaceChild div2 text4',
+      'component1.element >> div2',
+      'main.replaceChild',
+      'main.replaceChild apply div2 text4 >> #18',
 
-      'arrayRef get 4',
-      'span1 getPrototypeOf',
-      'main get replaceChild',
-      'main run replaceChild Text(55) span1',
+      'arrayRef.4 >> 55',
+      'main.replaceChild',
+      'main.replaceChild apply Text(55) span1 >> #21',
     ],
   ],
 
@@ -270,26 +273,26 @@ test.each<
       };
     },
     [
-      'update apply ',
-      'arrayRef get length',
-      'arrayRef get 0',
+      'update apply >> arrayRef',
+      'arrayRef.length >> 4',
+      'arrayRef.0 >> 1', // skip same value
       // insert div
-      'arrayRef get 1',
+      'arrayRef.1 >> div1',
       'div1 getPrototypeOf',
-      'main get insertBefore',
-      'main run insertBefore div1 terminator',
+      'main.insertBefore',
+      'main.insertBefore apply div1 terminator >> #6',
       // insert component
-      'arrayRef get 2',
+      'arrayRef.2 >> component1',
       'component1 getPrototypeOf', // instanceof Element
       'component1 getPrototypeOf', // instanceof Component
-      'component1 get element',
-      'main get insertBefore',
-      'main run insertBefore div2 terminator',
+      'component1.element >> div2',
+      'main.insertBefore',
+      'main.insertBefore apply div2 terminator >> #12',
       // insert 22
-      'arrayRef get 3',
-      'arrayRef run 3 ',
-      'main get insertBefore',
-      'main run insertBefore Text(22) terminator',
+      'arrayRef.3',
+      'arrayRef.3 apply >> 22',
+      'main.insertBefore',
+      'main.insertBefore apply Text(22) terminator >> #16',
     ],
   ],
 
@@ -300,7 +303,7 @@ test.each<
 
       main._t.append(text1);
 
-      const arrayRef = logger([1, 2, 3], log, 'arrayRef');
+      const arrayRef = logger([1, 2, 3], log, 'array');
       const update = logger(() => arrayRef, log, 'update');
 
       return {
@@ -324,23 +327,23 @@ test.each<
     },
     [
       // insert terminator
-      'update apply ',
-      'main get insertBefore',
-      'text1 get nextSibling',
-      'main run insertBefore Text() null',
-      // change "123" to 1
-      'arrayRef get length',
-      'arrayRef get 0',
-      'text1 getPrototypeOf',
-      'text1 set nodeValue 1',
+      'update apply >> array',
+      'main.insertBefore',
+      'text1.nextSibling >> null',
+      'main.insertBefore apply Text() null >> #3', // terminator
+      // replace "123" to 1
+      'array.length >> 3',
+      'array.0 >> 1',
+      'main.replaceChild',
+      'main.replaceChild apply Text(1) text1 >> #7',
       // insert 2
-      'arrayRef get 1',
-      'main get insertBefore',
-      'main run insertBefore Text(2) Text()',
+      'array.1 >> 2',
+      'main.insertBefore',
+      'main.insertBefore apply Text(2) #3 >> #10',
       // insert 3
-      'arrayRef get 2',
-      'main get insertBefore',
-      'main run insertBefore Text(3) Text()',
+      'array.2 >> 3',
+      'main.insertBefore',
+      'main.insertBefore apply Text(3) #3 >> #13',
     ],
   ],
 
@@ -352,13 +355,13 @@ test.each<
 
       main._t.append(text1, terminator);
 
-      const arrayRef = logger([1, 2, 3], log, 'arrayRef');
+      const arrayRef = logger([1, 2, 3], log, 'array');
       const update = logger(() => arrayRef, log, 'update');
 
       return {
         providedUpdatable: {
           update,
-          cache: {value: '123', node: text1},
+          cache: {value: '123', node: text1}, // todo logger
           arrayRef: null,
           terminator,
         },
@@ -375,20 +378,17 @@ test.each<
       };
     },
     [
-      'update apply ',
-      'arrayRef get length',
-      // change "123" to 1
-      'arrayRef get 0',
-      'text1 getPrototypeOf',
-      'text1 set nodeValue 1',
-      // insert 2
-      'arrayRef get 1',
-      'main get insertBefore',
-      'main run insertBefore Text(2) terminator',
-      // insert 3
-      'arrayRef get 2',
-      'main get insertBefore',
-      'main run insertBefore Text(3) terminator',
+      'update apply >> array',
+      'array.length >> 3',
+      'array.0 >> 1',
+      'main.replaceChild',
+      'main.replaceChild apply Text(1) text1 >> #4',
+      'array.1 >> 2',
+      'main.insertBefore',
+      'main.insertBefore apply Text(2) terminator >> #7',
+      'array.2 >> 3',
+      'main.insertBefore',
+      'main.insertBefore apply Text(3) terminator >> #10',
     ],
   ],
 
@@ -408,11 +408,12 @@ test.each<
         providedUpdatable: {
           update,
           cache: [
+            // todo logger
             {value: '1', node: text1},
             {value: '2', node: text2},
             {value: '3', node: text3},
           ],
-          arrayRef: ['1', '2', '3'],
+          arrayRef: ['1', '2', '3'], // todo logger
           terminator,
         },
         expectedUpdatable: {
@@ -424,16 +425,13 @@ test.each<
       };
     },
     [
-      'update apply ',
-      // change 1 to 123
-      'text1 getPrototypeOf',
-      'text1 set nodeValue 123',
-      // remove 2
-      'main get removeChild',
-      'main run removeChild text2',
-      // remove 3
-      'main get removeChild',
-      'main run removeChild text3',
+      'update apply >> 123',
+      'main.replaceChild',
+      'main.replaceChild apply Text(123) text1 >> #2',
+      'main.removeChild',
+      'main.removeChild apply text2 >> #4',
+      'main.removeChild',
+      'main.removeChild apply text3 >> #6',
     ],
   ],
 ])('updateChild %s', (description, getUpdatables, expectedLog) => {

@@ -5,7 +5,7 @@ export interface Distinct<Name> {
   __DISTINCT: Name;
 }
 
-export type NamespaceUri = string & Distinct<'NamespaceUri'>;
+export type NamespaceUri = string & Distinct<'NamespaceUri'>; // ! null - https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
 export type TagName = string & Distinct<'TagName'>;
 
 /* STATIC ARGS */
@@ -27,13 +27,16 @@ export type StaticProp =
   | {apply?: never; readonly [k: string]: any}
   | {call?: never; readonly [k: string]: any};
 
-export type SingleStaticChild = Primitive | Element;
+export type SingleStaticChild = Primitive | Node;
 
 export type StaticChild = SingleStaticChild | readonly SingleStaticChild[];
 
 export interface StaticProps {
+  /** Custom element name. */
+  is?: string;
+  // mount?: Mount; // todo
+  // [key: `${string}_e${string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
   readonly [key: string]: StaticProp;
-  // [key: `{string}_e{string}`]: Function; // todo event handlers should be static https://stackoverflow.com/q/71111120/7138254
 }
 
 export type StaticArg = StaticProps | StaticChild;
@@ -50,20 +53,48 @@ export type SingleChild =
 export type Child = SingleChild | readonly SingleChild[];
 
 export interface Props {
+  /** Custom element name. */
+  is?: string;
+  mount?: Mount;
+  readonly [key: `${string}_e${string}`]:
+    | EventListener2
+    | EventListenerOrEventListenerObject2
+    //?| null
+    | AddEventListenerOptions2;
   readonly [key: string]: Prop;
 }
 
 export type Arg = Props | Child;
 
+/* EVENTS */
+
+export type EventListener2 = <EV extends Event>(
+  // ? this: EL, // , EL extends Element
+  event: EV,
+  self: Fusion,
+) => void;
+
+export type EventListenerOrEventListenerObject2 =
+  | EventListener2
+  | {
+      handleEvent: EventListener2;
+    };
+
+export type AddEventListenerOptions2 = AddEventListenerOptions & {
+  update?: boolean;
+  handle: EventListenerOrEventListenerObject2;
+};
+
 /* EXTRAS */
 
-export type LifeUnmount = () => void;
-export type LifeMount = (self?: Component<Element>) => LifeUnmount | undefined;
+export type Unmount = () => void;
+/** DOM Element connect callback. Return disconnect function if needed. */
+export type Mount = (self: Fusion) => Unmount | undefined;
 
 /** @internal */
 export interface ElementExtras {
-  mount?: LifeMount;
-  unmount?: LifeUnmount;
+  mount?: Mount;
+  unmount?: Unmount;
   component?: Component<Element>;
 }
 
@@ -74,22 +105,23 @@ export interface ElementWithExtras extends Element {
 
 /* INITTERS */
 
+// FusorNode, Entity, Matter, Component, Nucleus, Meld, Chunk, Block, Part, Piece, Segment, Unit, Structure, Item, Node, Creature, Fragment
+/** Some unknown structure
+ * @internal do not rely on its internal structure
+ * Use public API method to work with it: update, isUpdatable, getElement */
+export type Fusion = Element | Component<Element>;
+
 export interface FnInitter {
   <E extends ElementWithExtras>(element: E, args: readonly StaticArg[]): E;
   <E extends ElementWithExtras>(element: E, args: readonly Arg[]): Component<E>;
 }
 
-export interface ElementInitter<E extends Element> {
+export interface InitElementHelper {
   (
     namespace: NamespaceUri | undefined,
     tagName: TagName,
-    args: readonly StaticArg[],
-  ): E;
-  (
-    namespace: NamespaceUri | undefined,
-    tagName: TagName,
-    args: readonly Arg[],
-  ): Component<E>;
+    args: readonly any[], // Arg[],
+  ): Fusion;
 }
 
 export interface CustomInitter<E extends Element> {
@@ -102,27 +134,23 @@ export interface TaggedInitter<E extends Element> {
   (...args: readonly Arg[]): Component<E>;
 }
 
-export interface JsxInitter<E extends Element> {
-  (
-    tagName: TagName | Function,
-    props?: StaticProps,
-    ...children: readonly StaticChild[]
-  ): E;
+export interface InitJsx {
   (
     tagName: TagName | Function,
     props?: Props,
     ...children: readonly Child[]
-  ): Component<E>;
+  ): Fusion;
 }
 
 /* UPDATE */
 
+// todo split to UpdatableProperty and UpdatableAttribute
 export interface UpdatableProp {
   readonly update: () => Prop;
-  value: Prop;
+  value: Prop; // todo string for attribute
   isAttr: boolean;
 
-  // todo not applicable to properties, split attr and prop
+  // todo not applicable to properties
   namespace?: null | string; // ! undefined for HTMLElement only, without namespace
 }
 
@@ -130,11 +158,9 @@ export interface DynamicProps {
   [key: string]: UpdatableProp;
 }
 
-export type ValueNode = Text | Element;
-
 export interface ChildCache {
-  value: string | Element | Component<Element>;
-  node: ValueNode;
+  value: string | Node | Component<Element>;
+  node: Node;
 }
 
 export interface UpdatableChild {

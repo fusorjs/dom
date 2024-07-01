@@ -1,5 +1,5 @@
-import {emptyAttr} from './share';
-import {updateProp} from './update';
+import {emptyAttribute} from './convertAttribute';
+import {updateProp} from './updateProp';
 
 const target = {
   getter: jest.fn(),
@@ -60,12 +60,13 @@ const key = 'key';
 test.each(
   // prettier-ignore
   [
-    [ (): any => 123       , 0   , true  , undefined , 'setAttribute'      , [ '123' ] ],
-    [ (): any => 123       , 0   , true  , 'ns'      , 'setAttributeNS'    , [ '123' ] ],
-    [ (): any => emptyAttr , 123 , true  , undefined , 'removeAttribute'   , [       ] ],
-    [ (): any => emptyAttr , 123 , true  , 'ns'      , 'removeAttributeNS' , [       ] ],
-    [ (): any => 123       , 0   , false , undefined , undefined           , [ 123   ] ],
-    [ (): any => 123       , 123 , false , undefined , undefined           , undefined ],
+    [ (): any => 8              , '8' , true  , undefined , undefined           , undefined ],
+    [ (): any => 123            , '0' , true  , undefined , 'setAttribute'      , [ '123' ] ],
+    [ (): any => 123            , '0' , true  , 'ns'      , 'setAttributeNS'    , [ '123' ] ],
+    [ (): any => emptyAttribute , '3' , true  , undefined , 'removeAttribute'   , [       ] ],
+    [ (): any => emptyAttribute , '3' , true  , 'ns'      , 'removeAttributeNS' , [       ] ],
+    [ (): any => 123            , 0   , false , undefined , undefined           , [ 123   ] ],
+    [ (): any => 123            , 123 , false , undefined , undefined           , undefined ],
   ],
 )(
   'create %p %p %p %p %s %s %p',

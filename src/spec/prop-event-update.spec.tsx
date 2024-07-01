@@ -14,6 +14,7 @@ test.each(
 
 test.each([
   [
+    'without update',
     () => {
       let count = 0;
       return (
@@ -25,6 +26,7 @@ test.each([
     'Clicked 0 times', // ! zero
   ],
   [
+    'click_e_update',
     () => {
       let count = 0;
       return (
@@ -36,6 +38,7 @@ test.each([
     'Clicked 1 times',
   ],
   [
+    'options: {handle, update}',
     () => {
       let count = 0;
       return (
@@ -52,6 +55,7 @@ test.each([
     'Clicked 1 times',
   ],
   [
+    'options: {handle: {handleEvent}, update}',
     () => {
       let count = 0;
       return (
@@ -67,7 +71,7 @@ test.each([
     },
     'Clicked 1 times',
   ],
-])('count times clicked', (CountingButton, text) => {
+])('count times clicked: %s', (description, CountingButton, text) => {
   const {element} = (<CountingButton />) as Component<Element>;
   expect(element.innerHTML).toBe('Clicked 0 times');
   element.dispatchEvent(new Event('click'));

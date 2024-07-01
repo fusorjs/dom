@@ -1,7 +1,7 @@
-import {DynamicChild, Prop, DynamicProps, FnInitter} from './types';
+import {DynamicChild, DynamicProps, FnInitter, Prop} from './types';
 import {elementExtrasName} from './share';
 import {Component} from './component';
-import {initProp} from './prop/init';
+import {initProp} from './prop/initProp';
 import {initFlatChild} from './child/initFlatChild';
 
 export const init: FnInitter = (element, args) => {

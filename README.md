@@ -1,117 +1,200 @@
 # Fusor
 
-Fusor is a simple JavaScript library that helps declaratively create and update DOM elements.
+## Declaratively Creates & Updates DOM
 
-> It **fuses** DOM elements together.
+> It _fuses_ DOM elements into easy-to-use components
+
+## Goals
+
+- **Simplicity**
+  - Small, explicit, **pure**, **functional** API
+- **Flexibility**
+  - W3C standards **compliant**
+  - _Simple things should be simple, complex things should be possible_
+    - **Fine-grained control** over creation and updates
+- **Minimalism**
+  - _Do one thing and do it well_
+    - **Lifting up**: state, context, lifecycle, diffing
+- **Performance**
+  - Efficient use of provided and internal data
+    - **Immutability**, avoid excessive creation
+  - Size **~4KiB** with **zero** dependencies
 
 ## Example
 
-### Create DOM
+### Creating a static DOM node
 
 ```jsx
-document.body.append(<div>The ultimate answer is {42}</div>); // JSX
+import {getElement, update} from '@fusorjs/dom';
+
+const count = 0;
+const message = <div>Seconds {count} elapsed</div>; // JSX
+
+document.body.append(getElement(message));
 ```
 
-### Update DOM
+> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
+
+### Updating a dynamic DOM node
 
 ```jsx
-let count = 0;
-const secs = <div>Seconds {() => count} elapsed</div>;
+import {getElement, update} from '@fusorjs/dom';
 
-document.body.append(secs.element);
+let count = 0;
+const message = <div>Seconds {() => count} elapsed</div>; // JSX
+
+document.body.append(getElement(message));
 
 setInterval(() => {
   count += 1;
-  secs.update();
+  update(message);
 }, 1000);
 ```
 
-### Reusable Component
+> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-> `click_e` - means click event handler - [view all W3C standards-compliant options](docs/reference.md#keys)
+### Creating a reusable component
+
+> `click_e` - click event handler - [keys reference](docs/reference.md#event-handler-keys)
 
 ```jsx
+import {getElement, update} from '@fusorjs/dom';
+
 const CountingButton = ({count = 0}) => {
-  const btn = (
+  const self = (
     <button
       click_e={() => {
         // click event handler
         count += 1;
-        btn.update();
+        update(self);
       }}
     >
       Clicked {() => count} times
     </button>
   );
-  return btn;
+  return self;
 };
 
 const App = () => (
-  <div>
-    <p>Three click-counting buttons</p>
+  <div style="padding:1em">
+    <p>Three counting buttons</p>
     <CountingButton />
     <CountingButton count={22} />
     <CountingButton count={333} />
   </div>
 );
 
-document.body.append(App().element);
+document.body.append(getElement(App()));
 ```
 
-<!-- const CountingButton = ({init: count = 0}) => (
-  // click_e_update: click event handler, update DOM after a call
+> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
+
+#### Shorter Version
+
+```jsx
+const CountingButton = ({count = 0}) => (
+  <button
+    click_e={(event, self) => {
+      count += 1;
+      update(self);
+    }}
+  >
+    Clicked {() => count} times
+  </button>
+);
+```
+
+> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
+
+#### Shortest Version
+
+> `click_e_update` - click event handler with update - [keys reference](docs/reference.md#event-handler-keys)
+
+```jsx
+const CountingButton = ({count = 0}) => (
   <button click_e_update={() => (count += 1)}>
     Clicked {() => count} times
   </button>
-); -->
+);
+```
 
-> [**Playground**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
+> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-<!-- > `click_e_update` means: `click` `e`vent handler `update`s DOM after the call [...reference.](docs/reference.md#keys)
+## Lifecycle
 
-Property key `click_e_update` means:
+1. Create
+2. Connect to DOM
+3. Update DOM
+4. Disconnect from DOM
 
-- `click` name
-- `e`vent handler
-- `update` DOM after the event
-- `_` configurable separator symbol
-- [keys reference](docs/reference.md#keys) -->
+```jsx
+import {getElement, update} from '@fusorjs/dom';
 
-## Different from React/Solid
+const IntervalCounter = ({count = 0}) => {
+  console.log('1. Create');
 
-While Fusor shares some concepts with React/Solid, it distinguishes itself by adopting a more flexible and minimalist approach. Essentially, the complexity of hooks, lifecycle, and concurrency is replaced by fine-grained DOM update control.
+  return (
+    <div
+      mount={(self) => {
+        console.log('2. Connect to DOM');
+
+        const timerId = setInterval(() => {
+          count++;
+          update(self);
+          console.log('3. Update DOM');
+        }, 1000);
+
+        return () => {
+          clearInterval(timerId);
+          console.log('4. Disconnect from DOM');
+        };
+      }}
+    >
+      Since mounted {() => count} seconds elapsed
+    </div>
+  );
+};
+
+const instance = <IntervalCounter />;
+
+document.body.append(getElement(instance));
+
+setTimeout(() => getElement(instance).remove(), 15000);
+```
+
+> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
+>
+> [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx)
+
+## This concludes the tutorial
+
+Now you know how to develop useful applications. In fact, this knowledge enables you to create apps on par with those developed using **React, Angular, Vue, Solid**...
 
 > [Fusor vs React comparison](docs/fusor-vs-react.md)
 
-## Goals
+## Start Coding
 
-### Simplicity + Minimalism + Flexibility + Performance
+Start with a boilerplate project:
 
-- Small, **simple**, explicit and flexible API.
-- Standards compliant and integrable with other tools.
-- Do one thing and do it well (manage DOM elements), **outsource**: state, lifecycle, context, diffing, etc.
-- Simple things should be simple, complex things should be possible (Alan Kay). **Fine-grained control** over DOM updates.
-- Efficient CPU and memory usage by reusing given objects and arrays without their recreation nor modification. Avoid arrays flattening, object's `rest`ing or `spread`ing operations.
-- Lightweight (**~4KiB** with **zero** dependencies).
+- [**JavaScript Starter**](https://github.com/fusorjs/dom-starter-jsx-webpack)
+- [**TypeScript Starter**](https://github.com/fusorjs/dom-starter-tsx-webpack)
+
+Or configure it [manually](docs/reference.md#install)
 
 ## Documentation
 
-- [**START WITH TUTORIAL**](docs/tutorial.md)
 - [Reference](docs/reference.md)
 - [Functional Notation](docs/functional-notation.md)
 - [Optimisation](docs/optimisation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
 
-## Demos
+## Applications
 
-- [Use cases](https://fusorjs.github.io/tutorial/) (routing, request, lifecycle, SVG, JSX...)
-- [Todo-list](https://github.com/fusorjs/todomvc#readme)
-- [SVG analog clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx)
-- [FN counting button](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
-- [JSX counting button](https://codesandbox.io/p/sandbox/fusor-intro-jsx-r96fgd?file=%2Fsrc%2Findex.tsx)
+- [Tutorial](https://github.com/fusorjs/tutorial) (routing, request, lifecycle, svg, jsx, custom element...)
+- [TodoMvc](https://github.com/fusorjs/todomvc)
 
 ## Contribute
 
-Your contributions are welcome!
+Your contributions are always welcome!
 
 See [CHANGELOG](CHANGELOG.md) for details.

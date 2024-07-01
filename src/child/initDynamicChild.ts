@@ -1,18 +1,17 @@
+import {ChildCache} from '../types';
 import {Component} from '../component';
-import {getString} from '../share';
-import {SingleChild, Child, ChildCache, ValueNode} from '../types';
 
-import {convertChild} from './share';
+import {convertChild} from './convertChild';
 
-export const initDynamicChild = (element: Node, value: Child): ChildCache => {
-  let node: ValueNode | undefined;
+export const initDynamicChild = (element: Node, value: any): ChildCache => {
+  let node: Node;
 
-  if (value instanceof Element) {
+  if (value instanceof Node) {
     node = value;
   } else if (value instanceof Component) {
     node = value.element;
   } else {
-    value = getString(convertChild(value));
+    value = convertChild(value);
     node = new Text(value);
   }
 
@@ -26,7 +25,7 @@ export const initDynamicChild = (element: Node, value: Child): ChildCache => {
 
 export const initDynamicChildren = (
   element: Node,
-  values: SingleChild[],
+  values: readonly any[],
 ): ChildCache[] => {
   const result: ChildCache[] = [];
 

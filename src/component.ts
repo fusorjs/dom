@@ -1,14 +1,20 @@
 import {DynamicChild, DynamicProps} from './types';
-import {updateProp} from './prop/update';
+import {updateProp} from './prop/updateProp';
 import {updateChild} from './child/updateChild';
 
+/**
+ * @deprecated
+ * @internal library use only
+ */
 export class Component<E extends Element> {
   constructor(
+    /** @deprecated use public API method `getElement(component)` instead */
     readonly element: E,
     private props?: DynamicProps,
     private children?: readonly DynamicChild<E>[],
   ) {}
 
+  /** @deprecated use public API method `update(component)` instead */
   update() {
     const {element, props, children} = this;
 

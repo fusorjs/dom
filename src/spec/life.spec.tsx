@@ -1,13 +1,13 @@
-import {Component, jsx} from '..';
+import {Component, jsx, update} from '..';
 
 test('static mount/unmount', () => {
-  const logSpy = jest.spyOn(console, 'log');
+  let result = '';
   const wrapper = (
     <div
       mount={() => {
-        console.log('Yay mounted!');
+        result = 'Yay mounted!';
 
-        return () => console.log('Yay unmounted!');
+        return () => (result = 'Yay unmounted!');
       }}
     >
       Hello!
@@ -15,14 +15,14 @@ test('static mount/unmount', () => {
   ) as Element;
 
   expect(wrapper).toBeInstanceOf(HTMLDivElement);
-  expect(logSpy).not.toHaveBeenCalled();
+  expect(result).toBe('');
   document.body.append(wrapper);
   expect(document.body.innerHTML).toBe(
     '<div is="fusorjs-life-div">Hello!</div>',
   );
-  expect(logSpy).toHaveBeenCalledWith('Yay mounted!');
+  expect(result).toBe('Yay mounted!');
   document.body.removeChild(wrapper);
-  expect(logSpy).toHaveBeenCalledWith('Yay unmounted!');
+  expect(result).toBe('Yay unmounted!');
 });
 
 test('dynamic mount/unmount', () => {
@@ -31,11 +31,11 @@ test('dynamic mount/unmount', () => {
     <div
       mount={(self) => {
         content += ' World';
-        self.update();
+        update(self);
 
         return () => {
           content = 'End';
-          self.update();
+          update(self);
         };
       }}
     >

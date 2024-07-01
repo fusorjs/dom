@@ -1,7 +1,10 @@
-export * from './types';
-export {init} from './init';
-export {Component} from './component';
-export {defaultPropSplitter, setPropSplitter} from './prop/init';
+// Public API for library users
+export type {Fusion} from './types';
+export {getElement, isUpdatable, update} from './public';
+export {h, s} from './help/initHelper';
 export {initJsx as jsx} from './jsx-runtime';
+export {defaultPropSplitter, setPropSplitter} from './prop/initProp';
 
-//
+// todo deprecate:
+
+export {Component} from './component';

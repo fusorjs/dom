@@ -28,17 +28,17 @@ const App = () =>
 document.body.append(App().element);
 ```
 
-> [**Playground**](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
+> [CodeSandbox](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
 
 ## FN vs JSX
 
 Functional notation is better than JSX in the following ways:
 
 - Faster, lighter, flexible
-- Typechecks automatically between static `Element` and dynamic `Component<Element>`
+<!-- - Typechecks automatically between static `Element` and dynamic `Component<Element>` (not in v3 anymore) -->
 - No need for a build/compile step/tool
 - Just JavaScript, no new syntax
-- Natural comments, try in JSX comment a block of code that contains `{/* comment */}`
+- Natural comments, try in JSX, comment a block of code that contains another `{/* comment */}`
 - You have the ability to use multiple props objects and children arrays in any order, without the need for `...spread`-ing
 - You can use nested arrays without flattening
 - You don't need to capitalize your component names or have a single props object argument in the constructor, although it's recommended for interoperability with JSX

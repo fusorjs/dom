@@ -1,15 +1,14 @@
-import {ChildCache, SingleChild, ValueNode} from '../types';
+import {ChildCache} from '../types';
 import {Component} from '../component';
-import {getString} from '../share';
 
-import {convertChild} from './share';
+import {convertChild} from './convertChild';
 import {replaceChild} from './replaceChild';
 
 export const replaceChildren = (
   element: Node,
-  /** This object mutated in this function! */
+  /** @mutated */
   cache: ChildCache[], // ! mutated
-  nextValues: readonly SingleChild[],
+  nextValues: readonly any[],
   terminator: Text,
 ): void => {
   const prevLength = cache.length;
@@ -24,7 +23,7 @@ export const replaceChildren = (
 
     // ? maybe apply nested arrays ?
 
-    if (typeof nextValue === 'function') nextValue = nextValue() as SingleChild; // todo as
+    if (typeof nextValue === 'function') nextValue = nextValue();
 
     replaceChild(element, cache[i], nextValue);
   }
@@ -43,20 +42,20 @@ export const replaceChildren = (
 
   // or insert
   for (; i < nextLength; i++) {
-    let value: any = nextValues[i];
+    let value = nextValues[i];
 
     // ? maybe apply nested arrays ?
 
     if (typeof value === 'function') value = value();
 
-    let node: ValueNode;
+    let node: Node;
 
-    if (value instanceof Element) {
+    if (value instanceof Node) {
       node = value;
     } else if (value instanceof Component) {
       node = value.element;
     } else {
-      value = getString(convertChild(value));
+      value = convertChild(value);
       node = new Text(value);
     }
 

@@ -38,7 +38,7 @@ export const getLifeElementName = (tag: TagName) => {
 
         if (!mount) return;
 
-        extras.unmount = mount(extras.component);
+        extras.unmount = mount(extras.component ?? this);
       }
       disconnectedCallback() {
         this[elementExtrasName]?.unmount?.();

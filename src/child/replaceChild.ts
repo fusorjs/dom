@@ -1,25 +1,25 @@
-import {ChildCache, SingleChild, ValueNode} from '../types';
+import {ObjectIs} from '../share';
+import {ChildCache} from '../types';
 import {Component} from '../component';
-import {ObjectIs, getString} from '../share';
 
-import {convertChild} from './share';
+import {convertChild} from './convertChild';
 
 /** Replace child value and update the cache if needed. */
 export const replaceChild = (
   element: Node,
-  /** This object mutated in this function! */
+  /** @mutated */
   cache: ChildCache, // ! mutated
-  nextValue: SingleChild,
+  nextValue: any,
 ): void => {
   const {value: prevValue, node: prevNode} = cache;
 
   // same value, do nothing
   if (ObjectIs(nextValue, prevValue)) return;
 
-  let nextNode: ValueNode | undefined;
+  let nextNode: Node;
 
   // replace with different element
-  if (nextValue instanceof Element) {
+  if (nextValue instanceof Node) {
     element.replaceChild(nextValue, prevNode);
     nextNode = nextValue;
   }
@@ -30,23 +30,22 @@ export const replaceChild = (
     element.replaceChild(nextNode, prevNode);
   }
 
-  // stringify value
+  // replace with string or number
   else {
-    nextValue = getString(convertChild(nextValue));
+    nextValue = convertChild(nextValue);
 
-    if (nextValue === prevValue) return; // check again after stringifying
+    if (nextValue === prevValue) return; // check again after converting
 
-    // replace value reusing text node
-    if (prevNode instanceof Text) {
-      prevNode.nodeValue = nextValue;
-      nextNode = prevNode;
-    }
+    // ! do not mutate Text as it might be used in client code
+    // // replace value reusing text node
+    // if (prevNode instanceof Text) {
+    //   prevNode.nodeValue = nextValue;
+    //   nextNode = prevNode;
+    // }
 
     // replace with new text node
-    else {
-      nextNode = new Text(nextValue);
-      element.replaceChild(nextNode, prevNode);
-    }
+    nextNode = new Text(nextValue as string);
+    element.replaceChild(nextNode, prevNode);
   }
 
   // update cache

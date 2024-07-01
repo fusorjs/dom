@@ -1,5 +1,5 @@
 import {TagName, TaggedInitter} from '../types';
-import {initElementHelper} from './init';
+import {initHelper} from './initHelper';
 
 console.warn(
   '<fusor-life> & `Life` are deprecated in favour of `mount` callback',
@@ -35,4 +35,4 @@ customElements.define(
 
 /** @deprecated use mount prop */
 export const Life: TaggedInitter<HTMLElement> = (...args) =>
-  initElementHelper(undefined, 'fusor-life' as TagName, args) as any;
+  initHelper(undefined, 'fusor-life' as TagName, args) as any;

@@ -18,22 +18,23 @@
 
 ## Todo
 
-- Optimize `development` and `production` modes.
 - Override a splitter for a current prop key, mybe like `_$$_name$$e` from `_` to `$$` or (`_"___"xlink:href___an___http://www.w3.org/1999/xlink`)
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` <https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments>, speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
 - Implement iterator support the same way as for static/dynamic arrays.
-- Optimize build with rollup to be in line with ~4KiB size claim
 - Use nested dynamic arrays, they will be applied to element
 - Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
+- build
+  - Optimize build with rollup to be in line with ~4KiB size claim
+  - Create `production` build with `development` checks removed
+  - Create different build targets: ESM, CommonJS, UMD, AMD...
 
 ### Version 3
 
 - Avoid creating excessive layers of components when only deep child is dynamic (compression)
 - Create "sugar" syntax to subscribe/usubscribe to observable values.
-- Ability to `update` manually in event handlers. Bind event handlers with this component or provide as argument (so fn-intro-example could be smaller).
 - Maybe remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance
 - Maybe not call child component.update() automatically from the parent, or have a prop `notUpdate` to stop update propagation further down the tree
-- remove deprecated (Life)
+- Remove all deprecated APIs (Life)
 
 ```ts
 // @internal library use only
@@ -51,10 +52,17 @@ type updateCurrent = (value: Element | Component) => void;
 
 ## In Progress
 
-### Version 2.3.2
+### Version 2.4.1
 
-- Prepare global `getElement` and `update` api for version 3.
-- Move `h` and `s` to the core, out of `html` and `svg` respectively.
+- New public API methods: `update`, `isUpdatable`, `getElement` should be used (preparing for version 3)
+- Ability to `update` manually in event handlers. Provide second `self` argument.
+- Improved docs and types.
+
+Breaking changes:
+
+- Move `h` and `s` methods to the root, out of `html` and `svg` respectively.
+- `Self` argument in `mount` must be handled by the public API methods.
+- Invalid attributes and children values throwing errors in development mode instead of silently being converted to strings.
 
 ## Done
 

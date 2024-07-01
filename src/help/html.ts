@@ -1,14 +1,11 @@
-import {TaggedInitter, CustomInitter, TagName} from '../types';
+import {TaggedInitter} from '../types';
 
 import {
-  initElementHelper,
+  initHelper,
   getTaggedInitHelper,
   getTaggedInitMapHelper,
-} from './init';
+} from './initHelper';
 import {htmlTagNames} from './constants';
-
-export const h: CustomInitter<HTMLElement> = (tagName, ...args) =>
-  initElementHelper(undefined, tagName as TagName, args) as any;
 
 type Result = {
   [K in keyof HTMLElementTagNameMap]: TaggedInitter<HTMLElementTagNameMap[K]>;

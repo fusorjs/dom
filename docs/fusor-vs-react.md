@@ -1,5 +1,9 @@
 # Fusor vs React
 
+## Not another React clone
+
+While Fusor shares some concepts with React, it distinguishes itself by adopting a more flexible and minimalist approach. Essentially, the complexity of hooks, lifecycle, and concurrency is replaced by fine-grained DOM control.
+
 ## Common features
 
 Fusor was inspired by React, and they both share the same ideas:
@@ -8,17 +12,18 @@ Fusor was inspired by React, and they both share the same ideas:
 - One-way data flow
 - JSX
 - DOM updates only if a value or reference changes
+- Minimal DOM updates
 - Updates to the parent component will trigger the necessary updates in its children
 
 ## The main difference
 
 The fundamental difference lies in the separation of concerns within the component lifecycle (aka single-responsibility principle in SOLID)
 
-| Component | Fusor                         | React                       |
-| --------- | ----------------------------- | --------------------------- |
-| Creation  | `let state = 0; Component();` | `useState(0); Component();` |
-| Changing  | `state = 1;`                  | `setState(1); Component();` |
-| Updating  | `update();`                   | `Component();`              |
+| Component | Fusor                         | React                        |
+| --------- | ----------------------------- | ---------------------------- |
+| Creation  | `let state = 0; Component();` | `useState(0); Component();`  |
+| Changing  | `state = 1;`                  | `setState(1); Component();`  |
+| Updating  | `update();`                   | changing & updating combined |
 
 > A plain variable is used for Fusor state in the example above.
 

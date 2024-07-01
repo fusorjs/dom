@@ -1,17 +1,16 @@
 import {Component} from '../component';
-import {UpdatableChild, SingleChild, UpdatableChildren} from '../types';
-import {getString} from '../share';
+import {UpdatableChild, UpdatableChildren} from '../types';
 // import {CustomValue} from '../custom/value'; // todo
 
-import {convertChild, emptyChild} from './share';
+import {convertChild, emptyChild} from './convertChild';
 import {initDynamicChild, initDynamicChildren} from './initDynamicChild';
 
 export const initChild = (
   element: Element,
-  value: SingleChild,
+  value: any,
 ): undefined | Component<Element> | UpdatableChild | UpdatableChildren => {
   // init static element
-  if (value instanceof Element) {
+  if (value instanceof Node) {
     element.appendChild(value);
   }
 
@@ -52,6 +51,6 @@ export const initChild = (
 
     if (value === emptyChild) return; // not append // ! only for static, dynamic needs node to update
 
-    element.append(getString(value)); // append is a bit faster than appendChild https://www.measurethat.net/Benchmarks/Show/17024/0/createtextnode-vs-textcontent-vs-innertext-vs-append-vs
+    element.append(value); // append is a bit faster than appendChild https://www.measurethat.net/Benchmarks/Show/17024/0/createtextnode-vs-textcontent-vs-innertext-vs-append-vs
   }
 };

@@ -1,4 +1,4 @@
-import {ProxyLog, elm, logger} from '../common.spec';
+import {ProxyLog, elm, logger} from '../lib/proxyLogger';
 
 import {SingleChild} from '../types';
 import {Component} from '../component';
@@ -23,7 +23,7 @@ test.each<
         expectedReturn: undefined,
       };
     },
-    ['main get append', 'main run append abc'],
+    ['main.append', 'main.append apply "abc" >> undefined'],
   ],
 
   [
@@ -48,8 +48,8 @@ test.each<
     },
     [
       'div1 getPrototypeOf',
-      'main get appendChild',
-      'main run appendChild div1',
+      'main.appendChild',
+      'main.appendChild apply div1 >> #2',
     ],
   ],
 
@@ -66,9 +66,9 @@ test.each<
     [
       'component1 getPrototypeOf', // is Element
       'component1 getPrototypeOf', // is Component // todo optimize to one call
-      'main get appendChild',
-      'component1 get element',
-      'main run appendChild div1',
+      'main.appendChild',
+      'component1.element >> div1',
+      'main.appendChild apply div1 >> #4',
     ],
   ],
 
@@ -92,9 +92,9 @@ test.each<
     [
       'update getPrototypeOf',
       'update getPrototypeOf',
-      'update apply ',
-      'main get appendChild',
-      'main run appendChild Text(123)',
+      'update apply >> 123',
+      'main.appendChild',
+      'main.appendChild apply Text(123) >> #4',
     ],
   ],
 
@@ -119,10 +119,10 @@ test.each<
     [
       'update getPrototypeOf',
       'update getPrototypeOf',
-      'update apply ',
+      'update apply >> div1',
       'div1 getPrototypeOf',
-      'main get appendChild',
-      'main run appendChild div1',
+      'main.appendChild',
+      'main.appendChild apply div1 >> #5',
     ],
   ],
 
@@ -148,19 +148,19 @@ test.each<
     [
       'update getPrototypeOf',
       'update getPrototypeOf',
-      'update apply ',
+      'update apply >> component1',
       'component1 getPrototypeOf',
       'component1 getPrototypeOf',
-      'component1 get element',
-      'main get appendChild',
-      'main run appendChild div1',
+      'component1.element >> div1',
+      'main.appendChild',
+      'main.appendChild apply div1 >> #7',
     ],
   ],
 
   [
     '() => [1,2,3]',
     (log) => {
-      const arrayRef = logger([1, 2, 3], log, 'arrayRef');
+      const arrayRef = logger([1, 2, 3], log, 'array');
       const update = logger(() => arrayRef, log, 'update');
       return {
         providedValue: update,
@@ -188,24 +188,36 @@ test.each<
     [
       'update getPrototypeOf',
       'update getPrototypeOf',
-      'update apply ',
-      'arrayRef get Symbol(Symbol.iterator)',
-      'arrayRef run Symbol(Symbol.iterator) ',
-      'main get appendChild',
-      'main run appendChild Text(1)',
-      'main get appendChild', // todo optimize to one call
-      'main run appendChild Text(2)',
-      'main get appendChild',
-      'main run appendChild Text(3)',
-      'main get appendChild',
-      'main run appendChild Text()',
+      'update apply >> array',
+      'array.Symbol(Symbol.iterator)',
+      'array.Symbol(Symbol.iterator) apply >> #4',
+      '#4.next',
+      '#4.next apply >> #6',
+      '#6.done >> false',
+      '#6.value >> 1',
+      'main.appendChild',
+      'main.appendChild apply Text(1) >> #10',
+      '#4.next apply >> #11',
+      '#11.done >> false',
+      '#11.value >> 2',
+      'main.appendChild', // todo optimize to one call
+      'main.appendChild apply Text(2) >> #15',
+      '#4.next apply >> #16',
+      '#16.done >> false',
+      '#16.value >> 3',
+      'main.appendChild',
+      'main.appendChild apply Text(3) >> #20',
+      '#4.next apply >> #21',
+      '#21.done >> true',
+      'main.appendChild',
+      'main.appendChild apply Text() >> #24',
     ],
   ],
 
   [
     '() => []',
     (log) => {
-      const arrayRef = logger([], log, 'arrayRef');
+      const arrayRef = logger([], log, 'array');
       const update = logger(() => arrayRef, log, 'update');
       return {
         providedValue: update,
@@ -220,19 +232,21 @@ test.each<
     [
       'update getPrototypeOf',
       'update getPrototypeOf',
-      'update apply ',
-      'arrayRef get Symbol(Symbol.iterator)',
-      'arrayRef run Symbol(Symbol.iterator) ',
-      'main get appendChild',
-      'main run appendChild Text()',
+      'update apply >> array',
+      'array.Symbol(Symbol.iterator)',
+      'array.Symbol(Symbol.iterator) apply >> #4',
+      '#4.next',
+      '#4.next apply >> #6',
+      '#6.done >> true',
+      'main.appendChild',
+      'main.appendChild apply Text() >> #9',
     ],
   ],
 
   [
     '() => [() => 22]',
     (log) => {
-      const fun1 = logger(() => 22, log, 'fun1');
-      const arrayRef = logger([fun1], log, 'arrayRef');
+      const arrayRef = logger([() => 22], log, 'array');
       const update = logger(() => arrayRef, log, 'update');
       return {
         providedValue: update,
@@ -252,14 +266,20 @@ test.each<
     [
       'update getPrototypeOf',
       'update getPrototypeOf',
-      'update apply ',
-      'arrayRef get Symbol(Symbol.iterator)',
-      'arrayRef run Symbol(Symbol.iterator) ',
-      'fun1 apply ',
-      'main get appendChild',
-      'main run appendChild Text(22)',
-      'main get appendChild',
-      'main run appendChild Text()',
+      'update apply >> array',
+      'array.Symbol(Symbol.iterator)',
+      'array.Symbol(Symbol.iterator) apply >> #4',
+      '#4.next',
+      '#4.next apply >> #6',
+      '#6.done >> false',
+      '#6.value',
+      '#6.value apply >> 22',
+      'main.appendChild',
+      'main.appendChild apply Text(22) >> #11',
+      '#4.next apply >> #12',
+      '#12.done >> true',
+      'main.appendChild',
+      'main.appendChild apply Text() >> #15',
     ],
   ],
 ])('initChild %s', (description, getValues, expectedLog) => {

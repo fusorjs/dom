@@ -1,13 +1,22 @@
 import {createElement} from '../createElement';
 import {init} from '../init';
-import {ElementInitter, NamespaceUri, TagName, TaggedInitter} from '../types';
+import {
+  InitElementHelper,
+  NamespaceUri,
+  TagName,
+  TaggedInitter,
+  CustomInitter,
+} from '../types';
+import {svgNamespace} from './constants';
+
+export const h: CustomInitter<HTMLElement> = (tagName, ...args) =>
+  initHelper(undefined, tagName as TagName, args) as any;
+
+export const s: CustomInitter<SVGElement> = (tagName, ...args) =>
+  initHelper(svgNamespace, tagName as TagName, args) as any;
 
 /** @deprecated */
-export const initElementHelper: ElementInitter<Element> = (
-  namespace,
-  tagName,
-  args,
-) => {
+export const initHelper: InitElementHelper = (namespace, tagName, args) => {
   const [props] = args as any;
   const element = createElement(
     namespace,
@@ -22,7 +31,7 @@ export const getTaggedInitHelper =
   (namespace: NamespaceUri | undefined) =>
   <T extends Element>(tagName: string): TaggedInitter<T> =>
   (...args) =>
-    initElementHelper(namespace, tagName as TagName, args) as any;
+    initHelper(namespace, tagName as TagName, args) as any;
 
 export const getTaggedInitMapHelper = <M, K extends keyof M>(
   getCreator: (tagName: K) => M[K],
