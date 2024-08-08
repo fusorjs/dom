@@ -52,6 +52,8 @@ type updateCurrent = (value: Element | Component) => void;
 
 ## In Progress
 
+## Done
+
 ### Version 2.4.1
 
 - New public API methods: `update`, `isUpdatable`, `getElement` should be used (preparing for version 3)
@@ -63,8 +65,6 @@ Breaking changes:
 - Move `h` and `s` methods to the root, out of `html` and `svg` respectively.
 - `Self` argument in `mount` must be handled by the public API methods.
 - Invalid attributes and children values throwing errors in development mode instead of silently being converted to strings.
-
-## Done
 
 ### Version 2.3.1
 

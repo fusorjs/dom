@@ -5,6 +5,7 @@ While JSX arguably allows for better visual separation between JavaScript and HT
 ## Example
 
 ```js
+import {getElement} from '@fusorjs/dom';
 import {button, div, p} from '@fusorjs/dom/html';
 
 const CountingButton = (count = 0) =>
@@ -19,16 +20,16 @@ const CountingButton = (count = 0) =>
 
 const App = () =>
   div(
-    p('Hello Fusor'),
+    p('Three counting buttons'),
     CountingButton(),
     CountingButton(22),
     CountingButton(333),
   );
 
-document.body.append(App().element);
+document.body.append(getElement(App()));
 ```
 
-> [CodeSandbox](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
+> [CodeSandbox](https://codesandbox.io/p/sandbox/cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
 
 ## FN vs JSX
 
@@ -46,8 +47,9 @@ Functional notation is better than JSX in the following ways:
 > While functional notation and JSX are fully interchangeable within Fusor components, it's important to pay attention to how you pass `children` to your components if you want both systems to be compatible, see: [interoperability](../src/spec/jsx-fn-interoperability.spec.tsx)
 
 ```js
-import {button, div, p, h} from '@fusorjs/dom/html';
-import {svg, g, rect, s} from '@fusorjs/dom/svg';
+import {h, s} from '@fusorjs/dom';
+import {button, div, p} from '@fusorjs/dom/html';
+import {svg, g, rect} from '@fusorjs/dom/svg';
 
 div(childrenArray1, propsObject1, childrenArray2, propsObject2);
 ```
@@ -59,7 +61,8 @@ div(childrenArray1, propsObject1, childrenArray2, propsObject2);
 Use `h` for autonomous custom elements:
 
 ```js
-import {h, p} from '@fusorjs/dom/html';
+import {h} from '@fusorjs/dom';
+import {p} from '@fusorjs/dom/html';
 
 const wrapper = h('custom-elm', {onconnected}, p('Hello!'));
 ```

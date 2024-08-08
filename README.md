@@ -25,7 +25,7 @@
 ### Creating a static DOM node
 
 ```jsx
-import {getElement, update} from '@fusorjs/dom';
+import {getElement} from '@fusorjs/dom';
 
 const count = 0;
 const message = <div>Seconds {count} elapsed</div>; // JSX
@@ -108,7 +108,7 @@ const CountingButton = ({count = 0}) => (
 
 #### Shortest Version
 
-> `click_e_update` - click event handler with update - [keys reference](docs/reference.md#event-handler-keys)
+> `click_e_update` - click event handler and DOM update - [keys reference](docs/reference.md#event-handler-keys)
 
 ```jsx
 const CountingButton = ({count = 0}) => (
@@ -156,17 +156,17 @@ const IntervalCounter = ({count = 0}) => {
 };
 
 const instance = <IntervalCounter />;
+const element = getElement(instance);
 
-document.body.append(getElement(instance));
-
-setTimeout(() => getElement(instance).remove(), 15000);
+document.body.append(element);
+setTimeout(() => element.remove(), 15000);
 ```
 
 > [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 >
 > [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx)
 
-## This concludes the tutorial
+## This concludes the Tutorial
 
 Now you know how to develop useful applications. In fact, this knowledge enables you to create apps on par with those developed using **React, Angular, Vue, Solid**...
 

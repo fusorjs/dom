@@ -5,6 +5,8 @@
 Do this:
 
 ```jsx
+import {getElement, update} from '@fusorjs/dom';
+
 const cachedOdd = <span>Odd</span>;
 const cachedEven = <span>Even</span>;
 
@@ -12,11 +14,11 @@ let number = 0;
 
 const page = <p>{() => (number % 2 ? cachedOdd : cachedEven)}</p>;
 
-document.body.append(page.element);
+document.body.append(getElement(page));
 
 setInterval(() => {
   number += 1;
-  page.update();
+  update(page);
 }, 1000);
 ```
 
@@ -33,6 +35,8 @@ Because `<span>Odd</span>` or `<span>Even</span>` is recreated each second
 Do this:
 
 ```jsx
+import {getElement, update} from '@fusorjs/dom';
+
 const OddOrEven = ({number = () => 0}) => (
   <span>{() => (number() % 2 ? 'odd' : 'even')}</span>
 );
@@ -45,11 +49,11 @@ const page = (
   </p>
 );
 
-document.body.append(page.element);
+document.body.append(getElement(page));
 
 setInterval(() => {
   number += 1;
-  page.update();
+  update(page);
 }, 1000);
 ```
 
@@ -68,6 +72,8 @@ Because `<span>...</span>` is recreated each second
 Do this:
 
 ```jsx
+import {update} from '@fusorjs/dom';
+
 const component1 = <div>{() => dynamicValue}</div>;
 const component2 = (
   <div>
@@ -79,13 +85,13 @@ const component2 = (
   </div>
 );
 
-component1.update();
+update(component1);
 ```
 
 Instead of doing this:
 
 ```jsx
-component2.update();
+update(component2);
 ```
 
-Because `component2.update()` is need to go through more layers
+Because `update(component2)` is need to go through more layers

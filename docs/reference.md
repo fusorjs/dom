@@ -173,7 +173,7 @@ The current DOM value will be updated only if:
 - [primitive](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values) value has changed
 - object value reference has changed
 
-> Therefore, you should cache referenced values
+> Therefore, you should [cache](optimisation.md) referenced values
 
 ## Parameter Keys
 
