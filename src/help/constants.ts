@@ -1,5 +1,39 @@
 import {NamespaceUri} from '../types';
 
+export const mathMlTagNames: readonly (keyof MathMLTagNameMap)[] = [
+'maction',
+'math',
+'menclose',
+'merror',
+'mfenced',
+'mfrac',
+'mglyph',
+'mi',
+'mlabeledtr',
+'mmultiscripts',
+'mn',
+'mo',
+'mover',
+'mpadded',
+'mphantom',
+'mroot',
+'mrow',
+'ms',
+'mspace',
+'msqrt',
+'mstyle',
+'msub',
+'msubsup',
+'msup',
+'mtable',
+'mtd',
+'mtext',
+'mtr',
+'munder',
+'munderover',
+'semantics'
+]
+
 export const htmlTagNames: readonly (keyof HTMLElementTagNameMap)[] = [
   'a',
   'abbr',
@@ -181,3 +215,4 @@ export const svgTagNames: readonly (keyof SVGElementTagNameMap)[] = [
 ];
 
 export const svgNamespace = 'http://www.w3.org/2000/svg' as NamespaceUri;
+export const mathMlNamespace = 'http://www.w3.org/1998/Math/MathML' as NamespaceUri
