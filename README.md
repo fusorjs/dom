@@ -20,9 +20,9 @@
     - **Immutability**, avoid excessive creation
   - Size **~4KiB** with **zero** dependencies
 
-## Example
+## Examples
 
-### Creating a static DOM node
+### Create a DOM Element
 
 ```jsx
 import {getElement} from '@fusorjs/dom';
@@ -35,7 +35,7 @@ document.body.append(getElement(message));
 
 > [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-### Updating a dynamic DOM node
+### Update a DOM Element
 
 ```jsx
 import {getElement, update} from '@fusorjs/dom';
@@ -53,7 +53,7 @@ setInterval(() => {
 
 > [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-### Creating a reusable component
+### Create a Reusable Component
 
 > `click_e` - click event handler - [keys reference](docs/reference.md#event-handler-keys)
 
@@ -122,31 +122,33 @@ const CountingButton = ({count = 0}) => (
 
 ## Lifecycle
 
-1. Create
-2. Connect to DOM
-3. Update DOM
-4. Disconnect from DOM
+It consists of only four stages:
+
+1. **Create** the component
+2. **Connect** to the DOM
+3. **Update** the DOM
+4. **Disconnect** from the DOM
 
 ```jsx
 import {getElement, update} from '@fusorjs/dom';
 
 const IntervalCounter = ({count = 0}) => {
-  console.log('1. Create');
+  console.log('1. Create the component');
 
   return (
     <div
       mount={(self) => {
-        console.log('2. Connect to DOM');
+        console.log('2. Connect to the DOM');
 
         const timerId = setInterval(() => {
           count++;
           update(self);
-          console.log('3. Update DOM');
+          console.log('3. Update the DOM');
         }, 1000);
 
         return () => {
           clearInterval(timerId);
-          console.log('4. Disconnect from DOM');
+          console.log('4. Disconnect from the DOM');
         };
       }}
     >
