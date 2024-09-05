@@ -95,3 +95,5 @@ update(component2);
 ```
 
 Because `update(component2)` is need to go through more layers
+
+## Use Observers to Update Only Parts of the DOM

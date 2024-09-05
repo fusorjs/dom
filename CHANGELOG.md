@@ -1,5 +1,16 @@
 # Fusor Development
 
+## Start
+
+```sh
+npm install
+npm start
+npm test
+npm coverage
+```
+
+**Please Use Prettier!**
+
 ## Rules
 
 - Avoid adding your custom props to DOM element objects: for data normalization, may degrade performance (mounted elements), may conflict with standard props.
@@ -54,9 +65,15 @@ type updateCurrent = (value: Element | Component) => void;
 
 ## Done
 
+### Version 2.4.2
+
+- Relaxed event type for event handlers to avoid tedious type casting.
+- Added type propagation for universal api methods.
+- Added `getPropSplitter` api method.
+
 ### Version 2.4.1
 
-- New public API methods: `update`, `isUpdatable`, `getElement` should be used (preparing for version 3)
+- New universal public API methods: `update`, `isUpdatable`, `getElement` should be used (preparing for version 3)
 - Ability to `update` manually in event handlers. Provide second `self` argument.
 - Improved docs and types.
 

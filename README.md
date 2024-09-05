@@ -14,7 +14,7 @@
     - **Fine-grained control** over creation and updates
 - **Minimalism**
   - _Do one thing and do it well_
-    - **Lifting up**: state, context, lifecycle, diffing
+    - **Lifting up**: state, context, lifecycle, diffing, concurrency
 - **Performance**
   - Efficient use of provided and internal data
     - **Immutability**, avoid excessive creation
@@ -190,10 +190,10 @@ Or configure it [manually](docs/reference.md#install)
 - [Optimisation](docs/optimisation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
 
-## Applications
+## Real-World Applications
 
-- [Tutorial](https://github.com/fusorjs/tutorial) (routing, request, lifecycle, svg, jsx, custom element...)
-- [TodoMvc](https://github.com/fusorjs/todomvc)
+- [TodoMvc](https://github.com/fusorjs/todomvc) - routing, global data store
+- [Tutorial](https://github.com/fusorjs/tutorial) - routing, http request, lifecycle, svg, jsx, custom element, caching
 
 ## Contribute
 

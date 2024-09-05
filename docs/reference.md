@@ -308,3 +308,8 @@ Specify `[name]_[type]`:
 - Fusor component names (HTML/SVG) start with lowercase letters
 - Your component names must be Capitalized
 - Your components can take a single `props` object argument
+
+### SVG within JSX
+
+Some SVG elements: `a`, `script`, `style`, `title` conflict with HTML elements with the same name. Therefore, you must prepend them with `s` like so: `sa`, `sscript`, `sstyle`, `stitle`.
+

@@ -68,11 +68,16 @@ export type Arg = Props | Child;
 
 /* EVENTS */
 
-export type EventListener2 = <EV extends Event>(
-  // ? this: EL, // , EL extends Element
-  event: EV,
-  self: Fusion,
-) => void;
+export type EventListener2 =
+  // <
+  //   EV extends Event, // ! will have to typecast everywhere: blur_e: (e: Event | (FocusEvent & Target<HTMLInputElement>)) => {if (!('relatedTarget' in e)) return;
+  //   ? EL extends Element,
+  // >
+  (
+    // ? this: EL,
+    event: any, // EV, // !
+    self: Fusion,
+  ) => void;
 
 export type EventListenerOrEventListenerObject2 =
   | EventListener2
@@ -109,7 +114,7 @@ export interface ElementWithExtras extends Element {
 /** Some unknown structure
  * @internal do not rely on its internal structure
  * Use public API method to work with it: update, isUpdatable, getElement */
-export type Fusion = Element | Component<Element>;
+export type Fusion<E extends Element = Element> = E | Component<E>;
 
 export interface FnInitter {
   <E extends ElementWithExtras>(element: E, args: readonly StaticArg[]): E;

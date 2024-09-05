@@ -15,6 +15,7 @@ export const defaultPropSplitter = '_';
 let propSplitter = defaultPropSplitter;
 
 export const setPropSplitter = (s: string) => (propSplitter = s);
+export const getPropSplitter = () => propSplitter;
 
 const isProperty = (value: any, name: string) => {
   const d = getPropertyDescriptor(value, name);
