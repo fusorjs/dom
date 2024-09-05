@@ -25,6 +25,8 @@ The fundamental difference lies in the separation of concerns within the compone
 | Changing  | `state = 1;`                  | `setState(1); Component();`  |
 | Updating  | `update();`                   | changing & updating combined |
 
+<!-- https://legacy.reactjs.org/docs/reconciliation.html -->
+
 > A plain variable is used for Fusor state in the example above.
 
 ## Benefits

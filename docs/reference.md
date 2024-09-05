@@ -313,3 +313,16 @@ Specify `[name]_[type]`:
 
 Some SVG elements: `a`, `script`, `style`, `title` conflict with HTML elements with the same name. Therefore, you must prepend them with `s` like so: `sa`, `sscript`, `sstyle`, `stitle`.
 
+## Context
+
+Use the simplest working solution:
+
+1. Use CSS variables and media queries for themes (no JavaScript)
+2. Use global variables
+3. Use component parameters
+4. On mount bubble subscribtion event to the observable parent in the DOM tree (like react form components)
+
+<!-- > Fusor is just a helper library for new way of writing web apps
+> Manually triggering updates is better than outsourcing this to some obscure/implicit/dumb/slow framework
+
+### New Wave of Web Apps Development -->

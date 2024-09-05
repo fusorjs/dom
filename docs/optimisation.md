@@ -1,6 +1,6 @@
 # Optimisation
 
-## Cache components
+## Cache Components
 
 Do this:
 
@@ -30,7 +30,71 @@ const page = <p>{() => (number % 2 ? <span>Odd</span> : <span>Even</span>)}</p>;
 
 Because `<span>Odd</span>` or `<span>Even</span>` is recreated each second
 
-## Use dynamic props
+### Cache In-Place
+
+```jsx
+const page = (
+  <div>
+    {(
+      (cache = button('Clear All')) =>
+      () =>
+        length > 0 && cache
+    )()}
+  </div>
+);
+```
+
+Because the relevant information is defined where it is needed.
+
+### Cache and Update In-Place
+
+```tsx
+const page = (
+  <div>
+    {(
+      (cache?: Fusion[]) => () =>
+        dataLength > 0 &&
+        (cache ? cache.map(update) : (cache = [List(), Panel()]))
+    )()}
+  </div>
+);
+```
+
+Because the relevant information is defined where it is needed.
+
+## Break Update Recursivity
+
+Do this:
+
+```jsx
+const page = (
+  <div>
+    {(
+      (cache = Heavy()) =>
+      () =>
+        length > 0 && cache
+    )()}
+  </div>
+);
+```
+
+Instead of doing this:
+
+```jsx
+const page = (
+  <div>
+    {(
+      (cache?: Fusion) =>
+      () =>
+        length > 0 && (cache ? update(cache) : (cache = Heavy()))
+    )()}
+  </div>
+);
+```
+
+Because you want to update heavy objects partially inside them.
+
+## Use Dynamic Props
 
 Do this:
 
@@ -67,7 +131,7 @@ const page = <p>{() => <OddOrEven number={number} />}</p>;
 
 Because `<span>...</span>` is recreated each second
 
-## Update only what and when necessary
+## Update Only What and When Necessary
 
 Do this:
 
@@ -97,3 +161,31 @@ update(component2);
 Because `update(component2)` is need to go through more layers
 
 ## Use Observers to Update Only Parts of the DOM
+
+Do this:
+
+```jsx
+import {getRoute, mountRoute} from '../share/route';
+
+export const RouteLink = (title, route) => (
+  <a
+    href={`#${route}`}
+    class={() => (getRoute() === route ? 'selected' : undefined)}
+    mount={mountRoute}
+  >
+    {title}
+  </a>
+);
+```
+
+Instead of doing this:
+
+```jsx
+const app = <App getRoute={() => route} />;
+
+onRoute(() => update(app));
+```
+
+Because it is better to update only required parts of the DOM instaed of updating the whole application DOM tree
+
+> See [TodoMvc](https://github.com/fusorjs/todomvc) application

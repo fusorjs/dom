@@ -1,190 +1,68 @@
 # Fusor
 
-## Declaratively Creates & Updates DOM
+Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.
 
-> It _fuses_ DOM elements into easy-to-use components
+> It _fuses_ DOM elements into easy-to-use _components_.
 
-## Goals
+Fusor is:
 
-- **Simplicity**
-  - Small, explicit, **pure**, **functional** API
-- **Flexibility**
-  - W3C standards **compliant**
-  - _Simple things should be simple, complex things should be possible_
-    - **Fine-grained control** over creation and updates
-- **Minimalism**
-  - _Do one thing and do it well_
-    - **Lifting up**: state, context, lifecycle, diffing, concurrency
-- **Performance**
-  - Efficient use of provided and internal data
-    - **Immutability**, avoid excessive creation
-  - Size **~4KiB** with **zero** dependencies
+- **Simple** ― two main API methods (create/update DOM)
+- **Compliant** ― follows W3C standards
+- **Explicit/Flexible** ― full control over DOM creation/updates, state, context, lifecycle, diffing, and concurrency
+- **Performant** ― efficient use of data and code
+- **Small** ― size ~4KiB with zero dependencies
 
-## Examples
+> "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
 
-### Create a DOM Element
+## Component Examples
 
-```jsx
-import {getElement} from '@fusorjs/dom';
+All examples are available on [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-const count = 0;
-const message = <div>Seconds {count} elapsed</div>; // JSX
+`click_e_update` ― click event handler with DOM update, see: [Parameter Keys Reference](docs/reference.md#parameter-keys)
 
-document.body.append(getElement(message));
-```
-
-> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
-
-### Update a DOM Element
-
-```jsx
-import {getElement, update} from '@fusorjs/dom';
-
-let count = 0;
-const message = <div>Seconds {() => count} elapsed</div>; // JSX
-
-document.body.append(getElement(message));
-
-setInterval(() => {
-  count += 1;
-  update(message);
-}, 1000);
-```
-
-> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
-
-### Create a Reusable Component
-
-> `click_e` - click event handler - [keys reference](docs/reference.md#event-handler-keys)
-
-```jsx
-import {getElement, update} from '@fusorjs/dom';
-
-const CountingButton = ({count = 0}) => {
-  const self = (
-    <button
-      click_e={() => {
-        // click event handler
-        count += 1;
-        update(self);
-      }}
-    >
-      Clicked {() => count} times
-    </button>
-  );
-  return self;
-};
-
-const App = () => (
-  <div style="padding:1em">
-    <p>Three counting buttons</p>
-    <CountingButton />
-    <CountingButton count={22} />
-    <CountingButton count={333} />
-  </div>
-);
-
-document.body.append(getElement(App()));
-```
-
-> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
-
-#### Shorter Version
+### Click Counting Button
 
 ```jsx
 const CountingButton = ({count = 0}) => (
-  <button
-    click_e={(event, self) => {
-      count += 1;
-      update(self);
+  <button click_e_update={() => count++}>Clicked {() => count} times</button>
+);
+```
+
+### Controlled Uppercase Input
+
+```jsx
+const UppercaseInput = ({value = ''}) => (
+  <input
+    value={() => value}
+    input_e_update={(event) => (value = event.target.value.toUpperCase())}
+  />
+);
+```
+
+### Mounting Timer
+
+```jsx
+const IntervalCounter = ({count = 0}) => (
+  <div
+    mount={(self) => {
+      const timerId = setInterval(() => {
+        count++;
+        update(self);
+      }, 1000);
+
+      return () => clearInterval(timerId); // unmount
     }}
   >
-    Clicked {() => count} times
-  </button>
+    Since mounted {() => count} seconds elapsed
+  </div>
 );
 ```
 
-> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
-
-#### Shortest Version
-
-> `click_e_update` - click event handler and DOM update - [keys reference](docs/reference.md#event-handler-keys)
-
-```jsx
-const CountingButton = ({count = 0}) => (
-  <button click_e_update={() => (count += 1)}>
-    Clicked {() => count} times
-  </button>
-);
-```
-
-> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
-
-## Lifecycle
-
-It consists of only four stages:
-
-1. **Create** the component
-2. **Connect** to the DOM
-3. **Update** the DOM
-4. **Disconnect** from the DOM
-
-```jsx
-import {getElement, update} from '@fusorjs/dom';
-
-const IntervalCounter = ({count = 0}) => {
-  console.log('1. Create the component');
-
-  return (
-    <div
-      mount={(self) => {
-        console.log('2. Connect to the DOM');
-
-        const timerId = setInterval(() => {
-          count++;
-          update(self);
-          console.log('3. Update the DOM');
-        }, 1000);
-
-        return () => {
-          clearInterval(timerId);
-          console.log('4. Disconnect from the DOM');
-        };
-      }}
-    >
-      Since mounted {() => count} seconds elapsed
-    </div>
-  );
-};
-
-const instance = <IntervalCounter />;
-const element = getElement(instance);
-
-document.body.append(element);
-setTimeout(() => element.remove(), 15000);
-```
-
-> [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
->
-> [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx)
-
-## This concludes the Tutorial
-
-Now you know how to develop useful applications. In fact, this knowledge enables you to create apps on par with those developed using **React, Angular, Vue, Solid**...
-
-> [Fusor vs React comparison](docs/fusor-vs-react.md)
-
-## Start Coding
-
-Start with a boilerplate project:
-
-- [**JavaScript Starter**](https://github.com/fusorjs/dom-starter-jsx-webpack)
-- [**TypeScript Starter**](https://github.com/fusorjs/dom-starter-tsx-webpack)
-
-Or configure it [manually](docs/reference.md#install)
+Also, check out [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx).
 
 ## Documentation
 
+- [**Tutorial**](docs/tutorial.md)
 - [Reference](docs/reference.md)
 - [Functional Notation](docs/functional-notation.md)
 - [Optimisation](docs/optimisation.md)
@@ -194,6 +72,15 @@ Or configure it [manually](docs/reference.md#install)
 
 - [TodoMvc](https://github.com/fusorjs/todomvc) - routing, global data store
 - [Tutorial](https://github.com/fusorjs/tutorial) - routing, http request, lifecycle, svg, jsx, custom element, caching
+
+## Start Coding
+
+Start with a boilerplate project:
+
+- [**JavaScript Starter**](https://github.com/fusorjs/dom-starter-jsx-webpack)
+- [**TypeScript Starter**](https://github.com/fusorjs/dom-starter-tsx-webpack)
+
+Or configure it [manually](docs/reference.md#install)
 
 ## Contribute
 

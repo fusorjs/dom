@@ -1,15 +1,46 @@
 # Fusor Development
 
-## Start
+## Start Developing
 
 ```sh
 npm install
 npm start
+```
+
+- **Please Use Prettier!**
+- Link `dist` and `package.json` to `your-progect/node_modules/@fusorjs/dom`
+- Run tests before contributing
+
+```sh
 npm test
 npm coverage
 ```
 
-**Please Use Prettier!**
+## Project Philosophy
+
+> "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
+
+- **Simple**, small, **pure**, and **functional** API and implementation.
+- Sane defaults, also known as _convention over configuration_.
+
+> _Explicit is better than implicit_ or the _principle of least surprise_.
+
+- **Explicit** API without hidden magic going on behind the scenes.
+- **W3C standards** compliant
+
+> "_Simple things should be simple, complex things should be possible_." ― Alan Kay
+
+- **Full control** over DOM creation and updates.
+- **Full control** over state, context, lifecycle, diffing, and concurrency.
+
+> "_Do one thing and do it well._"
+
+- Specifically: managing the DOM.
+
+> The other requirements:
+
+- Efficient use of provided and internal data
+- **Immutability**, avoid excessive creation
 
 ## Rules
 
@@ -26,6 +57,7 @@ npm coverage
 - Optimize by diffing nodes for dynamic children array
 - elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>. Or in version 3 will be deprecated.
 - Move "extras" out of DOM element objects (see the first rule). At the moment cannot remove it because it is used in `connectedCallback`.
+- Maybe remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance. But on the oter hand this allows to fast ref check skipping whole array if it not changed.
 
 ## Todo
 
@@ -38,14 +70,11 @@ npm coverage
   - Optimize build with rollup to be in line with ~4KiB size claim
   - Create `production` build with `development` checks removed
   - Create different build targets: ESM, CommonJS, UMD, AMD...
+- Remove all deprecated APIs: maybe Life, Component...
 
-### Version 3
+### Version 2.4.4
 
 - Avoid creating excessive layers of components when only deep child is dynamic (compression)
-- Create "sugar" syntax to subscribe/usubscribe to observable values.
-- Maybe remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance
-- Maybe not call child component.update() automatically from the parent, or have a prop `notUpdate` to stop update propagation further down the tree
-- Remove all deprecated APIs (Life)
 
 ```ts
 // @internal library use only
@@ -62,6 +91,15 @@ type updateCurrent = (value: Element | Component) => void;
 ```
 
 ## In Progress
+
+### Version 2.4.3
+
+- Add MathML support.
+
+Abandoned Ideas:
+
+- Add the non recursive update `updateNR` method. Not needed as this can be achieved by wrapping component in a function.
+- Create "sugar" syntax to subscribe/usubscribe to observable values. Not needed bacause method `mount` already sufficient for this task.
 
 ## Done
 

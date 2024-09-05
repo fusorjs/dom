@@ -1,6 +1,5 @@
 import {Component} from '../component';
 import {UpdatableChild, UpdatableChildren} from '../types';
-// import {CustomValue} from '../custom/value'; // todo
 
 import {convertChild, emptyChild} from './convertChild';
 import {initDynamicChild, initDynamicChildren} from './initDynamicChild';
@@ -20,11 +19,6 @@ export const initChild = (
 
     return value;
   }
-
-  // init static or dynamic value
-  // else if (value instanceof CustomValue) {
-  //   value.appendChild(element); // todo
-  // }
 
   // init dynamic value
   else if (typeof value === 'function') {

@@ -24,10 +24,8 @@ export const isUpdatable = (value: Fusion): boolean => {
  * @returns self
  */
 export const update = <E extends Element>(value: Fusion<E>): Fusion<E> => {
-  if (DEVELOPMENT) {
-    if (!(value instanceof Component))
-      throw new TypeError(`not updatable: ${stringify(value)}`);
-  }
+  if (DEVELOPMENT && !isUpdatable(value))
+    throw new TypeError(`not updatable: ${stringify(value)}`);
 
   return (value as Component<E>).update();
 };
