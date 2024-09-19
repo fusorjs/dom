@@ -71,7 +71,7 @@ Also, check out [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog
 ## Real-World Applications
 
 - [TodoMvc](https://github.com/fusorjs/todomvc) - routing, global data store
-- [Tutorial](https://github.com/fusorjs/tutorial) - routing, http request, lifecycle, svg, jsx, custom element, caching
+- [Tutorial](https://github.com/fusorjs/tutorial) - routing, http request, lifecycle, custom element, caching, jsx, svg, mathml, xml
 
 ## Start Coding
 

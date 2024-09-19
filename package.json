@@ -4,7 +4,7 @@
   "license": "MIT",
   "homepage": "https://github.com/fusorjs/dom#readme",
   "author": "Igor Sukharev <imixaly4@gmail.com>",
-  "description": "Fusor is a simple JavaScript library that declaratively creates and updates DOM elements",
+  "description": "Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.",
   "keywords": [
     "dom",
     "fusor",
@@ -29,21 +29,25 @@
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./svg": "./dist/help/svg.js",
     "./html": "./dist/help/html.js",
+    "./svg": "./dist/help/svg.js",
+    "./mathml": "./dist/help/mathml.js",
     "./life": "./dist/help/life.js",
     "./help": "./dist/help/index.js",
-    "./jsx-runtime": "./dist/jsx-runtime.js",
-    "./jsx-dev-runtime": "./dist/jsx-runtime.js",
+    "./jsx-runtime": "./dist/jsx.js",
+    "./jsx-dev-runtime": "./dist/jsx.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
+      "html": [
+        "dist/help/html.d.ts"
+      ],
       "svg": [
         "dist/help/svg.d.ts"
       ],
-      "html": [
-        "dist/help/html.d.ts"
+      "mathml": [
+        "dist/help/mathml.d.ts"
       ],
       "life": [
         "dist/help/life.d.ts"
@@ -52,10 +56,10 @@
         "dist/help/index.d.ts"
       ],
       "jsx-runtime": [
-        "dist/jsx-runtime.d.ts"
+        "dist/jsx.d.ts"
       ],
       "jsx-dev-runtime": [
-        "dist/jsx-runtime.d.ts"
+        "dist/jsx.d.ts"
       ]
     }
   },

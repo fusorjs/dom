@@ -1,11 +1,11 @@
 import {Component} from './component';
 import {elementExtrasName} from './share';
 
-export interface Distinct<Name> {
-  __DISTINCT: Name;
+export interface Distinct<Name extends string> {
+  __distinct: Name;
 }
 
-export type NamespaceUri = string & Distinct<'NamespaceUri'>; // ! null - https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
+export type NameSpace = string & Distinct<'NameSpace'>; // ! can be null - https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
 export type TagName = string & Distinct<'TagName'>;
 
 /* STATIC ARGS */
@@ -121,30 +121,36 @@ export interface FnInitter {
   <E extends ElementWithExtras>(element: E, args: readonly Arg[]): Component<E>;
 }
 
-export interface InitElementHelper {
+export interface XMLInitter {
   (
-    namespace: NamespaceUri | undefined,
+    namespace: NameSpace | undefined,
     tagName: TagName,
     args: readonly any[], // Arg[],
   ): Fusion;
 }
 
-export interface CustomInitter<E extends Element> {
-  (tagName: string, ...args: readonly StaticArg[]): E;
-  (tagName: string, ...args: readonly Arg[]): Component<E>;
+export interface HyperNotation<Map extends {[key: string]: Element}> {
+  <Tag extends keyof Map>(
+    tag: Tag,
+    ...args: readonly any[] // StaticArg[]
+  ): Fusion<Map[Tag]>;
 }
 
-export interface TaggedInitter<E extends Element> {
+export interface FunctionalNotation<E extends Element> {
   (...args: readonly StaticArg[]): E;
-  (...args: readonly Arg[]): Component<E>;
+  (...args: readonly Arg[]): Component<E>; // todo
 }
 
-export interface InitJsx {
+export interface JsxFactory {
   (
     tagName: TagName | Function,
     props?: Props,
     ...children: readonly Child[]
   ): Fusion;
+}
+
+export interface JsxImportSource {
+  (tagName: TagName | Function, props?: Props, key?: any): Fusion;
 }
 
 /* UPDATE */
@@ -187,6 +193,11 @@ export type DynamicChild<E extends Element> =
   | UpdatableChild
   | UpdatableChildren
   | Component<E>;
+
+/* OTHER */
+
+export type AllHTMLElementTagNameMap = HTMLElementTagNameMap &
+  HTMLElementDeprecatedTagNameMap;
 
 /* EXPERIMENTS */
 

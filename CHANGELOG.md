@@ -71,6 +71,7 @@ npm coverage
   - Create `production` build with `development` checks removed
   - Create different build targets: ESM, CommonJS, UMD, AMD...
 - Remove all deprecated APIs: maybe Life, Component...
+- Add JSX `<Fragment></Fragment>` or `<></>` support
 
 ### Version 2.4.4
 
@@ -92,9 +93,15 @@ type updateCurrent = (value: Element | Component) => void;
 
 ## In Progress
 
-### Version 2.4.3
+### Version 2.5.1
 
 - Add MathML support.
+- Add `xmlns` attribute support.
+- Improved types and performance.
+
+Breaking changes:
+
+- If you use old `Component` API the typings might break in hyper/functional notation. Use universal public API instead.
 
 Abandoned Ideas:
 

@@ -1,1 +1,1 @@
-export * from './initHelper';
+export * from './share';

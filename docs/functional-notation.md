@@ -56,7 +56,7 @@ div(childrenArray1, propsObject1, childrenArray2, propsObject2);
 
 ## Hyper Notation
 
-> The "untagged" creators, such as `h` for HTML and `s` for SVG elements, are used for creating custom-elements but can also be used for creating standard elements `h('div', props, 'hello')`.
+> The "untagged" creators, such as `h` for HTML, `s` for SVG, and `m` for MathML, are used for creating custom-elements but can also be used for creating standard elements `h('div', props, 'hello')`.
 
 Use `h` for autonomous custom elements:
 

@@ -1,5 +1,13 @@
 import {Component} from '../component';
+
+import {svgTagNames} from './constants';
+import * as allTags from './svg';
 import {path, svg} from './svg';
+
+test('all svg tags are defined', () => {
+  expect(svgTagNames.filter((i) => !(allTags as any)[i])).toEqual(['switch']);
+  expect(allTags.sswitch).toBeDefined();
+});
 
 test('empty svg', () => {
   const result = path();

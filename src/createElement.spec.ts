@@ -1,7 +1,7 @@
 import {createElement} from './createElement';
-import {NamespaceUri, TagName} from './types';
+import {NameSpace, TagName} from './types';
 
-test.each<[string, TypeErrorConstructor, undefined | NamespaceUri, any]>([
+test.each<[string, TypeErrorConstructor, undefined | NameSpace, any]>([
   [
     `cannot use both properties "mount" and "is" together`,
     TypeError,
@@ -11,7 +11,7 @@ test.each<[string, TypeErrorConstructor, undefined | NamespaceUri, any]>([
   [
     `"mount" property is not supported with namespaces yet`,
     TypeError,
-    'blah' as NamespaceUri,
+    'blah' as NameSpace,
     {mount: () => {}},
   ],
   [`"mount" property is not a function`, TypeError, undefined, {mount: 123}],
@@ -20,11 +20,11 @@ test.each<[string, TypeErrorConstructor, undefined | NamespaceUri, any]>([
   'createElement throws "%p" %p',
   (expectedMessage, expectedType, providedNamespace, providedProps) => {
     expect(() => {
-      createElement(providedNamespace, 'div' as TagName, providedProps);
+      createElement('div' as TagName, providedNamespace, providedProps);
     }).toThrow(expectedType);
 
     expect(() => {
-      createElement(providedNamespace, 'div' as TagName, providedProps);
+      createElement('div' as TagName, providedNamespace, providedProps);
     }).toThrow(expectedMessage);
   },
 );

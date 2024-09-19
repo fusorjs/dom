@@ -1,11 +1,7 @@
-import {TaggedInitter} from '../types';
+import {FunctionalNotation} from '../types';
 
-import {getTaggedInitHelper, getTaggedInitMapHelper} from './initHelper';
+import {getTaggedInitHelper, getTaggedInitMapHelper} from './share';
 import {svgTagNames, svgNamespace} from './constants';
-
-type Result = {
-  [K in keyof SVGElementTagNameMap]: TaggedInitter<SVGElementTagNameMap[K]>;
-};
 
 export const {
   a,
@@ -71,7 +67,11 @@ export const {
   tspan,
   use,
   view,
-} = getTaggedInitMapHelper<Result, keyof SVGElementTagNameMap>(
-  getTaggedInitHelper(svgNamespace),
-  svgTagNames,
-);
+} = getTaggedInitMapHelper<
+  {
+    [K in keyof SVGElementTagNameMap]: FunctionalNotation<
+      SVGElementTagNameMap[K]
+    >;
+  },
+  keyof SVGElementTagNameMap
+>(getTaggedInitHelper(svgNamespace), svgTagNames);

@@ -1,4 +1,8 @@
 import {Component} from '../component';
+import {Child} from '../types';
+
+import {htmlTagNames} from './constants';
+import * as allTags from './html';
 import {
   div,
   button,
@@ -11,7 +15,11 @@ import {
   img,
   input,
 } from './html';
-import {Child} from '../types';
+
+test('all html tags are defined', () => {
+  expect(htmlTagNames.filter((i) => !(allTags as any)[i])).toEqual(['var']);
+  expect(allTags.hvar).toBeDefined();
+});
 
 test('empty div', () => {
   const result = div();

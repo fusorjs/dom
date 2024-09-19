@@ -1,8 +1,8 @@
 // Public API for library users
 export type {Fusion} from './types';
 export {getElement, isUpdatable, update} from './public';
-export {h, s} from './help/initHelper';
-export {initJsx as jsx} from './jsx-runtime';
+export {h, s, m} from './hyper';
+export {jsxFactory as jsx} from './jsx';
 export {
   defaultPropSplitter,
   setPropSplitter,

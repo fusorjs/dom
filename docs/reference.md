@@ -64,19 +64,33 @@ Fusor supports different styles for creating DOM. You can use all of them interc
 
 #### Creating HTML
 
-| Notation   | Example                   | Setup                                   |
-| ---------- | ------------------------- | --------------------------------------- |
-| JSX        | `<div>Hello world</div>`  | [Configure](#configure) JSX             |
-| Functional | `div('Hello world')`      | `import {div} from "@fusorjs/dom/html"` |
-| Hyper      | `h('div', 'Hello world')` | `import {h} from "@fusorjs/dom"`        |
+| Notation   | Example                   | Setup                                   | Renamed Tags |
+| ---------- | ------------------------- | --------------------------------------- | ------------ |
+| JSX        | `<div>Hello world</div>`  | [Configure](#configure) JSX             |              |
+| Functional | `div('Hello world')`      | `import {div} from "@fusorjs/dom/html"` | `var: hvar`  |
+| Hyper      | `h('div', 'Hello world')` | `import {h} from "@fusorjs/dom"`        |              |
 
 #### Creating SVG
 
-| Notation   | Example                   | Setup                                  |
-| ---------- | ------------------------- | -------------------------------------- |
-| JSX        | `<svg>Hello world</svg>`  | [Configure](#configure) JSX            |
-| Functional | `svg('Hello world')`      | `import {svg} from "@fusorjs/dom/svg"` |
-| Hyper      | `s('svg', 'Hello world')` | `import {s} from "@fusorjs/dom"`       |
+| Notation   | Example                   | Setup                                  | Renamed Tags                                           |
+| ---------- | ------------------------- | -------------------------------------- | ------------------------------------------------------ |
+| JSX        | `<svg>Hello world</svg>`  | [Configure](#configure) JSX            | `a: sa, script: sscript, style: sstyle, title: stitle` |
+| Functional | `svg('Hello world')`      | `import {svg} from "@fusorjs/dom/svg"` | `switch: sswitch`                                      |
+| Hyper      | `s('svg', 'Hello world')` | `import {s} from "@fusorjs/dom"`       |                                                        |
+
+#### Creating MathML
+
+| Notation   | Example                    | Setup                                      | Renamed Tags                      |
+| ---------- | -------------------------- | ------------------------------------------ | --------------------------------- |
+| JSX        | `<math>Hello world</math>` | [Configure](#configure) JSX                |                                   |
+| Functional | `math('Hello world')`      | `import {math} from "@fusorjs/dom/mathml"` | `'annotation-xml': annotationXml` |
+| Hyper      | `m('math', 'Hello world')` | `import {m} from "@fusorjs/dom"`           |                                   |
+
+#### JSX Rules
+
+- Fusor component names (HTML/SVG) start with lowercase letters
+- Your component names must be Capitalized
+- Your components can take a single `props` object argument
 
 ### Operating on DOM
 
@@ -183,23 +197,6 @@ There are three types of parameters:
 - `a`ttribute
 - `e`vent handler
 
-### Special Properties
-
-- `is` - custom element name
-- `mount` - element connect callback (cannot be used with `is`)
-
-> In functional notation they must be present in the first props object
-
-```jsx
-<div
-  is="custom-element-name"
-  mount={(self) => {
-    self.update();
-    return () => 'unmount';
-  }}
-/>
-```
-
 ### Automatic Property or Attribute
 
 - **Property**
@@ -293,6 +290,34 @@ Specify `[name]_[type]`:
 />
 ```
 
+### Special Properties
+
+These properties cannot be used together (in functional notation they must be present in the first props object):
+
+- `xmlns` - XML namespace
+- `is` - custom element name
+- `mount` - element connect callback
+
+JSX special props:
+
+- `children` - automatically populated by children
+- `key` - is a normal parameter applied to element (unlike in React)
+
+JSX development info props:
+
+- `__self`
+- `__source`
+
+```jsx
+<div
+  is="custom-element-name"
+  mount={(self) => {
+    self.update();
+    return () => 'unmount';
+  }}
+/>
+```
+
 ## Lifecycle
 
 - `mount/unmount` implemented using standard [Custom Elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks).
@@ -300,18 +325,6 @@ Specify `[name]_[type]`:
 - Fusor components can be used alongside Custom Elements
 - When using `mount`, global Custom Element is registered for this specific element type, breaking purity to some extent
 - SVG elements cannot have a lifecycle yet, but there is a [proposal](https://github.com/WICG/webcomponents/issues/634)
-
-## JSX
-
-### JSX Rules
-
-- Fusor component names (HTML/SVG) start with lowercase letters
-- Your component names must be Capitalized
-- Your components can take a single `props` object argument
-
-### SVG within JSX
-
-Some SVG elements: `a`, `script`, `style`, `title` conflict with HTML elements with the same name. Therefore, you must prepend them with `s` like so: `sa`, `sscript`, `sstyle`, `stitle`.
 
 ## Context
 

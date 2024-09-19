@@ -1,5 +1,5 @@
-import {TagName, TaggedInitter} from '../types';
-import {initHelper} from './initHelper';
+import {TagName, FunctionalNotation} from '../types';
+import {initHelper} from '../hyper';
 
 console.warn(
   '<fusor-life> & `Life` are deprecated in favour of `mount` callback',
@@ -34,5 +34,5 @@ customElements.define(
 );
 
 /** @deprecated use mount prop */
-export const Life: TaggedInitter<HTMLElement> = (...args) =>
+export const Life: FunctionalNotation<HTMLElement> = (...args) =>
   initHelper(undefined, 'fusor-life' as TagName, args) as any;

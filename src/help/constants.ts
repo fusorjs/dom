@@ -1,40 +1,8 @@
-import {NamespaceUri} from '../types';
+import {AllHTMLElementTagNameMap, NameSpace} from '../types';
 
-export const mathMlTagNames: readonly (keyof MathMLTagNameMap)[] = [
-'maction',
-'math',
-'menclose',
-'merror',
-'mfenced',
-'mfrac',
-'mglyph',
-'mi',
-'mlabeledtr',
-'mmultiscripts',
-'mn',
-'mo',
-'mover',
-'mpadded',
-'mphantom',
-'mroot',
-'mrow',
-'ms',
-'mspace',
-'msqrt',
-'mstyle',
-'msub',
-'msubsup',
-'msup',
-'mtable',
-'mtd',
-'mtext',
-'mtr',
-'munder',
-'munderover',
-'semantics'
-]
+// todo Must Include Union: https://stackoverflow.com/a/70694878/7138254
 
-export const htmlTagNames: readonly (keyof HTMLElementTagNameMap)[] = [
+export const htmlTagNames: readonly (keyof AllHTMLElementTagNameMap)[] = [
   'a',
   'abbr',
   'address',
@@ -118,6 +86,7 @@ export const htmlTagNames: readonly (keyof HTMLElementTagNameMap)[] = [
   's',
   'samp',
   'script',
+  'search',
   'section',
   'select',
   'slot',
@@ -146,6 +115,36 @@ export const htmlTagNames: readonly (keyof HTMLElementTagNameMap)[] = [
   'var',
   'video',
   'wbr',
+  //
+  'acronym',
+  'applet',
+  'basefont',
+  'bgsound',
+  'big',
+  'blink',
+  'center',
+  'dir',
+  'font',
+  'frame',
+  'frameset',
+  'isindex',
+  'keygen',
+  'listing',
+  'marquee',
+  'menuitem',
+  'multicol',
+  'nextid',
+  'nobr',
+  'noembed',
+  'noframes',
+  'param',
+  'plaintext',
+  'rb',
+  'rtc',
+  'spacer',
+  'strike',
+  'tt',
+  'xmp',
 ];
 
 export const svgTagNames: readonly (keyof SVGElementTagNameMap)[] = [
@@ -214,5 +213,40 @@ export const svgTagNames: readonly (keyof SVGElementTagNameMap)[] = [
   'view',
 ];
 
-export const svgNamespace = 'http://www.w3.org/2000/svg' as NamespaceUri;
-export const mathMlNamespace = 'http://www.w3.org/1998/Math/MathML' as NamespaceUri
+export const svgNamespace = 'http://www.w3.org/2000/svg' as NameSpace;
+
+export const mathMlTagNames: readonly (keyof MathMLElementTagNameMap)[] = [
+  'annotation',
+  'annotation-xml',
+  'maction',
+  'math',
+  'merror',
+  'mfrac',
+  'mi',
+  'mmultiscripts',
+  'mn',
+  'mo',
+  'mover',
+  'mpadded',
+  'mphantom',
+  'mprescripts',
+  'mroot',
+  'mrow',
+  'ms',
+  'mspace',
+  'msqrt',
+  'mstyle',
+  'msub',
+  'msubsup',
+  'msup',
+  'mtable',
+  'mtd',
+  'mtext',
+  'mtr',
+  'munder',
+  'munderover',
+  'semantics',
+];
+
+export const mathMlNamespace =
+  'http://www.w3.org/1998/Math/MathML' as NameSpace;

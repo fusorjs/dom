@@ -1,15 +1,7 @@
-import {TaggedInitter} from '../types';
+import {AllHTMLElementTagNameMap, FunctionalNotation} from '../types';
 
-import {
-  initHelper,
-  getTaggedInitHelper,
-  getTaggedInitMapHelper,
-} from './initHelper';
+import {getTaggedInitHelper, getTaggedInitMapHelper} from './share';
 import {htmlTagNames} from './constants';
-
-type Result = {
-  [K in keyof HTMLElementTagNameMap]: TaggedInitter<HTMLElementTagNameMap[K]>;
-};
 
 export const {
   a,
@@ -95,6 +87,7 @@ export const {
   s,
   samp,
   script,
+  search,
   section,
   select,
   slot,
@@ -123,7 +116,41 @@ export const {
   var: hvar,
   video,
   wbr,
-} = getTaggedInitMapHelper<Result, keyof HTMLElementTagNameMap>(
-  getTaggedInitHelper(undefined),
-  htmlTagNames,
-);
+  //
+  acronym,
+  applet,
+  basefont,
+  bgsound,
+  big,
+  blink,
+  center,
+  dir,
+  font,
+  frame,
+  frameset,
+  isindex,
+  keygen,
+  listing,
+  marquee,
+  menuitem,
+  multicol,
+  nextid,
+  nobr,
+  noembed,
+  noframes,
+  param,
+  plaintext,
+  rb,
+  rtc,
+  spacer,
+  strike,
+  tt,
+  xmp,
+} = getTaggedInitMapHelper<
+  {
+    [K in keyof AllHTMLElementTagNameMap]: FunctionalNotation<
+      AllHTMLElementTagNameMap[K]
+    >;
+  },
+  keyof AllHTMLElementTagNameMap
+>(getTaggedInitHelper(undefined), htmlTagNames);

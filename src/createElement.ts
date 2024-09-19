@@ -1,10 +1,10 @@
-import {ElementWithExtras, Mount, NamespaceUri, Props, TagName} from './types';
+import {ElementWithExtras, Mount, NameSpace, Props, TagName} from './types';
 import {getLifeElementName} from './getLifeElementName';
 import {DEVELOPMENT, elementExtrasName} from './share';
 
 export const createElement = (
-  namespace: NamespaceUri | undefined,
   tagName: TagName,
+  xmlns?: NameSpace,
   props?: Props,
 ) => {
   let element: ElementWithExtras | undefined;
@@ -25,7 +25,7 @@ export const createElement = (
           `cannot use both properties "mount" and "is" together`,
         );
 
-      if (namespace)
+      if (xmlns)
         throw new TypeError(
           '"mount" property is not supported with namespaces yet',
         ); // https://github.com/WICG/webcomponents/issues/634
@@ -42,8 +42,8 @@ export const createElement = (
       mount: mount as Mount,
     };
   } else {
-    element = namespace
-      ? document.createElementNS(namespace, tagName, options)
+    element = xmlns
+      ? document.createElementNS(xmlns, tagName, options)
       : document.createElement(tagName, options);
   }
 

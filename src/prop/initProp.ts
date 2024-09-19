@@ -36,6 +36,7 @@ export const initProp = (
     // if (key === 'umount') throw TypeError(`"umount" property reserved for future use`);
   }
 
+  if (key === 'xmlns') return;
   if (key === 'is') return;
   if (key === 'mount') return;
 
@@ -89,6 +90,9 @@ export const initProp = (
         throw new TypeError(`excess option in attribute key 2 "${key}"`);
     case 'an':
       // todo refactor up - element instanceof HTMLElement ? undefined : null
+      // https://stackoverflow.com/questions/3919291/when-to-use-setattribute-vs-attribute-in-javascript
+      // https://stackoverflow.com/questions/52571125/setattributens-xmlns-of-svg-for-a-general-purpose-library
+      // https://stackoverflow.com/questions/37746181/why-setattribute-getattribute-is-inconsistent-with-arguments-when-setting-xlink
       // ! can be null - https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course#scripting_in_namespaced_xml
       const namespace =
         split[2] || (element instanceof HTMLElement ? undefined : null);
