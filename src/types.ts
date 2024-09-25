@@ -43,63 +43,90 @@ export type StaticArg = StaticProps | StaticChild;
 
 /* DYNAMIC ARGS */
 
-export type Prop = StaticProp | ((...a: any) => any); //| EventHandler;
+export type Prop = StaticProp | ((...a: unknown[]) => unknown); // todo Prop = unknown & distinct
 
 export type SingleChild =
   | SingleStaticChild
   | (() => Child)
+  | Fusion
   | Component<Element>;
 
-export type Child = SingleChild | readonly SingleChild[];
+export type Child = SingleChild | readonly SingleChild[]; // todo Child = unknown & distinct
 
-export interface Props {
-  /** Custom element name. */
-  is?: string;
-  mount?: Mount;
-  readonly [key: `${string}_e${string}`]:
-    | EventListener2
-    | EventListenerOrEventListenerObject2
-    //?| null
-    | AddEventListenerOptions2;
-  readonly [key: string]: Prop;
+declare global {
+  namespace Fusor {
+    type ParameterSeparator = '_';
+  }
 }
 
-export type Arg = Props | Child;
+type ___ = Fusor.ParameterSeparator;
+
+// todo Params
+export interface Props<E extends Element = Element> {
+  is?: string;
+  mount?: Mount<E>;
+  readonly [key: `${string}${___}e`]: EL<E>;
+  readonly [key: `${string}${___}e${___}${string}`]: EL<E>;
+  readonly [key: string]: unknown; // Prop;
+}
+
+export type Arg<E extends Element = Element> = Props<E> | Child;
 
 /* EVENTS */
 
-export type EventListener2 =
-  // <
-  //   EV extends Event, // ! will have to typecast everywhere: blur_e: (e: Event | (FocusEvent & Target<HTMLInputElement>)) => {if (!('relatedTarget' in e)) return;
-  //   ? EL extends Element,
-  // >
-  (
-    // ? this: EL,
-    event: any, // EV, // !
-    self: Fusion,
-  ) => void;
+// ? determine the event name and map to correct event type
+// <HTMLElementEventMap>
 
-export type EventListenerOrEventListenerObject2 =
-  | EventListener2
-  | {
-      handleEvent: EventListener2;
-    };
+/** Event listener function (resembles: EventListener) */
+export type ELFunction<EL extends Element = Element> = <EV extends Event>(
+  // ? this: EL,
+  event: EV & {target: EL},
+  self: Fusion<EL>,
+) => void;
 
-export type AddEventListenerOptions2 = AddEventListenerOptions & {
-  update?: boolean;
-  handle: EventListenerOrEventListenerObject2;
+/** Event listener object (resembles: EventListenerObject) */
+export type ELObject<E extends Element = Element> = {
+  handleEvent: ELFunction<E>;
 };
+
+/** Event listener function or object (resembles: EventListenerOrEventListenerObject) */
+export type ELFunctionOrObject<
+  E extends Element = Element,
+  O extends ELObject<E> = ELObject<E>,
+> = ELFunction<E> | O;
+
+/** Event listener options (resembles: AddEventListenerOptions) */
+export type ELOptions<
+  E extends Element = Element,
+  O extends ELObject<E> = ELObject<E>,
+> = AddEventListenerOptions & {
+  update?: boolean;
+  handle: ELFunctionOrObject<E, O>;
+};
+
+/** Event Listener */
+export type EL<
+  E extends Element = Element,
+  O extends ELObject<E> = ELObject<E>,
+> =
+  | ELFunctionOrObject<E, O>
+  //?| null
+  | ELOptions<E, O>;
 
 /* EXTRAS */
 
-export type Unmount = () => void;
 /** DOM Element connect callback. Return disconnect function if needed. */
-export type Mount = (self: Fusion) => Unmount | undefined;
+export type Mount<E extends Element = Element> = (
+  self: Fusion<E>,
+) => Unmount | void;
+
+/** DOM Element disconnect callback. */
+export type Unmount = () => void;
 
 /** @internal */
 export interface ElementExtras {
   mount?: Mount;
-  unmount?: Unmount;
+  unmount?: ReturnType<Mount>;
   component?: Component<Element>;
 }
 
@@ -116,29 +143,23 @@ export interface ElementWithExtras extends Element {
  * Use public API method to work with it: update, isUpdatable, getElement */
 export type Fusion<E extends Element = Element> = E | Component<E>;
 
-export interface FnInitter {
-  <E extends ElementWithExtras>(element: E, args: readonly StaticArg[]): E;
-  <E extends ElementWithExtras>(element: E, args: readonly Arg[]): Component<E>;
-}
-
 export interface XMLInitter {
   (
     namespace: NameSpace | undefined,
-    tagName: TagName,
-    args: readonly any[], // Arg[],
+    tag: TagName,
+    args: readonly unknown[],
   ): Fusion;
 }
 
 export interface HyperNotation<Map extends {[key: string]: Element}> {
   <Tag extends keyof Map>(
     tag: Tag,
-    ...args: readonly any[] // StaticArg[]
+    ...args: readonly Arg<Map[Tag]>[]
   ): Fusion<Map[Tag]>;
 }
 
 export interface FunctionalNotation<E extends Element> {
-  (...args: readonly StaticArg[]): E;
-  (...args: readonly Arg[]): Component<E>; // todo
+  (...args: readonly Arg<E>[]): Fusion<E>;
 }
 
 export interface JsxFactory {
@@ -198,24 +219,3 @@ export type DynamicChild<E extends Element> =
 
 export type AllHTMLElementTagNameMap = HTMLElementTagNameMap &
   HTMLElementDeprecatedTagNameMap;
-
-/* EXPERIMENTS */
-
-// export type some = string | number | boolean | symbol | object;
-// export type StaticValue<T> = T extends Function ? never : T;
-
-// export interface StaticProps2 {
-//   [key: string]: StaticProp;
-//   [kkey: `on_{string}`]: Function;
-// }
-// type EventName = `on_{string}`;
-// interface StaticProps2 {
-//   // [key: string]: StaticProp;
-//   // [key: `on_{string}`]: Function;
-//   [K: EventName | string]: typeof K extends EventName ? Function : StaticProp;
-//   // [K: string]: typeof K extends EventName ? Function : StaticProp;
-// }
-// const xxx: StaticProps2 = {
-//   asd: true,
-//   onasd: () => {},
-// };

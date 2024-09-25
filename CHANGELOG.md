@@ -58,6 +58,7 @@ npm coverage
 - elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>. Or in version 3 will be deprecated.
 - Move "extras" out of DOM element objects (see the first rule). At the moment cannot remove it because it is used in `connectedCallback`.
 - Maybe remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance. But on the oter hand this allows to fast ref check skipping whole array if it not changed.
+- Streamline all tag "renames" for all notations.
 
 ## Todo
 
@@ -93,6 +94,8 @@ type updateCurrent = (value: Element | Component) => void;
 
 ## In Progress
 
+## Done
+
 ### Version 2.5.1
 
 - Add MathML support.
@@ -102,13 +105,12 @@ type updateCurrent = (value: Element | Component) => void;
 Breaking changes:
 
 - If you use old `Component` API the typings might break in hyper/functional notation. Use universal public API instead.
+- Renamed: `setPropSplitter:setParameterSeparator, getPropSplitter:getParameterSeparator, defaultPropSplitter:defaultParameterSeparator`
 
 Abandoned Ideas:
 
 - Add the non recursive update `updateNR` method. Not needed as this can be achieved by wrapping component in a function.
 - Create "sugar" syntax to subscribe/usubscribe to observable values. Not needed bacause method `mount` already sufficient for this task.
-
-## Done
 
 ### Version 2.4.2
 

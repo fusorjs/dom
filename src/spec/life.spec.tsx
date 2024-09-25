@@ -1,4 +1,4 @@
-import {Component, jsx, update} from '..';
+import {Component, Fusion, jsx, update} from '..';
 
 test('static mount/unmount', () => {
   let result = '';
@@ -29,7 +29,7 @@ test('dynamic mount/unmount', () => {
   let content = 'Hello';
   const wrapper = (
     <div
-      mount={(self) => {
+      mount={(self: Fusion) => {
         content += ' World';
         update(self);
 

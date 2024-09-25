@@ -1,8 +1,8 @@
 import {
-  AddEventListenerOptions2,
+  ELOptions,
   Fusion,
   ElementWithExtras,
-  EventListener2,
+  ELFunction,
   UpdatableProp,
 } from '../types';
 import {DEVELOPMENT, elementExtrasName, getPropertyDescriptor} from '../share';
@@ -10,12 +10,18 @@ import {update} from '../public';
 
 import {convertAttribute, emptyAttribute} from './convertAttribute';
 
-export const defaultPropSplitter = '_';
+export const defaultParameterSeparator = '_';
 
-let propSplitter = defaultPropSplitter;
+let parameterSeparator = defaultParameterSeparator;
 
-export const setPropSplitter = (s: string) => (propSplitter = s);
-export const getPropSplitter = () => propSplitter;
+/**
+ * Set global parameter separator string
+ * Also change type `ParameterSeparator` declaration
+ * @default "_"
+ * @example "click_e_once"
+ */
+export const setParameterSeparator = (s: string) => (parameterSeparator = s);
+export const getParameterSeparator = () => parameterSeparator;
 
 const isProperty = (value: any, name: string) => {
   const d = getPropertyDescriptor(value, name);
@@ -40,7 +46,7 @@ export const initProp = (
   if (key === 'is') return;
   if (key === 'mount') return;
 
-  const split = key.split(propSplitter);
+  const split = key.split(parameterSeparator);
   const {length} = split;
   const [name, type] = split;
 
@@ -142,13 +148,9 @@ export const initProp = (
 
     // *** EVENT TYPE ***
     case 'e':
-      let options:
-        | boolean
-        | AddEventListenerOptions
-        | AddEventListenerOptions2
-        | undefined;
+      let options: boolean | AddEventListenerOptions | ELOptions | undefined;
       let updateAfter: boolean | undefined;
-      let callback: EventListener2 | undefined;
+      let callback: ELFunction | undefined;
 
       // prepare callback & options
 
@@ -213,7 +215,7 @@ export const initProp = (
         if (options) {
           // override options object with key options
           options = {
-            ...(options as AddEventListenerOptions2),
+            ...(options as ELOptions),
             ...{
               capture,
               once,
@@ -233,12 +235,15 @@ export const initProp = (
             const self: Fusion =
               element[elementExtrasName]?.component ?? element;
 
-            callback!(event, self);
+            callback!(event as Event & {target: Element}, self);
 
             update(self);
           }
         : (event) => {
-            callback!(event, element[elementExtrasName]?.component ?? element);
+            callback!(
+              event as Event & {target: Element},
+              element[elementExtrasName]?.component ?? element,
+            );
           };
 
       element.addEventListener(name, listener, options);

@@ -104,10 +104,11 @@ Fusor creates DOM nodes wrapped in special data structures that are incompatible
 
 ### Fusor Configuration
 
-> `export {defaultPropSplitter, setPropSplitter} from './prop/initProp';`
+> `export {defaultPropSplitter, setParameterSeparator, getParameterSeparator} from './prop/initProp';`
 
-- `defaultPropSplitter` = `_` - retrieve default property separator
-- `setPropSplitter('$')` - set property separator
+- `defaultPropSplitter` = `_` - retrieve default parameter separator
+- `setParameterSeparator('__')` - set parameter separator (also you should change declaraion of `ParameterSeparator`)
+- `getParameterSeparator` - return current parameter separator
 
 ## Static vs Dynamic
 
@@ -226,7 +227,7 @@ Specify `[name]_[type]`:
 - `ps` - `p`roperty `s`tatic
 - `e` - `e`vent handler
 
-> Use `setPropSplitter('$')` to change the global suffix separator from `_` to `$`
+> See `setParameterSeparator` to change the global suffix separator
 
 #### Property Keys
 
@@ -326,16 +327,83 @@ JSX development info props:
 - When using `mount`, global Custom Element is registered for this specific element type, breaking purity to some extent
 - SVG elements cannot have a lifecycle yet, but there is a [proposal](https://github.com/WICG/webcomponents/issues/634)
 
+## Typescript Declarations
+
+### Fusor Declarations
+
+Globally in `global.d.ts`:
+
+```ts
+declare module '@fusorjs/dom/jsx-runtime' {
+  declare global {
+    namespace Fusor {
+      // When changing `setParameterSeparator` you must also change:
+      type ParameterSeparator = '__';
+    }
+  }
+}
+```
+
+### JSX Declarations
+
+Globally in `global.d.ts`:
+
+```ts
+declare module '@fusorjs/dom/jsx-runtime' {
+  declare global {
+    namespace JSX {
+      // Adding new elements:
+      interface IntrinsicElements {
+        'custom-element': any;
+      }
+    }
+  }
+}
+```
+
+Locally in `file.tsx`:
+
+```tsx
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'custom-element': any;
+    }
+  }
+}
+
+<custom-element>AAA</custom-element>;
+```
+
+### Hyper and Functional Notation Declarations
+
+Locally in `file.ts`:
+
+```ts
+declare global {
+  interface HTMLElementTagNameMap {
+    unknown123: HTMLFormElement;
+  }
+}
+
+h('unknown123', {
+  mount: (self) => {
+    getElement(self).method;
+  },
+});
+```
+
 ## Context
 
 Use the simplest working solution:
 
 1. Use CSS variables and media queries for themes (no JavaScript)
-2. Use global variables
+2. Use global variables (module import/export)
 3. Use component parameters
 4. On mount bubble subscribtion event to the observable parent in the DOM tree (like react form components)
 
 <!-- > Fusor is just a helper library for new way of writing web apps
 > Manually triggering updates is better than outsourcing this to some obscure/implicit/dumb/slow framework
 
-### New Wave of Web Apps Development -->
+### New Wave of Web Apps Development способ создания веб приложений
+ -->

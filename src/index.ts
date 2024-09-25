@@ -1,12 +1,12 @@
 // Public API for library users
-export type {Fusion} from './types';
+export type {Fusion, Mount, Unmount} from './types';
 export {getElement, isUpdatable, update} from './public';
 export {h, s, m} from './hyper';
 export {jsxFactory as jsx} from './jsx';
 export {
-  defaultPropSplitter,
-  setPropSplitter,
-  getPropSplitter,
+  defaultParameterSeparator,
+  setParameterSeparator,
+  getParameterSeparator,
 } from './prop/initProp';
 
 // todo deprecate:

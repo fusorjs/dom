@@ -78,3 +78,13 @@ describe('children wrapper', () => {
     expect(getElement(provided).outerHTML).toBe(expected);
   });
 });
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'compatible-jsx': unknown;
+      'idiomatic-jsx': unknown;
+      jsx: unknown;
+    }
+  }
+}

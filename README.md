@@ -58,6 +58,21 @@ const IntervalCounter = ({count = 0}) => (
 );
 ```
 
+<!-- ### Routing
+
+```tsx
+import {getRoute, Route, mountRoute} from '../share/route';
+export const RouteLink = (title: string, route: Route) =>
+  a(
+    {
+      href: `#${route}`,
+      class: () => clsx(getRoute() === route && 'selected'),
+      mount: mountRoute,
+    },
+    title,
+  );
+``` -->
+
 Also, check out [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx).
 
 ## Documentation

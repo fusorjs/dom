@@ -2,6 +2,7 @@ import {ElementWithExtras, Mount, NameSpace, Props, TagName} from './types';
 import {getLifeElementName} from './getLifeElementName';
 import {DEVELOPMENT, elementExtrasName} from './share';
 
+// todo props => is, mount
 export const createElement = (
   tagName: TagName,
   xmlns?: NameSpace,

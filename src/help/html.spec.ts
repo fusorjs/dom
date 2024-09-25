@@ -1,5 +1,4 @@
-import {Component} from '../component';
-import {Child} from '../types';
+import {getElement, isUpdatable, update} from '../public';
 
 import {htmlTagNames} from './constants';
 import * as allTags from './html';
@@ -22,7 +21,7 @@ test('all html tags are defined', () => {
 });
 
 test('empty div', () => {
-  const result = div();
+  const result = div() as HTMLDivElement;
 
   expect(result).toBeInstanceOf(HTMLDivElement);
   expect(result.attributes.length).toBe(0);
@@ -31,7 +30,7 @@ test('empty div', () => {
 });
 
 test('staic div', () => {
-  const result = div({class: '111'}, 'bbb');
+  const result = div({class: '111'}, 'bbb') as HTMLDivElement;
 
   expect(result).toBeInstanceOf(HTMLDivElement);
   expect(result.attributes.length).toBe(1);
@@ -42,9 +41,9 @@ test('staic div', () => {
 test('dynamic div', () => {
   const result = div(() => 'bbb');
 
-  expect(result).toBeInstanceOf(Component);
+  expect(isUpdatable(result)).toBe(true);
 
-  const {element} = result;
+  const element = getElement(result);
 
   expect(element).toBeInstanceOf(HTMLDivElement);
   expect(element.attributes.length).toBe(0);
@@ -55,9 +54,9 @@ test('dynamic div', () => {
 it('has dynamic void child', () => {
   const result = p(() => {});
 
-  expect(result).toBeInstanceOf(Component);
+  expect(isUpdatable(result)).toBe(true);
 
-  const {element} = result;
+  const element = getElement(result);
 
   expect(element).toBeInstanceOf(HTMLParagraphElement);
   expect(element.attributes.length).toBe(0);
@@ -66,7 +65,7 @@ it('has dynamic void child', () => {
 });
 
 test('static button', () => {
-  const result = button({aaa: '111'}, 'bbb');
+  const result = button({aaa: '111'}, 'bbb') as HTMLButtonElement;
 
   expect(result).toBeInstanceOf(HTMLButtonElement);
   expect(result.attributes.length).toBe(1);
@@ -75,13 +74,21 @@ test('static button', () => {
 });
 
 test('correct typescript typings', () => {
-  expect(form().enctype).toBe('application/x-www-form-urlencoded');
-  expect(form().method).toBe('get');
-  expect(select().multiple).toBe(false);
-  expect(option().selected).toBe(false);
-  expect(textarea().rows).toBe(2);
-  expect(a().href).toBe('');
-  expect(img().src).toBe('');
+  expect(getElement(form()).enctype).toBe('application/x-www-form-urlencoded');
+  expect(getElement(form()).method).toBe('get');
+  expect(getElement(select()).multiple).toBe(false);
+  expect(getElement(option()).selected).toBe(false);
+  expect(getElement(textarea()).rows).toBe(2);
+  expect(getElement(a()).href).toBe('');
+  expect(getElement(img()).src).toBe('');
+
+  input({
+    keydown_e: (event) => {
+      if ((event as any as KeyboardEvent).code !== 'Enter') return;
+      event.preventDefault();
+      event.target.value.toUpperCase();
+    },
+  });
 });
 
 // 01.singleton
@@ -93,15 +100,15 @@ test('stateless button changes global counter onclick', () => {
     {
       click_e: () => {
         counter += 1;
-        btn.update();
+        update(btn);
       },
     },
     () => `Clicked ${counter} times!`,
   );
 
-  expect(btn).toBeInstanceOf(Component);
+  expect(isUpdatable(btn)).toBe(true);
 
-  const {element} = btn;
+  const element = getElement(btn);
 
   expect(element).toBeInstanceOf(HTMLButtonElement);
 
@@ -125,7 +132,7 @@ test('stateful counter button instances are clicked', () => {
       {
         click_e: () => {
           counter += 1;
-          btn.update();
+          update(btn);
         },
       },
       () => `Clicked ${counter} times!`,
@@ -134,9 +141,9 @@ test('stateful counter button instances are clicked', () => {
     return btn;
   };
 
-  const element1 = CounterButton().element;
-  const element2 = CounterButton().element;
-  const element3 = CounterButton(333).element;
+  const element1 = getElement(CounterButton());
+  const element2 = getElement(CounterButton());
+  const element3 = getElement(CounterButton(333));
 
   expect(element1.innerHTML).toBe('Clicked 0 times!');
   expect(element2.innerHTML).toBe('Clicked 0 times!');
@@ -159,15 +166,15 @@ test('stateful counter button instances are clicked', () => {
 // 03.props
 
 test('set color style of text', () => {
-  expect(p({style: 'color:red'}, 'This text is red colored.').outerHTML).toBe(
-    '<p style="color: red;">This text is red colored.</p>',
-  );
+  expect(
+    (p({style: 'color:red'}, 'This text is red colored.') as Element).outerHTML,
+  ).toBe('<p style="color: red;">This text is red colored.</p>');
 });
 
 test('init dynamic property', () => {
   let count = 0;
 
-  expect(input({value: () => ++count}).element.value).toBe('1');
+  expect(getElement(input({value: () => ++count})).value).toBe('1');
 });
 
 // 04.child
@@ -179,7 +186,7 @@ test('toggle button color', () => {
     {
       click_e: () => {
         toggle = !toggle;
-        tgl.update();
+        update(tgl);
       },
     },
     () => (toggle ? 'On' : 'Off'),
@@ -191,15 +198,15 @@ test('toggle button color', () => {
     {
       click_e: () => {
         counter += 1;
-        cnt.update();
+        update(cnt);
       },
       style: () => (toggle ? 'color:green' : ''),
     },
     () => `Clicked ${counter} times!`,
   );
 
-  const toggleElement = tgl.element;
-  const counterElement = cnt.element;
+  const toggleElement = getElement(tgl);
+  const counterElement = getElement(cnt);
 
   expect(toggleElement.innerHTML).toBe('Off');
   expect(counterElement.outerHTML).toBe(
@@ -242,72 +249,72 @@ test('init & update dynamic children array', () => {
   const counter = () => ++count;
   const app = div(() => [counter, p(counter)]);
 
-  expect(app.element.innerHTML).toBe('2<p>1</p>'); // <p> init called first
-  expect(app.element.childNodes.length).toBe(3);
+  expect(getElement(app).innerHTML).toBe('2<p>1</p>'); // <p> init called first
+  expect(getElement(app).childNodes.length).toBe(3);
 
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('4<p>3</p>'); // <p> re-created first
-  expect(app.element.childNodes.length).toBe(3);
+  expect(getElement(app).innerHTML).toBe('4<p>3</p>'); // <p> re-created first
+  expect(getElement(app).childNodes.length).toBe(3);
 });
 
 test('dynamic children array', () => {
-  let dynamic: Child = 'text';
+  let dynamic: any = 'text';
 
   const app = div(() => dynamic, 'WWW');
 
-  expect(app.element.innerHTML).toBe('textWWW');
-  expect(app.element.childNodes.length).toBe(2);
+  expect(getElement(app).innerHTML).toBe('textWWW');
+  expect(getElement(app).childNodes.length).toBe(2);
 
   dynamic = [1, 2, 3];
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('123WWW');
-  expect(app.element.childNodes.length).toBe(5);
+  expect(getElement(app).innerHTML).toBe('123WWW');
+  expect(getElement(app).childNodes.length).toBe(5);
 
   dynamic = ['a', 'b'];
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('abWWW');
-  expect(app.element.childNodes.length).toBe(4);
+  expect(getElement(app).innerHTML).toBe('abWWW');
+  expect(getElement(app).childNodes.length).toBe(4);
 
   dynamic = 'one';
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('oneWWW');
-  expect(app.element.childNodes.length).toBe(3); // +1 terminator
+  expect(getElement(app).innerHTML).toBe('oneWWW');
+  expect(getElement(app).childNodes.length).toBe(3); // +1 terminator
 
   let count = 0;
 
   dynamic = p(() => ++count);
 
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>WWW');
-  expect(app.element.childNodes.length).toBe(3);
+  expect(getElement(app).innerHTML).toBe('<p>1</p>WWW');
+  expect(getElement(app).childNodes.length).toBe(3);
 
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>WWW');
-  expect(app.element.childNodes.length).toBe(3);
+  expect(getElement(app).innerHTML).toBe('<p>1</p>WWW');
+  expect(getElement(app).childNodes.length).toBe(3);
 
-  dynamic.update();
+  update(dynamic);
 
-  expect(app.element.innerHTML).toBe('<p>2</p>WWW');
-  expect(app.element.childNodes.length).toBe(3);
+  expect(getElement(app).innerHTML).toBe('<p>2</p>WWW');
+  expect(getElement(app).childNodes.length).toBe(3);
 
   count = 1;
   dynamic = [p(() => count), () => count];
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>1WWW');
-  expect(app.element.childNodes.length).toBe(4);
+  expect(getElement(app).innerHTML).toBe('<p>1</p>1WWW');
+  expect(getElement(app).childNodes.length).toBe(4);
 
   count = 2;
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>1WWW'); // same array, does not update
-  expect(app.element.childNodes.length).toBe(4);
+  expect(getElement(app).innerHTML).toBe('<p>1</p>1WWW'); // same array, does not update
+  expect(getElement(app).childNodes.length).toBe(4);
 });
 
 it('should update dynamic array components whith different arrays', () => {
@@ -319,21 +326,21 @@ it('should update dynamic array components whith different arrays', () => {
 
   const app = div(() => dynamic);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(getElement(app).innerHTML).toBe('<p>1</p>');
 
   dynamic = [paragraph]; // different array
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(getElement(app).innerHTML).toBe('<p>1</p>');
 
-  paragraph.update();
+  update(paragraph);
 
-  expect(app.element.innerHTML).toBe('<p>2</p>');
+  expect(getElement(app).innerHTML).toBe('<p>2</p>');
 
   dynamic = ['abc']; // different array
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('abc');
+  expect(getElement(app).innerHTML).toBe('abc');
 });
 
 it('should not update dynamic array components with the same array', () => {
@@ -345,15 +352,15 @@ it('should not update dynamic array components with the same array', () => {
 
   const app = div(() => dynamic);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(getElement(app).innerHTML).toBe('<p>1</p>');
 
-  app.update(); // same array
+  update(app); // same array
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(getElement(app).innerHTML).toBe('<p>1</p>');
 
-  app.update(); // same array
+  update(app); // same array
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(getElement(app).innerHTML).toBe('<p>1</p>');
 });
 
 it('should replace dynamic array with dynamic component and update component', () => {
@@ -361,35 +368,35 @@ it('should replace dynamic array with dynamic component and update component', (
 
   const paragraph = p(() => ++count);
 
-  let dynamic: Child = [paragraph];
+  let dynamic: any = [paragraph];
 
   const app = div(() => dynamic);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(getElement(app).innerHTML).toBe('<p>1</p>');
 
   dynamic = paragraph;
 
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('<p>1</p>');
+  expect(getElement(app).innerHTML).toBe('<p>1</p>');
 
-  dynamic.update();
+  update(dynamic);
 
-  expect(app.element.innerHTML).toBe('<p>2</p>');
+  expect(getElement(app).innerHTML).toBe('<p>2</p>');
 
-  app.update();
+  update(app);
 
-  expect(app.element.innerHTML).toBe('<p>2</p>');
+  expect(getElement(app).innerHTML).toBe('<p>2</p>');
 });
 
 it('should not show boolean values', () => {
-  expect(div(true).innerHTML).toBe('');
-  expect(div(true || 'invisible').innerHTML).toBe('');
-  expect(div(() => true).element.innerHTML).toBe('');
-  expect(div(false).innerHTML).toBe('');
-  expect(div(false && 'invisible').innerHTML).toBe('');
-  expect(div(() => false).element.innerHTML).toBe('');
-  expect(div([true, false]).innerHTML).toBe('');
-  expect(div(() => [true, false]).element.innerHTML).toBe('');
-  expect(div(() => [() => true, () => false]).element.innerHTML).toBe('');
+  expect((div(true) as Element).innerHTML).toBe('');
+  expect((div(true || 'invisible') as Element).innerHTML).toBe('');
+  expect(getElement(div(() => true)).innerHTML).toBe('');
+  expect((div(false) as Element).innerHTML).toBe('');
+  expect((div(false && 'invisible') as Element).innerHTML).toBe('');
+  expect(getElement(div(() => false)).innerHTML).toBe('');
+  expect((div([true, false]) as Element).innerHTML).toBe('');
+  expect(getElement(div(() => [true, false])).innerHTML).toBe('');
+  expect(getElement(div(() => [() => true, () => false])).innerHTML).toBe('');
 });

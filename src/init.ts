@@ -1,10 +1,19 @@
-import {DynamicChild, DynamicProps, FnInitter, Prop} from './types';
+import {
+  DynamicChild,
+  DynamicProps,
+  ElementWithExtras,
+  Fusion,
+  Prop,
+} from './types';
 import {elementExtrasName} from './share';
 import {Component} from './component';
 import {initProp} from './prop/initProp';
 import {initFlatChild} from './child/initFlatChild';
 
-export const init: FnInitter = (element, args) => {
+export const init = (
+  element: ElementWithExtras,
+  args: readonly unknown[],
+): Fusion => {
   const {length} = args;
 
   if (length === 0) return element; // static
