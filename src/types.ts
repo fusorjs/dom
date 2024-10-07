@@ -61,8 +61,8 @@ declare global {
 
 type ___ = Fusor.ParameterSeparator;
 
-// todo Params
-export interface Props<E extends Element = Element> {
+/** Element parameters: arguments, properties, event handlers */
+export interface Params<E extends Element = Element> {
   is?: string;
   mount?: Mount<E>;
   readonly [key: `${string}${___}e`]: EL<E>;
@@ -70,7 +70,7 @@ export interface Props<E extends Element = Element> {
   readonly [key: string]: unknown; // Prop;
 }
 
-export type Arg<E extends Element = Element> = Props<E> | Child;
+export type Arg<E extends Element = Element> = Params<E> | Child;
 
 /* EVENTS */
 
@@ -165,13 +165,13 @@ export interface FunctionalNotation<E extends Element> {
 export interface JsxFactory {
   (
     tagName: TagName | Function,
-    props?: Props,
+    props?: Params,
     ...children: readonly Child[]
   ): Fusion;
 }
 
 export interface JsxImportSource {
-  (tagName: TagName | Function, props?: Props, key?: any): Fusion;
+  (tagName: TagName | Function, props?: Params, key?: any): Fusion;
 }
 
 /* UPDATE */

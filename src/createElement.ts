@@ -1,4 +1,4 @@
-import {ElementWithExtras, Mount, NameSpace, Props, TagName} from './types';
+import {ElementWithExtras, Mount, NameSpace, Params, TagName} from './types';
 import {getLifeElementName} from './getLifeElementName';
 import {DEVELOPMENT, elementExtrasName} from './share';
 
@@ -6,7 +6,7 @@ import {DEVELOPMENT, elementExtrasName} from './share';
 export const createElement = (
   tagName: TagName,
   xmlns?: NameSpace,
-  props?: Props,
+  props?: Params,
 ) => {
   let element: ElementWithExtras | undefined;
   let options: ElementCreationOptions | undefined;
@@ -28,8 +28,8 @@ export const createElement = (
 
       if (xmlns)
         throw new TypeError(
-          '"mount" property is not supported with namespaces yet',
-        ); // https://github.com/WICG/webcomponents/issues/634
+          '"mount" property is not supported with anything but HTML yet, see the proposal: https://github.com/WICG/webcomponents/issues/634',
+        );
 
       if (typeof mount !== 'function')
         throw new TypeError('"mount" property is not a function');

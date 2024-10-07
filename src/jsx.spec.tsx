@@ -1,4 +1,5 @@
 import {jsx, getElement, Fusion} from '.';
+import {Params} from './types';
 import {htmlTagNames} from './help/constants';
 import {mathMlTagNamesSet, svgTagNamesSet} from './jsx';
 
@@ -17,13 +18,23 @@ test('jsx creation', () => {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'custom-element': any;
+      'custom-form': Params<HTMLFormElement>;
+      'unknown-elm': any;
     }
   }
 }
 
 test('typescript mount type', () => {
-  <custom-element>AAA</custom-element>;
+  () => {
+    <custom-form
+      mount={(self: Fusion<HTMLFormElement>) => {
+        getElement(self).enctype;
+      }}
+    >
+      AAA
+    </custom-form>;
+    <unknown-elm></unknown-elm>;
+  };
 
   // test type mount return unmount
   <p mount={() => () => {}} />;

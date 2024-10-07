@@ -1,10 +1,16 @@
 # Fusor vs React
 
-## Not another React clone
+## Not Another React Clone
 
-While Fusor shares some concepts with React, it distinguishes itself by adopting a more flexible and minimalist approach. Essentially, the complexity of hooks, lifecycle, and concurrency is replaced by fine-grained DOM control.
+While Fusor shares some concepts with React, it sets itself apart by taking a more flexible and minimalist approach.
 
-## Common features
+React is like a monolithic black box where everything is managed internally: DOM creation/updating/diffing, state, context, concurrency, lifecycle, etc.
+
+Fusor is like a set of Lego bricks. It was designed to show that all of these elements can be managed externally, explicitly, with less complexity and verbosity.
+
+Why manage it externally? Because explicit control is often better than implicit, and sometimes flexibility or fine-tuning is necessary.
+
+## Common Features
 
 Fusor was inspired by React, and they both share the same ideas:
 
@@ -31,14 +37,17 @@ The fundamental difference lies in the separation of concerns within the compone
 
 ## Benefits
 
-|                     | Fusor                                           | React                                                       |
-| ------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
-| Component data      | Created **once** on initialization              | Created on initialization and recreated on **every** update |
-| Side effects        | Normal JavaScript flow                          | Complex and verbose _hooks_ mechanics                       |
-| Component updates   | Explicit/precise, update what and when you need | Implicit, complex, whole tree diffing                       |
-| Component functions | Pure                                            | Context is required                                         |
-| Concurrency         | Explicit                                        | Implicit                                                    |
-| Library size (gz)   | ~4KiB                                           | ~44KiB                                                      |
+|                     | Fusor                                                       | React                                                                                                             |
+| ------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Component data      | Created **once** on initialization                          | Created on initialization and recreated on **every** update                                                       |
+| Side effects        | Normal JavaScript flow                                      | Complex and verbose _hooks_ mechanics                                                                             |
+| Component updates   | Explicit/precise, update what and when you need             | Implicit, complex, whole tree diffing                                                                             |
+| Component functions | Pure                                                        | Context is required                                                                                               |
+| Concurrency         | Explicit                                                    | Implicit                                                                                                          |
+| Philosophy          | Lego, everything is controlled by the user                  | Black box monolith, automatically handles everything                                                              |
+| Library size (gz)   | [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.1) | [~2kB](https://bundlephobia.com/package/react@18.3.1) + [41kB](https://bundlephobia.com/package/react-dom@18.3.1) |
+
+> React Hooks depend not only on the `deps` array but also on the component instances, which does not allow fully reusing memoized data across multiple components.
 
 ## Code samples
 

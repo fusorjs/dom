@@ -1,52 +1,6 @@
-# Fusor Development
+# Changelog
 
-## Start Developing
-
-```sh
-npm install
-npm start
-```
-
-- **Please Use Prettier!**
-- Link `dist` and `package.json` to `your-progect/node_modules/@fusorjs/dom`
-- Run tests before contributing
-
-```sh
-npm test
-npm coverage
-```
-
-## Project Philosophy
-
-> "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
-
-- **Simple**, small, **pure**, and **functional** API and implementation.
-- Sane defaults, also known as _convention over configuration_.
-
-> _Explicit is better than implicit_ or the _principle of least surprise_.
-
-- **Explicit** API without hidden magic going on behind the scenes.
-- **W3C standards** compliant
-
-> "_Simple things should be simple, complex things should be possible_." ― Alan Kay
-
-- **Full control** over DOM creation and updates.
-- **Full control** over state, context, lifecycle, diffing, and concurrency.
-
-> "_Do one thing and do it well._"
-
-- Specifically: managing the DOM.
-
-> The other requirements:
-
-- Efficient use of provided and internal data
-- **Immutability**, avoid excessive creation
-
-## Rules
-
-- Avoid adding your custom props to DOM element objects: for data normalization, may degrade performance (mounted elements), may conflict with standard props.
-- Reuse given objects and arrays without their recreation nor modification. Avoid arrays flattening, avoid object's `rest`ing or `spread`ing operations.
-- Tasks are flowing down from [Maybe](#maybe) to [Done](#done).
+> Tasks are flowing down, from [Maybe](#maybe) to [Done](#done).
 
 ## Maybe
 
@@ -62,11 +16,12 @@ npm coverage
 
 ## Todo
 
+- Implement tagged template string function for HTML...
 - Override a splitter for a current prop key, mybe like `_$$_name$$e` from `_` to `$$` or (`_"___"xlink:href___an___http://www.w3.org/1999/xlink`)
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` <https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments>, speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
 - Implement iterator support the same way as for static/dynamic arrays.
 - Use nested dynamic arrays, they will be applied to element
-- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...)
+- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...) to <https://stackblitz.com/>
 - build
   - Optimize build with rollup to be in line with ~4KiB size claim
   - Create `production` build with `development` checks removed
@@ -74,7 +29,7 @@ npm coverage
 - Remove all deprecated APIs: maybe Life, Component...
 - Add JSX `<Fragment></Fragment>` or `<></>` support
 
-### Version 2.4.4
+### Version 2.X.X
 
 - Avoid creating excessive layers of components when only deep child is dynamic (compression)
 
@@ -93,6 +48,8 @@ type updateCurrent = (value: Element | Component) => void;
 ```
 
 ## In Progress
+
+- Renamed: `Props:Params`
 
 ## Done
 

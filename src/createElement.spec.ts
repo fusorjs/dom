@@ -9,7 +9,7 @@ test.each<[string, TypeErrorConstructor, undefined | NameSpace, any]>([
     {mount: () => {}, is: 'custom-elm'},
   ],
   [
-    `"mount" property is not supported with namespaces yet`,
+    '"mount" property is not supported with anything but HTML yet, see the proposal: https://github.com/WICG/webcomponents/issues/634',
     TypeError,
     'blah' as NameSpace,
     {mount: () => {}},

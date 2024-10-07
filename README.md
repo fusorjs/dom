@@ -2,15 +2,17 @@
 
 Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.
 
-> It _fuses_ DOM elements into easy-to-use _components_.
+It combines DOM elements into _components_ that can be used to build real-world web applications, just like in React, Angular, or Vue. But it's simpler and more efficient.
 
 Fusor is:
 
-- **Simple** ― two main API methods (create/update DOM)
+- **Simple** ― just **two** main API methods: `create` and `update` (the DOM)
 - **Compliant** ― follows W3C standards
 - **Explicit/Flexible** ― full control over DOM creation/updates, state, context, lifecycle, diffing, and concurrency
 - **Performant** ― efficient use of data and code
-- **Small** ― size ~4KiB with zero dependencies
+- **Small** ― [size ~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.1) with zero dependencies
+
+Fusor's philosophy:
 
 > "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
 
@@ -18,14 +20,24 @@ Fusor is:
 
 All examples are available on [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-`click_e_update` ― click event handler with DOM update, see: [Parameter Keys Reference](docs/reference.md#parameter-keys)
-
 ### Click Counting Button
 
 ```jsx
 const CountingButton = ({count = 0}) => (
   <button click_e_update={() => count++}>Clicked {() => count} times</button>
 );
+```
+
+Some of the [Parameter Options](docs/reference.md#parameter-keys):
+
+```jsx
+<div
+  name1="automatic attribute or property"
+  name2_a="attribute"
+  name3_p="property"
+  name4_e={(event) => 'handler'}
+  name5_e_capture_once={(event) => 'handler with options'}
+/>
 ```
 
 ### Controlled Uppercase Input
@@ -77,7 +89,7 @@ Also, check out [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog
 
 ## Documentation
 
-- [**Tutorial**](docs/tutorial.md)
+- [**>> TUTORIAL <<**](docs/tutorial.md)
 - [Reference](docs/reference.md)
 - [Functional Notation](docs/functional-notation.md)
 - [Optimisation](docs/optimisation.md)
@@ -97,8 +109,8 @@ Start with a boilerplate project:
 
 Or configure it [manually](docs/reference.md#install)
 
-## Contribute
+## Contributing
 
-Your contributions are always welcome!
+Your suggestions and contributions are always welcome!
 
-See [CHANGELOG](CHANGELOG.md) for details.
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details and [CHANGELOG](CHANGELOG.md) for agenda.

@@ -325,7 +325,7 @@ JSX development info props:
 - This functionality is optional
 - Fusor components can be used alongside Custom Elements
 - When using `mount`, global Custom Element is registered for this specific element type, breaking purity to some extent
-- SVG elements cannot have a lifecycle yet, but there is a [proposal](https://github.com/WICG/webcomponents/issues/634)
+- SVG/MathML elements cannot have a lifecycle yet, but there is a [proposal](https://github.com/WICG/webcomponents/issues/634)
 
 ## Typescript Declarations
 
@@ -354,7 +354,7 @@ declare module '@fusorjs/dom/jsx-runtime' {
     namespace JSX {
       // Adding new elements:
       interface IntrinsicElements {
-        'custom-element': any;
+        'custom-form': Params<HTMLFormElement>;
       }
     }
   }
@@ -367,7 +367,7 @@ Locally in `file.tsx`:
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'custom-element': any;
+      'custom-form': Params<HTMLFormElement>;
     }
   }
 }
