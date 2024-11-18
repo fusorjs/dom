@@ -28,10 +28,11 @@
   - Create different build targets: ESM, CommonJS, UMD, AMD...
 - Remove all deprecated APIs: maybe Life, Component...
 - Add JSX `<Fragment></Fragment>` or `<></>` support
+- Add `x` hyper method (along with `h, s, m`) with `xmlns` parameter.
 
 ### Version 2.X.X
 
-- Avoid creating excessive layers of components when only deep child is dynamic (compression)
+- Avoid creating excessive layers of components when only deeply nested child is dynamic (compression)
 
 ```ts
 // @internal library use only
@@ -49,9 +50,11 @@ type updateCurrent = (value: Element | Component) => void;
 
 ## In Progress
 
-- Renamed: `Props:Params`
-
 ## Done
+
+### Version 2.5.2
+
+- Renamed type: `Props:Params`
 
 ### Version 2.5.1
 

@@ -354,7 +354,7 @@ declare module '@fusorjs/dom/jsx-runtime' {
     namespace JSX {
       // Adding new elements:
       interface IntrinsicElements {
-        'custom-form': Params<HTMLFormElement>;
+        'custom-form': import('@fusorjs/dom').Params<HTMLFormElement>;
       }
     }
   }
