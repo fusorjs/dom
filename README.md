@@ -1,26 +1,25 @@
 # Fusor
 
-Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.
+## Intro
 
-It combines DOM elements into _components_ that can be used to build real-world web applications, just like in React, Angular, or Vue. But it's simpler and more efficient.
+**Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.**
 
-Fusor is:
+<!-- > It fuses (DOM) elements together -->
 
-- **Simple** ― just **two** main API methods: `create` and `update` (the DOM)
+These DOM elements can then be composed into functional components that are used to build real-world web applications, just like in React, Angular, or Vue, but in a simpler and more efficient way.
+
+### Benefits
+
+- **Simple** ― two main API methods
 - **Compliant** ― follows W3C standards
-- **Explicit/Flexible** ― full control over DOM creation/updates, state, context, lifecycle, diffing, and concurrency
-- **Performant** ― efficient use of data and code
-- **Small** ― [size ~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.1) with zero dependencies
+- **Explicit/Flexible/Performant** ― full control over: DOM creation/updates, state, context, diffing, concurrency
+- **Small** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.1), no dependencies
 
-Fusor's philosophy:
+## Examples
 
-> "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
+[**>> Try them on CodeSandbox <<**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-## Component Examples
-
-All examples are available on [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
-
-### Click Counting Button
+### Click Counting Component
 
 ```jsx
 const CountingButton = ({count = 0}) => (
@@ -28,7 +27,7 @@ const CountingButton = ({count = 0}) => (
 );
 ```
 
-Some of the [Parameter Options](docs/reference.md#parameter-keys):
+### DOM Parameter Options
 
 ```jsx
 <div
@@ -37,10 +36,15 @@ Some of the [Parameter Options](docs/reference.md#parameter-keys):
   name3_p="property"
   name4_e={(event) => 'handler'}
   name5_e_capture_once={(event) => 'handler with options'}
+  click_e_update={(event) => {}}
+  // equivalent to
+  click_e={(event, self) => update(self)}
 />
 ```
 
-### Controlled Uppercase Input
+[Options' Reference](docs/reference.md#parameter-keys):
+
+### Controlled Uppercase Component
 
 ```jsx
 const UppercaseInput = ({value = ''}) => (
@@ -51,7 +55,7 @@ const UppercaseInput = ({value = ''}) => (
 );
 ```
 
-### Mounting Timer
+### Mounting Timer Component
 
 ```jsx
 const IntervalCounter = ({count = 0}) => (
@@ -85,7 +89,7 @@ export const RouteLink = (title: string, route: Route) =>
   );
 ``` -->
 
-Also, check out [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx).
+[**Check SVG Analog Clock**](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx).
 
 ## Documentation
 

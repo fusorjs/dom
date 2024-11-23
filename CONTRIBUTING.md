@@ -23,7 +23,7 @@ npm coverage
 - Avoid adding your custom props to DOM element objects: for data normalization, may degrade performance (mounted elements), may conflict with standard props.
 - Reuse given objects and arrays without their recreation nor modification. Avoid arrays flattening, avoid object's `rest`ing or `spread`ing operations.
 
-## Project Philosophy
+## Philosophy
 
 > "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
 

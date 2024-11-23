@@ -265,6 +265,9 @@ Specify `[name]_[type]`:
   click_e_capture={(event, self) => 'Clicked!'}
   // all possible boolean event options
   click_e_capture_once_passive_update={(event, self) => 'Clicked!'}
+  // equivalent
+  click_e_update={(event) => {}}
+  click_e={(event, self) => update(self)}
   // all event options object
   click_e={{
     handle: (event, self) => 'Clicked!',
