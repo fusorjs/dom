@@ -42,9 +42,10 @@ The fundamental difference lies in the separation of concerns within the compone
 | Component data      | Created **once** on initialization                          | Created on initialization and recreated on **every** update                                                       |
 | Side effects        | Normal JavaScript flow                                      | Complex and verbose _hooks_ mechanics                                                                             |
 | Component updates   | Explicit/precise, update what and when you need             | Implicit, complex, whole tree diffing                                                                             |
+| Philosophy          | Lego, everything is controlled by the user                  | Black box monolith, automatically handles everything                                                              |
+| Verbosity           | [Less verbose](fusor-vs-react-verbosity.md)                 | [More verbose](fusor-vs-react-verbosity.md)                                                                       |
 | Component functions | Pure                                                        | Context is required                                                                                               |
 | Concurrency         | Explicit                                                    | Implicit                                                                                                          |
-| Philosophy          | Lego, everything is controlled by the user                  | Black box monolith, automatically handles everything                                                              |
 | Library size (gz)   | [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.1) | [~2kB](https://bundlephobia.com/package/react@18.3.1) + [41kB](https://bundlephobia.com/package/react-dom@18.3.1) |
 
 > React Hooks depend not only on the `deps` array but also on the component instances, which does not allow fully reusing memoized data across multiple components.
@@ -58,8 +59,6 @@ The fundamental difference lies in the separation of concerns within the compone
 | Update DOM         | `update()`                      | `setX(1)`                       | **both** are manual calls         |
 | Static prop/child  | `<p id={x}>{y}</p>`             | `<p id={x}>{y}</p>`             | exactly the same                  |
 | Dynamic prop/child | `<p id={() => x}>{() => y}</p>` | `<p id={x}>{y}</p>`             | callbacks used for dynamic values |
-
-> See also [verbosity analysis](fusor-vs-react-verbosity.jsx)
 
 ## Other differences
 

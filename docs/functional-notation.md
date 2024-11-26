@@ -35,7 +35,8 @@ document.body.append(getElement(App()));
 
 Functional notation is better than JSX in the following ways:
 
-- Faster, lighter, flexible
+- Faster, lighter, more flexible
+- Generally less [verbose](fusor-vs-react-verbosity.md)
 <!-- - Typechecks automatically between static `Element` and dynamic `Component<Element>` (not in v3 anymore) -->
 - No need for a build/compile step/tool
 - Just JavaScript, no new syntax

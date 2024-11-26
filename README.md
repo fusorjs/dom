@@ -19,32 +19,55 @@ These DOM elements can then be composed into functional components that are used
 
 [**>> Try them on CodeSandbox <<**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-### Click Counting Component
+### Reusable Component
 
 ```jsx
-const CountingButton = ({count = 0}) => (
+import {getElement} from '@fusorjs/dom';
+
+const ClickCounter = ({count = 0}) => (
   <button click_e_update={() => count++}>Clicked {() => count} times</button>
+);
+
+const App = () => (
+  <div>
+    <ClickCounter />
+    <ClickCounter count={22} />
+    <ClickCounter count={333} />
+  </div>
+);
+
+document.body.append(getElement(<App />));
+```
+
+### Cheat Sheet
+
+<!-- prettier-ignore -->
+```jsx
+const cheatSheet = (
+  <div
+    name="set attribute or property automatically"
+    name_a="set attribute"
+    name_p="set property"
+    name_e={() => 'set bubbling event handler'}
+    name_e_capture_once={() => 'set capturing event handler once'}
+
+    // update dynamic values in this DOM node
+    click_e_update={() => count++} // same as
+    click_e={() => {count++; update(cheatSheet);}} // same as
+    click_e={(event, self) => {count++; update(self);}}
+
+    // dynamic attribute or property is wrapped in a function
+    class={() => (count % 2 ? 'odd' : 'even')}
+  >
+    Dynamic child {() => count} is wrapped in a function.
+    Static child {count} never changes.
+  </div>
 );
 ```
 
-### DOM Parameter Options
+<!-- [Options' Reference](docs/reference.md#parameter-keys): -->
 
-```jsx
-<div
-  name1="automatic attribute or property"
-  name2_a="attribute"
-  name3_p="property"
-  name4_e={(event) => 'handler'}
-  name5_e_capture_once={(event) => 'handler with options'}
-  click_e_update={(event) => {}}
-  // equivalent to
-  click_e={(event, self) => update(self)}
-/>
-```
-
-[Options' Reference](docs/reference.md#parameter-keys):
-
-### Controlled Uppercase Component
+<!-- ### Controlled Uppercase Component
 
 ```jsx
 const UppercaseInput = ({value = ''}) => (
@@ -53,25 +76,30 @@ const UppercaseInput = ({value = ''}) => (
     input_e_update={(event) => (value = event.target.value.toUpperCase())}
   />
 );
-```
+``` -->
 
-### Mounting Timer Component
+### Component Lifecycle
 
 ```jsx
+import {getElement, update} from '@fusorjs/dom';
+
 const IntervalCounter = ({count = 0}) => (
   <div
+    // 2. Connect to DOM
     mount={(self) => {
       const timerId = setInterval(() => {
         count++;
-        update(self);
+        update(self); // 3. Update DOM
       }, 1000);
 
-      return () => clearInterval(timerId); // unmount
+      return () => clearInterval(timerId); // 4. Disconnect from DOM
     }}
   >
     Since mounted {() => count} seconds elapsed
   </div>
 );
+
+document.body.append(getElement(<IntervalCounter />)); // 1. Create component
 ```
 
 <!-- ### Routing
@@ -98,6 +126,7 @@ export const RouteLink = (title: string, route: Route) =>
 - [Functional Notation](docs/functional-notation.md)
 - [Optimisation](docs/optimisation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
+- [Fusor vs React Verbosity](docs/fusor-vs-react-verbosity.md)
 
 ## Real-World Applications
 
