@@ -60,6 +60,30 @@ The fundamental difference lies in the separation of concerns within the compone
 | Static prop/child  | `<p id={x}>{y}</p>`             | `<p id={x}>{y}</p>`             | exactly the same                  |
 | Dynamic prop/child | `<p id={() => x}>{() => y}</p>` | `<p id={x}>{y}</p>`             | callbacks used for dynamic values |
 
+### Components
+
+```jsx
+// This function runs on creation and update, generating a virtual
+// DOM object. On update, it reruns all logic & recreates all data
+// inside, diffs the whole virtual DOM, and updates the real DOM.
+const ReactComponent = ({count: init = 0}) => {
+  const [count, setCount] = useState(init);
+  const handleClick = useCallback(
+    // preserve the first
+    () => setCount((count) => count + 1), // function reference to
+    [],
+  ); // match Fusor's behaviour
+  return <button onClick={handleClick}>Clicked {count} times</button>;
+};
+
+// This function runs once on creation, generating a DOM element
+// and its updater function. On update, only its dynamic values
+// are diffed and its DOM node is updated.
+const FusorComponent = ({count = 0}) => (
+  <button click_e_update={() => count++}>Clicked {() => count} times</button>
+);
+```
+
 ## Other differences
 
 |                        | Fusor             | React             |

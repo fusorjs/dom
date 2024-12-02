@@ -21,9 +21,14 @@ These DOM elements can then be composed into functional components that are used
 
 ### Reusable Component
 
+#### JSX Syntax
+
 ```jsx
 import {getElement} from '@fusorjs/dom';
 
+// This function runs once on creation, generating a DOM element
+// and its updater function. On update, only its dynamic values
+// are diffed and its DOM node is updated.
 const ClickCounter = ({count = 0}) => (
   <button click_e_update={() => count++}>Clicked {() => count} times</button>
 );
@@ -37,6 +42,15 @@ const App = () => (
 );
 
 document.body.append(getElement(<App />));
+```
+
+#### Functional Syntax
+
+```js
+import {button} from '@fusorjs/dom/html';
+
+const CountingButton = ({count = 0}) =>
+  button({click_e_update: () => count++}, 'Clicked ', () => count, ' times.');
 ```
 
 ### Cheat Sheet
@@ -131,7 +145,7 @@ export const RouteLink = (title: string, route: Route) =>
 ## Real-World Applications
 
 - [TodoMvc](https://github.com/fusorjs/todomvc) - routing, global data store
-- [Tutorial](https://github.com/fusorjs/tutorial) - routing, http request, lifecycle, custom element, caching, jsx, svg, mathml, xml
+- [Tutorial](https://github.com/fusorjs/tutorial) - nested routing, http request, lifecycle, custom element, caching, jsx, svg, mathml, xml
 
 ## Start Coding
 
