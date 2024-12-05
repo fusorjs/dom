@@ -50,7 +50,7 @@ document.body.append(getElement(<App />));
 import {button} from '@fusorjs/dom/html';
 
 const CountingButton = ({count = 0}) =>
-  button({click_e_update: () => count++}, 'Clicked ', () => count, ' times.');
+  button({click_e_update: () => count++}, 'Clicked ', () => count, ' times');
 ```
 
 ### Cheat Sheet
@@ -138,7 +138,7 @@ export const RouteLink = (title: string, route: Route) =>
 - [**>> TUTORIAL <<**](docs/tutorial.md)
 - [Reference](docs/reference.md)
 - [Functional Notation](docs/functional-notation.md)
-- [Optimisation](docs/optimisation.md)
+- [Optimization](docs/optimisation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
 - [Fusor vs React Verbosity](docs/fusor-vs-react-verbosity.md)
 

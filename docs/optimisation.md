@@ -1,4 +1,4 @@
-# Optimisation
+# Optimization
 
 ## Cache Components
 
@@ -10,14 +10,14 @@ import {getElement, update} from '@fusorjs/dom';
 const cachedOdd = <span>Odd</span>;
 const cachedEven = <span>Even</span>;
 
-let number = 0;
+let count = 0;
 
-const page = <p>{() => (number % 2 ? cachedOdd : cachedEven)}</p>;
+const page = <p>{() => (count % 2 ? cachedOdd : cachedEven)}</p>;
 
 document.body.append(getElement(page));
 
 setInterval(() => {
-  number += 1;
+  count += 1;
   update(page);
 }, 1000);
 ```
@@ -25,54 +25,60 @@ setInterval(() => {
 Instead of doing this:
 
 ```jsx
-const page = <p>{() => (number % 2 ? <span>Odd</span> : <span>Even</span>)}</p>;
+const page = <p>{() => (count % 2 ? <span>Odd</span> : <span>Even</span>)}</p>;
 ```
 
-Because `<span>Odd</span>` or `<span>Even</span>` is recreated each second
+Because otherwise, `<span>Odd</span>` or `<span>Even</span>` is recreated each second.
 
 ### Cache In-Place
 
 ```jsx
+let isVisible = true; // can change
+
 const page = (
   <div>
     {(
-      (cache = button('Clear All')) =>
+      (cache = <button>Clear All'</button>) =>
       () =>
-        length > 0 && cache
+        isVisible && cache
     )()}
   </div>
 );
 ```
 
-Because the relevant information is defined where it is needed.
+Because the variables are defined in the same place.
 
 ### Cache and Update In-Place
 
 ```tsx
+let isVisible = true; // can change
+
 const page = (
   <div>
     {(
       (cache?: Fusion[]) => () =>
-        dataLength > 0 &&
-        (cache ? cache.map(update) : (cache = [List(), Panel()]))
+        isVisible &&
+        (cache ? cache.map(update) : (cache = [<List />, <Panel />]))
     )()}
   </div>
 );
 ```
 
-Because the relevant information is defined where it is needed.
+First create and cache, then only update.
 
 ## Break Update Recursivity
 
 Do this:
 
 ```jsx
+let isVisible = true; // can change
+
 const page = (
   <div>
     {(
-      (cache = Heavy()) =>
+      (cache = <Heavy />) =>
       () =>
-        length > 0 && cache
+        isVisible && cache
     )()}
   </div>
 );
@@ -80,19 +86,20 @@ const page = (
 
 Instead of doing this:
 
-```jsx
+```tsx
+let isVisible = true; // can change
+
 const page = (
   <div>
     {(
-      (cache?: Fusion) =>
-      () =>
-        length > 0 && (cache ? update(cache) : (cache = Heavy()))
+      (cache?: Fusion) => () =>
+        isVisible && (cache ? update(cache) : (cache = <Heavy />))
     )()}
   </div>
 );
 ```
 
-Because you want to update heavy objects partially inside them.
+Because you might not want to update heavy objects as a whole, but control updating inside them.
 
 ## Use Dynamic Props
 
@@ -101,22 +108,22 @@ Do this:
 ```jsx
 import {getElement, update} from '@fusorjs/dom';
 
-const OddOrEven = ({number = () => 0}) => (
-  <span>{() => (number() % 2 ? 'odd' : 'even')}</span>
+const OddOrEven = ({count = () => 0}) => (
+  <span>{() => (count() % 2 ? 'odd' : 'even')}</span>
 );
 
-let number = 0;
+let count = 0;
 
 const page = (
   <p>
-    <OddOrEven number={() => number} />
+    <OddOrEven count={() => count} />
   </p>
 );
 
 document.body.append(getElement(page));
 
 setInterval(() => {
-  number += 1;
+  count += 1;
   update(page);
 }, 1000);
 ```
@@ -124,12 +131,12 @@ setInterval(() => {
 Instead of doing this:
 
 ```jsx
-const OddOrEven = ({number = 0}) => <span>{number % 2 ? 'odd' : 'even'}</span>;
+const OddOrEven = ({count = 0}) => <span>{count % 2 ? 'odd' : 'even'}</span>;
 
-const page = <p>{() => <OddOrEven number={number} />}</p>;
+const page = <p>{() => <OddOrEven count={count} />}</p>;
 ```
 
-Because `<span>...</span>` is recreated each second
+Because otherwise, `<span>...</span>` is recreated each second
 
 ## Update Only What and When Necessary
 
@@ -160,7 +167,7 @@ update(component2);
 
 Because `update(component2)` is need to go through more layers
 
-## Use Observers to Update Only Parts of the DOM
+## Use Observer Pattern to Update Only Parts of the DOM
 
 Do this:
 
