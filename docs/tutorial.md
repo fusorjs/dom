@@ -1,6 +1,8 @@
 # Fusor Tutorial
 
-## New Frontend Framework? Or Vanilla JavaScript with Two Helper Functions?
+## New Frontend Framework?
+
+### Or Vanilla JavaScript with Two Helper Functions?
 
 In this tutorial, I will discuss how to develop reusable web **components** using the [Fusor library](https://github.com/fusorjs/dom) and the benefits of doing so.
 
@@ -17,31 +19,31 @@ Plus a few more rarely used functions like:
 
 You do not need to know anything about this special object.
 
-## Create a DOM Element
+All the examples below are available on [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx).
 
-### Creation via JSX
+## Creating DOM
+
+### JSX Syntax
 
 ```jsx
 import {getElement} from '@fusorjs/dom';
 
 const count = 0;
-
-// Create via JSX
-const message = <div>Seconds {count} elapsed</div>;
+const message = <div>Seconds {count} elapsed</div>; // Create
 
 document.body.append(getElement(message)); // Get
 ```
 
 We used the **create** and **get** API functions.
 
-### Alternative Non-JSX Creation
+### Alternative Functional Syntax
 
 ```js
 import {div} from '@fusorjs/dom/html';
 const message = div('Seconds ', count, ' elapsed'); // Create
 ```
 
-## Update a DOM Element
+## Updating DOM
 
 ```jsx
 import {getElement, update} from '@fusorjs/dom';
@@ -52,7 +54,7 @@ const message = <div>Seconds {() => count} elapsed</div>; // Create
 document.body.append(getElement(message)); // Get
 
 setInterval(() => {
-  count += 1;
+  count = count + 1;
   update(message); // Update
 }, 1000);
 ```
@@ -62,7 +64,7 @@ We used the **update** API function. It updates a DOM element and all of its chi
 Children, attributes, and properties can all be dynamic.
 
 ```jsx
-<div class={() => (toggle ? 'on' : 'off')} />
+<div class={() => (count % 2 ? 'odd' : 'even')} />
 ```
 
 DOM updates will occur only if the new values **differ** from the current ones.
@@ -102,7 +104,7 @@ Here is an example of a counting button component:
 ```jsx
 import {getElement, update} from '@fusorjs/dom';
 
-const CountingButton = (props) => {
+const ClickCounter = (props) => {
   let count = props.count ?? 0; // Init State
 
   const self = (
@@ -120,26 +122,26 @@ const CountingButton = (props) => {
 };
 
 const App = () => (
-  <div style="padding:1em">
+  <div>
     <p>Three counting buttons</p>
-    <CountingButton />
-    <CountingButton count={22} />
-    <CountingButton count={333} />
+    <ClickCounter />
+    <ClickCounter count={22} />
+    <ClickCounter count={333} />
   </div>
 );
 
 document.body.append(getElement(App()));
 ```
 
-The `CountingButton` component updates only **part** of its own DOM element without affecting the rest of the application.
+The `ClickCounter` component updates only **part** of its own DOM element without affecting the rest of the application.
 
 Once you fully understand how the above component works, you can rewrite it in a slightly **shorter** manner while achieving the same result:
 
 ```jsx
-const CountingButton = ({count = 0}) => (
+const ClickCounter = ({count = 0}) => (
   <button
     click_e={(event, self) => {
-      count += 1;
+      count++;
       update(self);
     }}
   >
@@ -153,10 +155,8 @@ Every event handler callback function receives two arguments: the standard event
 Once again, if you understand the example above, check out the **shortest** version of the same component:
 
 ```jsx
-const CountingButton = ({count = 0}) => (
-  <button click_e_update={() => (count += 1)}>
-    Clicked {() => count} times
-  </button>
+const ClickCounter = ({count = 0}) => (
+  <button click_e_update={() => count++}>Clicked {() => count} times</button>
 );
 ```
 
@@ -190,10 +190,12 @@ const IntervalCounter = ({count = 0}) => {
           console.log('3. Update the DOM');
         }, 1000);
 
-        return () => {
+        const unmount = () => {
           clearInterval(timerId);
           console.log('4. Disconnect from the DOM');
         };
+
+        return unmount;
       }}
     >
       Since mounted {() => count} seconds elapsed
@@ -205,6 +207,7 @@ const instance = <IntervalCounter />;
 const element = getElement(instance);
 
 document.body.append(element);
+
 setTimeout(() => element.remove(), 15000);
 ```
 
@@ -219,8 +222,6 @@ As you can see from this tutorial, Fusor is simple, concise, and explicit. Most 
 So, to answer the question in the title, Fusor is a small JavaScript library, not a framework, but it can achieve the same results as other frameworks.
 
 ## Start Coding
-
-All the examples above are available on [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx).
 
 Also, check out the [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx) example.
 

@@ -4,6 +4,8 @@
 
 ## Maybe
 
+- Extract functional notation (functions) into separate library (size - minus 1-2Kb)
+- Extract `mount/unmount` logic to a plugin (create a plugin system) into a separate library.
 - Move create to Component static method?
 - Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
 - implement style, object, data attributes
@@ -23,7 +25,7 @@
 - Use nested dynamic arrays, they will be applied to element
 - Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...) to <https://stackblitz.com/>
 - build
-  - Optimize build with rollup to be in line with ~4KiB size claim
+  - Optimize build with rollup to be in line with ~3KiB size claim
   - Create `production` build with `development` checks removed
   - Create different build targets: ESM, CommonJS, UMD, AMD...
 - Remove all deprecated APIs: maybe Life, Component...

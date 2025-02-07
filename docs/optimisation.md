@@ -38,7 +38,7 @@ let isVisible = true; // can change
 const page = (
   <div>
     {(
-      (cache = <button>Clear All'</button>) =>
+      (cache = <button>Clear All</button>) =>
       () =>
         isVisible && cache
     )()}

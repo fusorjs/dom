@@ -1,23 +1,25 @@
 # Fusor
 
+<!-- > It fuses elements into components -->
+
 ## Intro
 
 **Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.**
 
-<!-- > It fuses (DOM) elements together -->
+These DOM elements can then be composed into functional components that are used to build real-world web applications.
 
-These DOM elements can then be composed into functional components that are used to build real-world web applications, just like in React, Angular, or Vue, but in a simpler and more efficient way.
+It is similar to **React** but operates at a lower level of abstraction. However, it is much simpler, efficient and less verbose.
 
 ### Benefits
 
 - **Simple** ― two main API methods
 - **Compliant** ― follows W3C standards
 - **Explicit/Flexible/Performant** ― full control over: DOM creation/updates, state, context, diffing, concurrency
-- **Small** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.1), no dependencies
+- **Small** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.2), no dependencies
 
 ## Examples
 
-[**>> Try them on CodeSandbox <<**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
+[**>> TRY THEM LIVE <<**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
 ### Reusable Component
 
@@ -44,12 +46,12 @@ const App = () => (
 document.body.append(getElement(<App />));
 ```
 
-#### Functional Syntax
+#### Alternative Functional Syntax
 
 ```js
 import {button} from '@fusorjs/dom/html';
 
-const CountingButton = ({count = 0}) =>
+const ClickCounter = ({count = 0}) =>
   button({click_e_update: () => count++}, 'Clicked ', () => count, ' times');
 ```
 
@@ -137,7 +139,7 @@ export const RouteLink = (title: string, route: Route) =>
 
 - [**>> TUTORIAL <<**](docs/tutorial.md)
 - [Reference](docs/reference.md)
-- [Functional Notation](docs/functional-notation.md)
+- [Functional Syntax](docs/functional-notation.md)
 - [Optimization](docs/optimisation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
 - [Fusor vs React Verbosity](docs/fusor-vs-react-verbosity.md)
