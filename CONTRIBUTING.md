@@ -25,6 +25,8 @@ npm coverage
 
 ## Philosophy
 
+It (Fusor) fuses elements into components.
+
 > "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
 
 - **Simple**, small, **pure**, and **functional** API and implementation.

@@ -1,16 +1,10 @@
 # Fusor
 
-<!-- > It fuses elements into components -->
-
-## Intro
-
 **Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.**
 
-These DOM elements can then be composed into functional components that are used to build real-world web applications.
+It is similar to **React**, but it operates at a lower level of abstraction. However, it is much simpler, more efficient, more flexible, and less verbose.
 
-It is similar to **React** but operates at a lower level of abstraction. However, it is much simpler, efficient and less verbose.
-
-### Benefits
+**Key Features:**
 
 - **Simple** ― two main API methods
 - **Compliant** ― follows W3C standards
@@ -21,17 +15,18 @@ It is similar to **React** but operates at a lower level of abstraction. However
 
 [**>> TRY THEM LIVE <<**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
 
-### Reusable Component
+### Reusable Component With Own State
 
-#### JSX Syntax
+<!-- #### JSX Syntax -->
 
+<!-- prettier-ignore -->
 ```jsx
-import {getElement} from '@fusorjs/dom';
+import { getElement } from '@fusorjs/dom';
 
 // This function runs once on creation, generating a DOM element
 // and its updater function. On update, only its dynamic values
 // are diffed and its DOM node is updated.
-const ClickCounter = ({count = 0}) => (
+const ClickCounter = ({ count = 0 }) => (
   <button click_e_update={() => count++}>Clicked {() => count} times</button>
 );
 
@@ -46,20 +41,22 @@ const App = () => (
 document.body.append(getElement(<App />));
 ```
 
-#### Alternative Functional Syntax
+<!-- #### Alternative Functional Syntax
 
 ```js
-import {button} from '@fusorjs/dom/html';
+import { button } from '@fusorjs/dom/html';
 
-const ClickCounter = ({count = 0}) =>
-  button({click_e_update: () => count++}, 'Clicked ', () => count, ' times');
-```
+const ClickCounter = (count = 0) =>
+  button({ click_e_update: () => count++ }, 'Clicked ', () => count, ' times');
+``` -->
 
-### Cheat Sheet
+### Parameters And Children
 
 <!-- prettier-ignore -->
 ```jsx
-const cheatSheet = (
+import { update } from '@fusorjs/dom';
+
+const divider = (
   <div
     name="set attribute or property automatically"
     name_a="set attribute"
@@ -69,7 +66,7 @@ const cheatSheet = (
 
     // update dynamic values in this DOM node
     click_e_update={() => count++} // same as
-    click_e={() => {count++; update(cheatSheet);}} // same as
+    click_e={() => {count++; update(divider);}} // same as
     click_e={(event, self) => {count++; update(self);}}
 
     // dynamic attribute or property is wrapped in a function
@@ -96,13 +93,20 @@ const UppercaseInput = ({value = ''}) => (
 
 ### Component Lifecycle
 
-```jsx
-import {getElement, update} from '@fusorjs/dom';
+1. **Create** component
+2. **Connect** to DOM
+3. **Update** DOM
+4. **Disconnect** from DOM
 
-const IntervalCounter = ({count = 0}) => (
+<!-- prettier-ignore -->
+```jsx
+import { getElement, update } from '@fusorjs/dom';
+
+const IntervalCounter = ({ count = 0 }) => (
+  // 1. Create component
   <div
-    // 2. Connect to DOM
     mount={(self) => {
+      // 2. Connect to DOM
       const timerId = setInterval(() => {
         count++;
         update(self); // 3. Update DOM
@@ -115,7 +119,11 @@ const IntervalCounter = ({count = 0}) => (
   </div>
 );
 
-document.body.append(getElement(<IntervalCounter />)); // 1. Create component
+const instance = <IntervalCounter />; // 1. Create component
+const element = getElement(instance);
+
+document.body.append(element); // 2. Connect to DOM
+setTimeout(() => element.remove(), 15000); // 4. Disconnect from DOM
 ```
 
 <!-- ### Routing

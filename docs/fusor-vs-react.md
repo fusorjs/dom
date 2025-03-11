@@ -10,6 +10,10 @@ Fusor is like a set of Lego bricks. It was designed to show that all of these el
 
 Why manage it externally? Because explicit control is often better than implicit, and sometimes flexibility or fine-tuning is necessary.
 
+Fusor shifts its focus away from React complexities—like hooks, lifecycle methods, concurrency, and suspense—to emphasize a stronger understanding of JavaScript (including async/await) and core programming concepts, such as the observable pattern.
+
+Check out Fusor! It offers only two main methods. While it resembles React, it helps you learn JavaScript and essential programming concepts without the need to master React’s intricate details.
+
 ## Common Features
 
 Fusor was inspired by React, and they both share the same ideas:
@@ -25,15 +29,15 @@ Fusor was inspired by React, and they both share the same ideas:
 
 The fundamental difference lies in the separation of concerns within the component lifecycle (aka single-responsibility principle in SOLID)
 
-| Component | Fusor                         | React                        |
-| --------- | ----------------------------- | ---------------------------- |
-| Creation  | `let state = 0; Component();` | `useState(0); Component();`  |
-| Changing  | `state = 1;`                  | `setState(1); Component();`  |
-| Updating  | `update();`                   | changing & updating combined |
+<table>
+<tr><th></th><th>Fusor</th><th>React</th></tr>
+<tr><td>Init state</td><td>let state = 0;</td><td rowspan="2">useState(0) + render();</td></tr>
+<tr><td>Create DOM</td><td>create();</td></tr>
+<tr><td>Change state</td><td>state = 1;</td><td rowspan="2">setState(1) + render();</td></tr>
+<tr><td>Update DOM</td><td>update();</td></tr>
+</table>
 
 <!-- https://legacy.reactjs.org/docs/reconciliation.html -->
-
-> A plain variable is used for Fusor state in the example above.
 
 ## Benefits
 

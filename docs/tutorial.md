@@ -39,8 +39,13 @@ We used the **create** and **get** API functions.
 ### Alternative Functional Syntax
 
 ```js
+import {getElement} from '@fusorjs/dom';
 import {div} from '@fusorjs/dom/html';
+
+const count = 0;
 const message = div('Seconds ', count, ' elapsed'); // Create
+
+document.body.append(getElement(message)); // Get
 ```
 
 ## Updating DOM
@@ -95,7 +100,7 @@ There are [additional types](https://github.com/fusorjs/dom/blob/main/docs/refer
 <div click_e_capture_once={() => 'event handler'} />
 ```
 
-## Create a Reusable Component
+## Reusable Component With Own State
 
 Compose your components using Fusor's special objects. Encapsulate state and parameters inside functions. Capitalize your component names.
 
@@ -168,10 +173,10 @@ The last aspect we need to understand before diving into developing real-world a
 
 It consists of only four stages:
 
-1. **Create** the component
-2. **Connect** to the DOM
-3. **Update** the DOM
-4. **Disconnect** from the DOM
+1. **Create** component
+2. **Connect** to DOM
+3. **Update** DOM
+4. **Disconnect** from DOM
 
 ```jsx
 import {getElement, update} from '@fusorjs/dom';
