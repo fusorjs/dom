@@ -1,4 +1,11 @@
-import {Fusion, JsxFactory, JsxImportSource, NameSpace, Params} from './types';
+import {
+  Child,
+  Fusion,
+  JsxFactory,
+  JsxImportSource,
+  NameSpace,
+  Params,
+} from './types';
 import {init} from './init';
 import {
   mathMlNamespace,
@@ -50,8 +57,8 @@ const jsxImportSource: JsxImportSource = (tag, params, key) => {
 
 export {
   jsxImportSource as jsx,
-  jsxImportSource as jsxs,
-  jsxImportSource as jsxDEV,
+  jsxImportSource as jsxs, // todo
+  jsxImportSource as jsxDEV, // todo
 };
 
 // SVG
@@ -76,13 +83,13 @@ export const mathMlTagNamesSet = new Set<string>(
 // Types
 
 declare global {
-  // todo checkout:
-  // https://www.totaltypescript.com/tips/typescript-5-1-beta-is-out
-  // export type ElementType =
-  // export type ClassElement =
-  // export interface IntrinsicAttributes {}
-
   namespace JSX {
+    // https://www.typescriptlang.org/docs/handbook/jsx.html
+    export type ElementType =
+      | keyof IntrinsicElements // All the valid lowercase tags
+      | ((props: any) => Child); // Function components
+    // | new (props: any) => ElementClass; // Class components
+
     type Element = Fusion;
 
     // <HTMLElementTagNameMap>

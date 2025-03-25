@@ -6,6 +6,10 @@
 npm install @fusorjs/dom
 ```
 
+Or:
+
+- **CDN**: <https://esm.sh/@fusorjs/dom> , <https://cdn.skypack.dev/@fusorjs/dom>
+
 ## Configure
 
 ### Starter Projects

@@ -1,240 +1,488 @@
-# Fusor Tutorial
+# Almost Vanilla Frontend
 
-## New Frontend Framework?
+Almost — because only two functions from a library are used:
 
-### Or Vanilla JavaScript with Two Helper Functions?
+1. `Create` DOM Element
+2. `Update` DOM Element
 
-In this tutorial, I will discuss how to develop reusable web **components** using the [Fusor library](https://github.com/fusorjs/dom) and the benefits of doing so.
+**[Fusor](https://github.com/fusorjs/dom) is a simple JavaScript library that helps create and update DOM elements.**
 
-Such components can then be composed into full-fledged web applications on par with those created using **React, Angular, Vue, Solid, Svelte**, and others.
+---
 
-The Fusor API consists of only **two** main functions:
+Using the library instead of the native DOM API is beneficial because it is:
 
-- **Create** a DOM element wrapped in a special object.
-- **Update** a DOM element wrapped in a special object.
+1. Declarative
+2. Easy to understand and reason about
+3. Less verbose
 
-Plus a few more rarely used functions like:
+There are many examples of common problems below. Try to recreate them using the tools you are currently using. You might be surprised to find that developing with Fusor is the most concise, flexible, lightweight, and performant way to build frontend applications.
 
-- **Get** a DOM element from a special object.
+<!--
 
-You do not need to know anything about this special object.
+# Embed
+https://qna.habr.com/q/375284
+https://dev.to/mwanahamuntu_/how-to-embed-your-codepens-into-your-dev-to-posts-it-s-easy-4iji
 
-All the examples below are available on [CodeSandbox](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx).
+-->
 
-## Creating DOM
+## Contents
 
-### JSX Syntax
+- [Install](#install)
+- [Create & Update DOM](#create--update-dom)
+- [Parameters & Children Syntax](#parameters--children-syntax)
+- [Stateful Component](#stateful-component)
+- [Controlled Input Component](#controlled-input-component)
+- [Precise DOM Update](#precise-dom-update)
+- [Escape Update Recursion](#escape-update-recursion)
+- [Component Lifecycle](#component-lifecycle)
+- [Automatic/Reactive Updates](#automaticreactive-updates)
+- [Routing](#router-library)
+- [Switching Components](#reactive-component)
+- [Create & Update DOM Dynamically](#create--update-dom-dynamically)
+- [Caching & Memoization](#caching--memoization)
+- [Exception Handling](#exception-handling)
 
-```jsx
-import {getElement} from '@fusorjs/dom';
+## Install
 
-const count = 0;
-const message = <div>Seconds {count} elapsed</div>; // Create
-
-document.body.append(getElement(message)); // Get
+```sh
+npm install @fusorjs/dom
 ```
 
-We used the **create** and **get** API functions.
+Or:
 
-### Alternative Functional Syntax
+- **JSX** boilerplate project: [JavaScript](https://github.com/fusorjs/dom-starter-jsx-webpack) , [TypeScript](https://github.com/fusorjs/dom-starter-tsx-webpack)
+- **CDN**: <https://esm.sh/@fusorjs/dom> , <https://cdn.skypack.dev/@fusorjs/dom>
+
+## Create & Update DOM
 
 ```js
-import {getElement} from '@fusorjs/dom';
-import {div} from '@fusorjs/dom/html';
+import {getElement, update} from '@fusorjs/dom';
+import {section, div} from '@fusorjs/dom/html';
 
-const count = 0;
-const message = div('Seconds ', count, ' elapsed'); // Create
+let count = 0;
 
-document.body.append(getElement(message)); // Get
+const block = section(
+  {class: () => (count % 2 ? 'odd' : 'even')},
+
+  div('Seconds ', () => count, ' elapsed'),
+  div('Minutes ', () => Math.floor(count / 60), ' elapsed'),
+);
+
+document.body.append(getElement(block));
+
+setInterval(() => {
+  count++;
+  update(block);
+}, 1000);
 ```
 
-## Updating DOM
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/Byavpez?editors=0110)
+
+Only tiny portions of the `block` DOM tree are updated if they differ from the current values.
+
+## JSX Support
 
 ```jsx
 import {getElement, update} from '@fusorjs/dom';
 
 let count = 0;
-const message = <div>Seconds {() => count} elapsed</div>; // Create
 
-document.body.append(getElement(message)); // Get
+const block = (
+  <section class={() => (count % 2 ? 'odd' : 'even')}>
+    <div>Seconds {() => count} elapsed</div>
+    <div>Minutes {() => Math.floor(count / 60)} elapsed</div>
+  </section>
+);
+
+document.body.append(getElement(block));
 
 setInterval(() => {
-  count = count + 1;
-  update(message); // Update
+  count++;
+  update(block);
 }, 1000);
 ```
 
-We used the **update** API function. It updates a DOM element and all of its children **recursively**. It retrieves new values from the results of functions, making them **dynamic**.
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/NPWeORL?editors=1100)
 
-Children, attributes, and properties can all be dynamic.
+## Parameters & Children Syntax
 
-```jsx
-<div class={() => (count % 2 ? 'odd' : 'even')} />
-```
-
-DOM updates will occur only if the new values **differ** from the current ones.
-
-## Setting Parameters
-
-Most of the time, you will set the parameters as usual:
-
-```jsx
-<div style="padding:1em" />
-```
-
-However, sometimes you will need to distinguish between **attributes** and **properties**. To specify their **type**, you can add `_a` or `_p` suffixes to their names:
-
-```jsx
-<div name1_a="attribute" name2_p="property" />
-```
-
-To add an **event handler**, you must always use an `_e` suffix:
-
-```jsx
-<div click_e={() => 'event handler'} />
-```
-
-There are [additional types](https://github.com/fusorjs/dom/blob/main/docs/reference.md#parameter-keys), and some of them can take extra **options** to ensure full **W3C standards** compatibility:
-
-```jsx
-<div click_e_capture_once={() => 'event handler'} />
-```
-
-## Reusable Component With Own State
-
-Compose your components using Fusor's special objects. Encapsulate state and parameters inside functions. Capitalize your component names.
-
-Here is an example of a counting button component:
-
-```jsx
+<!-- prettier-ignore -->
+```js
 import {getElement, update} from '@fusorjs/dom';
+import {section} from '@fusorjs/dom/html';
 
-const ClickCounter = (props) => {
-  let count = props.count ?? 0; // Init State
+let count = 0;
 
-  const self = (
-    <button
-      click_e={() => {
-        count += 1;
-        update(self);
-      }}
-    >
-      Clicked {() => count} times
-    </button>
-  );
+const block = section(
+  {
+    id: 'set attribute or property automatically',
+    title_a: 'set attribute',
+    style_p: 'set property',
 
-  return self;
-};
+    focus_e: () => 'set bubbling event handler',
+    blur_e_capture_once: () => 'set capturing event handler once',
+
+    // update dynamic values in this DOM node:
+    click_e_update: () => count++, // same as
+    click_e: () => {count++; update(block);}, // same as
+    click_e: (event, self) => {count++; update(self);},
+
+    class: count % 2 ? 'odd' : 'even', // static
+    class: () => (count % 2 ? 'odd' : 'even'), // dynamic
+  },
+
+  'Static child ', count, ' never changes.',
+  'Dynamic child ', () => count, ' is wrapped in a function.',
+);
+
+document.body.append(getElement(block));
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/dPywxMB?editors=0110)
+
+## Stateful Component
+
+```js
+import {getElement} from '@fusorjs/dom';
+import {button, div} from '@fusorjs/dom/html';
+
+const ClickCounter = (count = 0) =>
+  button({click_e_update: () => count++}, 'Clicked ', () => count, ' times');
+
+const App = () => div(ClickCounter(), ClickCounter(22), ClickCounter(333));
+
+document.body.append(getElement(App()));
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/RNwvNwb?editors=0010)
+
+### JSX Version
+
+```jsx
+import {getElement} from '@fusorjs/dom';
+
+const ClickCounter = ({count = 0}) => (
+  <button click_e_update={() => count++}>Clicked {() => count} times</button>
+);
 
 const App = () => (
   <div>
-    <p>Three counting buttons</p>
     <ClickCounter />
     <ClickCounter count={22} />
     <ClickCounter count={333} />
   </div>
 );
 
-document.body.append(getElement(App()));
+document.body.append(getElement(<App />));
 ```
 
-The `ClickCounter` component updates only **part** of its own DOM element without affecting the rest of the application.
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/mydvyBV?editors=1000)
 
-Once you fully understand how the above component works, you can rewrite it in a slightly **shorter** manner while achieving the same result:
+Components in both versions are interoperable.
 
-```jsx
-const ClickCounter = ({count = 0}) => (
-  <button
-    click_e={(event, self) => {
-      count++;
-      update(self);
-    }}
-  >
-    Clicked {() => count} times
-  </button>
+### Same Component Defined Differently
+
+<!-- prettier-ignore -->
+```js
+import {button} from '@fusorjs/dom/html';
+
+const ClickCounter = (count = 0) => {
+  const self = button(
+    {click_e: () => {count++; update(self);}},
+    'Clicked ', () => count, ' times',
+  );
+
+  return self;
+};
+
+const ClickCounter = (count = 0) =>
+  button(
+    {click_e: (event, self) => {count++; update(self);}},
+    'Clicked ', () => count, ' times',
+  );
+
+const ClickCounter = (count = 0) =>
+  button(
+    {click_e_update: () => count++},
+    'Clicked ', () => count, ' times',
+  );
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/RNwvPVZ?editors=0010)
+
+## Controlled Input Component
+
+```js
+import {getElement} from '@fusorjs/dom';
+import {input, div} from '@fusorjs/dom/html';
+
+const UppercaseInput = (value = '') =>
+  input({
+    value: () => value.toUpperCase(),
+    input_e_update: (event) => (value = event.target.value),
+  });
+
+document.body.append(
+  getElement(
+    div(UppercaseInput(), UppercaseInput('two'), UppercaseInput('three')),
+  ),
 );
 ```
 
-Every event handler callback function receives two arguments: the standard event object and the current special object.
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/wBvNBme?editors=0010)
 
-Once again, if you understand the example above, check out the **shortest** version of the same component:
+## Precise DOM Update
 
-```jsx
-const ClickCounter = ({count = 0}) => (
-  <button click_e_update={() => count++}>Clicked {() => count} times</button>
+```js
+import {getElement, update} from '@fusorjs/dom';
+import {section, div} from '@fusorjs/dom/html';
+
+let count = 0;
+
+const seconds = div('Seconds ', () => count, ' elapsed');
+
+const block = section(
+  seconds,
+  div('Minutes ', () => Math.floor(count / 60), ' elapsed'),
 );
+
+document.body.append(getElement(block));
+
+setInterval(() => {
+  count++;
+  update(seconds); // not minutes
+}, 1000);
 ```
 
-We added the `update` option to refresh the component after the event handler callback is called, which is equivalent to the previous example.
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/JojxdwW?editors=0010)
 
-## Lifecycle
+This will update only the seconds, not the minutes.
 
-The last aspect we need to understand before diving into developing real-world applications is the component lifecycle.
+## Escape Update Recursion
 
-It consists of only four stages:
+```js
+import {getElement, update} from '@fusorjs/dom';
+import {section, div} from '@fusorjs/dom/html';
+
+let count = 0;
+
+const seconds = div('Seconds ', () => count, ' elapsed');
+
+const block = section(
+  () => seconds, // wrapped in a function to escape
+  div('Minutes ', () => Math.floor(count / 60), ' elapsed'),
+);
+
+document.body.append(getElement(block));
+
+setInterval(() => {
+  count++;
+  update(block);
+}, 1000);
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/ogNmXro?editors=0010)
+
+This will update only the minutes, not the seconds.
+
+Only components (`seconds`, `block`) are updated recursively. `() => seconds` is a `function`, not a component.
+
+Every function from `@fusorjs/dom/html` returns a component, provided it contains dynamic values. The same applies to JSX definitions.
+
+## Component Lifecycle
 
 1. **Create** component
 2. **Connect** to DOM
 3. **Update** DOM
 4. **Disconnect** from DOM
 
-```jsx
+<!-- prettier-ignore -->
+```js
 import {getElement, update} from '@fusorjs/dom';
+import {div} from '@fusorjs/dom/html';
 
-const IntervalCounter = ({count = 0}) => {
-  console.log('1. Create the component');
+const IntervalCounter = (count = 0) => {
+  console.log('1. Create component');
 
-  return (
-    <div
-      mount={(self) => {
-        console.log('2. Connect to the DOM');
+  return div(
+    {
+      mount: (self) => {
+        console.log('2. Connect to DOM');
 
         const timerId = setInterval(() => {
           count++;
           update(self);
-          console.log('3. Update the DOM');
+          console.log('3. Update DOM');
         }, 1000);
 
         const unmount = () => {
           clearInterval(timerId);
-          console.log('4. Disconnect from the DOM');
+          console.log('4. Disconnect from DOM');
         };
 
         return unmount;
-      }}
-    >
-      Since mounted {() => count} seconds elapsed
-    </div>
+      },
+    },
+
+    'Since mounted ', () => count, ` seconds elapsed`,
   );
 };
 
-const instance = <IntervalCounter />;
+const instance = IntervalCounter(); // 1. Create component
 const element = getElement(instance);
 
-document.body.append(element);
-
-setTimeout(() => element.remove(), 15000);
+document.body.append(element); // 2. Connect to DOM
+setTimeout(() => element.remove(), 15000); // 4. Disconnect from DOM
 ```
 
-The `mount` property has a function that runs when the component is added to the DOM. This function takes one argument: the current special object. It can also return another function that runs when the component is removed from the DOM.
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/YPzByyv?editors=0011)
 
-We fully control these four stages of the lifecycle. This lets us create, update, and **compare** components using custom **asynchronous** or **concurrent** methods, with different strategies and animation frames in mind.
+[> run SVG Analog Clock](https://codepen.io/Igor-S-the-scripter/pen/PwoVmVB?editors=1100)
 
-## This Concludes the Tutorial
+<!-- # Common Recipes -->
 
-As you can see from this tutorial, Fusor is simple, concise, and explicit. Most of the time, you will only use its **two** API functions. However, it also offers a lot of control and flexibility when needed.
+## Automatic/Reactive Updates
 
-So, to answer the question in the title, Fusor is a small JavaScript library, not a framework, but it can achieve the same results as other frameworks.
+Automatic/reactive updates in big frameworks are nothing more than an implementation of the Observable pattern. This includes State in React, Signals in Solid, Redux, MobX, and many others. In Fusor, you can use any of those libraries.
 
-## Start Coding
+Here, we discuss the generic solution:
 
-Also, check out the [SVG Analog Clock](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx) example.
+### Router Library
 
-Here is a [real-world application](https://github.com/fusorjs/tutorial).
+```js
+import {update} from '@fusorjs/dom';
+import {Observable} from 'Any/Observable/Signal/Redux/Mobx...';
 
-Boilerplate starter projects:
+// Modern routing handling
+const observable = new Observable();
+const read = () => location.hash.substring(1); // omit "#"
+let route = read();
+window.addEventListener(
+  'popstate',
+  () => {
+    const next = read();
+    if (route === next) return;
+    route = next;
+    observable.notify();
+  },
+  false,
+);
 
-- [**JavaScript Starter**](https://github.com/fusorjs/dom-starter-jsx-webpack)
-- [**TypeScript Starter**](https://github.com/fusorjs/dom-starter-tsx-webpack)
+// Fusor integration
+export const getRoute = () => route;
+export const mountRoute = (self) => {
+  const callback = () => update(self);
+  observable.subscribe(callback);
+  return () => observable.unsubscribe(callback);
+};
+```
 
-## Thank You
+### Reactive Component
+
+Switching components when current route is selected.
+
+```js
+import {span, a} from '@fusorjs/dom/html';
+import {getRoute, mountRoute} from './router';
+
+export const RouteLink = (title, route) =>
+  span({mount: mountRoute}, () =>
+    getRoute() === route
+      ? title // when selected
+      : a({href: `#${route}`}, title),
+  );
+```
+
+### Create & Update DOM Dynamically
+
+```js
+import {getElement} from '@fusorjs/dom';
+import {ul, li} from '@fusorjs/dom/html';
+import {RouteLink} from './RouteLink';
+
+const block = ul(
+  [...Array(10)].map((v, i) =>
+    li(RouteLink(`${i + 1}. Section`, `url-to-${i + 1}-section`)),
+  ),
+);
+
+document.body.append(getElement(block));
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/QwWYgBy?editors=0010)
+
+## Caching & Memoization
+
+The heavy component is created only once.
+
+```jsx
+import {div, br} from '@fusorjs/dom/html';
+
+let isVisible = true; // can change
+
+const block = div(
+  (
+    (cache = HeavyComponent()) =>
+    () =>
+      isVisible && cache
+  )(),
+
+  br(),
+
+  () => RecreatedEveryUpdate(),
+);
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/bNGzoZO?editors=0011)
+
+## Exception Handling
+
+```js
+import {section, p} from '@fusorjs/dom/html';
+
+const Value = (value) => {
+  if (value === undefined) throw new Error(`provide a value`);
+
+  return p(value);
+};
+
+const block = section(
+  p('Before'),
+
+  (() => {
+    try {
+      return [
+        Value(1),
+        Value(), // will throw
+        Value(3),
+      ];
+    } catch (error) {
+      if (error instanceof Error) return p('Exception: ', error.message);
+
+      return p('Exception: unknown');
+    }
+  })(),
+
+  p('After'),
+);
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/vEYbWeV?editors=0010)
+
+<!-- ## Async/Await
+
+```js
+import {getElement} from '@fusorjs/dom';
+import {ul, li} from '@fusorjs/dom/html';
+import {RouteLink} from './RouteLink';
+
+const block = ul([...Array(10)].map((v, i) => li('Item number:', i + 1)));
+
+document.body.append(getElement(block));
+``` -->
+
+## The End
+
+Now you know everything you need to start developing modern front-end applications with Fusor.
+
+Developing with Fusor is the most concise, flexible, lightweight, and performant way to build frontend applications.

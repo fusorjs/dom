@@ -28,9 +28,8 @@
   - Optimize build with rollup to be in line with ~3KiB size claim
   - Create `production` build with `development` checks removed
   - Create different build targets: ESM, CommonJS, UMD, AMD...
-- Remove all deprecated APIs: maybe Life, Component...
-- Add JSX `<Fragment></Fragment>` or `<></>` support
 - Add `x` hyper method (along with `h, s, m`) with `xmlns` parameter.
+- Add JSX `<Fragment></Fragment>` or `<></>` support (They are just arrays, right?)
 
 ### Version 2.X.X
 
@@ -53,6 +52,11 @@ type updateCurrent = (value: Element | Component) => void;
 ## In Progress
 
 ## Done
+
+### Version 2.5.3
+
+- Improved JSX types
+- Improved docs
 
 ### Version 2.5.2
 

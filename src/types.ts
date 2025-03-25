@@ -45,11 +45,7 @@ export type StaticArg = StaticProps | StaticChild;
 
 export type Prop = StaticProp | ((...a: unknown[]) => unknown); // todo Prop = unknown & distinct
 
-export type SingleChild =
-  | SingleStaticChild
-  | (() => Child)
-  | Fusion
-  | Component<Element>;
+export type SingleChild = SingleStaticChild | (() => Child) | Fusion;
 
 export type Child = SingleChild | readonly SingleChild[]; // todo Child = unknown & distinct
 

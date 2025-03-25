@@ -1,32 +1,149 @@
 # Fusor
 
-**Fusor is a simple JavaScript library that helps to declaratively create and update DOM elements.**
+**Fusor is a simple JavaScript library that helps create and update DOM elements.**
 
-It is similar to **React**, but it operates at a lower level of abstraction. However, it is much simpler, more efficient, more flexible, and less verbose.
+<!-- Moreover, with Fusor and **vanilla** JavaScript, you can achieve everything that other major frameworks offer without sacrificing conciseness. -->
 
-**Key Features:**
+It is:
 
-- **Simple** ― two main API methods
-- **Compliant** ― follows W3C standards
-- **Explicit/Flexible/Performant** ― full control over: DOM creation/updates, state, context, diffing, concurrency
-- **Small** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.2), no dependencies
+- **Simple** ― two API methods: `create` & `update` DOM
+- **Concise** ― less verbose than anything else
+- **Explicit** ― what you see is what you get, no black box magic
+- **Flexible** ― as using pure functions, both declarative and imperative
+- **Small/Performant** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.2), no dependencies
+- **W3C Standards Compliant**
+<!-- - **Performant** ― full control over: DOM creation/updates, state, context, diffing, concurrency -->
+
+## Install
+
+```sh
+npm install @fusorjs/dom
+```
+
+Or:
+
+- **JSX** boilerplate project: [JavaScript](https://github.com/fusorjs/dom-starter-jsx-webpack) , [TypeScript](https://github.com/fusorjs/dom-starter-tsx-webpack)
+- **CDN**: <https://esm.sh/@fusorjs/dom> , <https://cdn.skypack.dev/@fusorjs/dom>
 
 ## Examples
 
-[**>> TRY THEM LIVE <<**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx)
+<!-- [**TRY THEM LIVE**](https://codesandbox.io/p/sandbox/4m7r37?file=%2Fsrc%2Fapp.jsx) -->
 
-### Reusable Component With Own State
+### Create & Update DOM
 
-<!-- #### JSX Syntax -->
+```js
+import {getElement, update} from '@fusorjs/dom';
+import {section, div} from '@fusorjs/dom/html';
+
+let count = 0;
+
+const block = section(
+  {class: () => (count % 2 ? 'odd' : 'even')},
+
+  div('Seconds ', () => count, ' elapsed'),
+  div('Minutes ', () => Math.floor(count / 60), ' elapsed'),
+);
+
+document.body.append(getElement(block));
+
+setInterval(() => {
+  count++;
+  update(block);
+}, 1000);
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/Byavpez?editors=0110)
+
+Only tiny portions of the `block` DOM tree are updated if they differ from the current values.
+
+### JSX Support
+
+```jsx
+import {getElement, update} from '@fusorjs/dom';
+
+let count = 0;
+
+const block = (
+  <section class={() => (count % 2 ? 'odd' : 'even')}>
+    <div>Seconds {() => count} elapsed</div>
+    <div>Minutes {() => Math.floor(count / 60)} elapsed</div>
+  </section>
+);
+
+document.body.append(getElement(block));
+
+setInterval(() => {
+  count++;
+  update(block);
+}, 1000);
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/NPWeORL?editors=1100)
+
+### Parameters & Children Syntax
 
 <!-- prettier-ignore -->
-```jsx
-import { getElement } from '@fusorjs/dom';
+```js
+import {getElement, update} from '@fusorjs/dom';
+import {section} from '@fusorjs/dom/html';
 
+let count = 0;
+
+const block = section(
+  {
+    id: 'set attribute or property automatically',
+    title_a: 'set attribute',
+    style_p: 'set property',
+
+    focus_e: () => 'set bubbling event handler',
+    blur_e_capture_once: () => 'set capturing event handler once',
+
+    // update dynamic values in this DOM node:
+    click_e_update: () => count++, // same as
+    click_e: () => {count++; update(block);}, // same as
+    click_e: (event, self) => {count++; update(self);},
+
+    class: count % 2 ? 'odd' : 'even', // static
+    class: () => (count % 2 ? 'odd' : 'even'), // dynamic
+  },
+
+  'Static child ', count, ' never changes.',
+  'Dynamic child ', () => count, ' is wrapped in a function.',
+);
+
+document.body.append(getElement(block));
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/dPywxMB?editors=0110)
+
+### Stateful Component
+
+<!--
 // This function runs once on creation, generating a DOM element
 // and its updater function. On update, only its dynamic values
 // are diffed and its DOM node is updated.
-const ClickCounter = ({ count = 0 }) => (
+-->
+
+```js
+import {getElement} from '@fusorjs/dom';
+import {button, div} from '@fusorjs/dom/html';
+
+const ClickCounter = (count = 0) =>
+  button({click_e_update: () => count++}, 'Clicked ', () => count, ' times');
+
+const App = () => div(ClickCounter(), ClickCounter(22), ClickCounter(333));
+
+document.body.append(getElement(App()));
+```
+
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/RNwvNwb?editors=0010)
+
+### JSX Version
+
+```jsx
+import {getElement} from '@fusorjs/dom';
+
+const ClickCounter = ({count = 0}) => (
   <button click_e_update={() => count++}>Clicked {() => count} times</button>
 );
 
@@ -41,130 +158,44 @@ const App = () => (
 document.body.append(getElement(<App />));
 ```
 
-<!-- #### Alternative Functional Syntax
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/mydvyBV?editors=1000)
+
+Components in both versions are interoperable.
+
+### Controlled Input Component
 
 ```js
-import { button } from '@fusorjs/dom/html';
+import {getElement} from '@fusorjs/dom';
+import {input, div} from '@fusorjs/dom/html';
 
-const ClickCounter = (count = 0) =>
-  button({ click_e_update: () => count++ }, 'Clicked ', () => count, ' times');
-``` -->
+const UppercaseInput = (value = '') =>
+  input({
+    value: () => value.toUpperCase(),
+    input_e_update: (event) => (value = event.target.value),
+  });
 
-### Parameters And Children
-
-<!-- prettier-ignore -->
-```jsx
-import { update } from '@fusorjs/dom';
-
-const divider = (
-  <div
-    name="set attribute or property automatically"
-    name_a="set attribute"
-    name_p="set property"
-    name_e={() => 'set bubbling event handler'}
-    name_e_capture_once={() => 'set capturing event handler once'}
-
-    // update dynamic values in this DOM node
-    click_e_update={() => count++} // same as
-    click_e={() => {count++; update(divider);}} // same as
-    click_e={(event, self) => {count++; update(self);}}
-
-    // dynamic attribute or property is wrapped in a function
-    class={() => (count % 2 ? 'odd' : 'even')}
-  >
-    Dynamic child {() => count} is wrapped in a function.
-    Static child {count} never changes.
-  </div>
+document.body.append(
+  getElement(
+    div(UppercaseInput(), UppercaseInput('two'), UppercaseInput('three')),
+  ),
 );
 ```
 
-<!-- [Options' Reference](docs/reference.md#parameter-keys): -->
-
-<!-- ### Controlled Uppercase Component
-
-```jsx
-const UppercaseInput = ({value = ''}) => (
-  <input
-    value={() => value}
-    input_e_update={(event) => (value = event.target.value.toUpperCase())}
-  />
-);
-``` -->
-
-### Component Lifecycle
-
-1. **Create** component
-2. **Connect** to DOM
-3. **Update** DOM
-4. **Disconnect** from DOM
-
-<!-- prettier-ignore -->
-```jsx
-import { getElement, update } from '@fusorjs/dom';
-
-const IntervalCounter = ({ count = 0 }) => (
-  // 1. Create component
-  <div
-    mount={(self) => {
-      // 2. Connect to DOM
-      const timerId = setInterval(() => {
-        count++;
-        update(self); // 3. Update DOM
-      }, 1000);
-
-      return () => clearInterval(timerId); // 4. Disconnect from DOM
-    }}
-  >
-    Since mounted {() => count} seconds elapsed
-  </div>
-);
-
-const instance = <IntervalCounter />; // 1. Create component
-const element = getElement(instance);
-
-document.body.append(element); // 2. Connect to DOM
-setTimeout(() => element.remove(), 15000); // 4. Disconnect from DOM
-```
-
-<!-- ### Routing
-
-```tsx
-import {getRoute, Route, mountRoute} from '../share/route';
-export const RouteLink = (title: string, route: Route) =>
-  a(
-    {
-      href: `#${route}`,
-      class: () => clsx(getRoute() === route && 'selected'),
-      mount: mountRoute,
-    },
-    title,
-  );
-``` -->
-
-[**Check SVG Analog Clock**](https://codesandbox.io/p/sandbox/fusor-analog-clock-jsx-hqs5x9?file=%2Fsrc%2Findex.tsx).
+[> run this example](https://codepen.io/Igor-S-the-scripter/pen/wBvNBme?editors=0010)
 
 ## Documentation
 
-- [**>> TUTORIAL <<**](docs/tutorial.md)
+- [**TUTORIAL**](docs/tutorial.md)
 - [Reference](docs/reference.md)
-- [Functional Syntax](docs/functional-notation.md)
+- [JSX vs Functional Syntax](docs/functional-notation.md)
 - [Optimization](docs/optimisation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
 - [Fusor vs React Verbosity](docs/fusor-vs-react-verbosity.md)
 
-## Real-World Applications
+## Applications
 
-- [TodoMvc](https://github.com/fusorjs/todomvc) - routing, global data store
-- [Tutorial](https://github.com/fusorjs/tutorial) - nested routing, http request, lifecycle, custom element, caching, jsx, svg, mathml, xml
-
-## Start Coding
-
-Start with a boilerplate project:
-
-- [**JavaScript Starter**](https://github.com/fusorjs/dom-starter-jsx-webpack)
-- [**TypeScript Starter**](https://github.com/fusorjs/dom-starter-tsx-webpack)
-
-Or configure it [manually](docs/reference.md#install)
+- [TodoMvc](https://github.com/fusorjs/todomvc)
+- [Tutorial](https://github.com/fusorjs/tutorial)
 
 ## Contributing
 
