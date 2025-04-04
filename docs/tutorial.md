@@ -5,17 +5,9 @@ Almost — because only two functions from a library are used:
 1. `Create` DOM Element
 2. `Update` DOM Element
 
-**[Fusor](https://github.com/fusorjs/dom) is a simple JavaScript library that helps create and update DOM elements.**
+This library simplifies and streamlines the usage of native DOM functions, such as `createElement` and `replaceChild`. The [**Fusor library**](https://github.com/fusorjs/dom) is all about making these functions easier and more concise to use.
 
----
-
-Using the library instead of the native DOM API is beneficial because it is:
-
-1. Declarative
-2. Easy to understand and reason about
-3. Less verbose
-
-There are many examples of common problems below. Try to recreate them using the tools you are currently using. You might be surprised to find that developing with Fusor is the most concise, flexible, lightweight, and performant way to build frontend applications.
+Below are many examples of common problems. Try to recreate them using the tools you are currently using. You might be surprised to find that developing with Fusor could be the most concise, flexible, lightweight, and performant way to build frontend applications.
 
 <!--
 
@@ -35,7 +27,7 @@ https://dev.to/mwanahamuntu_/how-to-embed-your-codepens-into-your-dev-to-posts-i
 - [Precise DOM Update](#precise-dom-update)
 - [Escape Update Recursion](#escape-update-recursion)
 - [Component Lifecycle](#component-lifecycle)
-- [Automatic/Reactive Updates](#automaticreactive-updates)
+- [**Automatic/Reactive Updates**](#automaticreactive-updates)
 - [Routing](#router-library)
 - [Switching Components](#reactive-component)
 - [Create & Update DOM Dynamically](#create--update-dom-dynamically)
@@ -50,8 +42,8 @@ npm install @fusorjs/dom
 
 Or:
 
-- **JSX** boilerplate project: [JavaScript](https://github.com/fusorjs/dom-starter-jsx-webpack) , [TypeScript](https://github.com/fusorjs/dom-starter-tsx-webpack)
-- **CDN**: <https://esm.sh/@fusorjs/dom> , <https://cdn.skypack.dev/@fusorjs/dom>
+- **JSX** boilerplate for: [JavaScript](https://github.com/fusorjs/dom-starter-jsx-webpack) or [TypeScript](https://github.com/fusorjs/dom-starter-tsx-webpack)
+- **CDN**: <https://esm.sh/@fusorjs/dom> or <https://cdn.skypack.dev/@fusorjs/dom>
 
 ## Create & Update DOM
 
@@ -415,7 +407,7 @@ document.body.append(getElement(block));
 
 The heavy component is created only once.
 
-```jsx
+```js
 import {div, br} from '@fusorjs/dom/html';
 
 let isVisible = true; // can change
@@ -485,4 +477,4 @@ document.body.append(getElement(block));
 
 Now you know everything you need to start developing modern front-end applications with Fusor.
 
-Developing with Fusor is the most concise, flexible, lightweight, and performant way to build frontend applications.
+As far as I know, developing with Fusor is the most concise, flexible, lightweight, and performant way to build frontend applications.
