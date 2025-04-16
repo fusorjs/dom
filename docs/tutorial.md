@@ -1,5 +1,7 @@
 # Almost Vanilla Frontend
 
+<!-- ! The tutorial must have most commonly used features without overcomplication (for the beginners) -->
+
 Almost — because only two functions from a library are used:
 
 1. `Create` DOM Element
@@ -25,7 +27,7 @@ https://dev.to/mwanahamuntu_/how-to-embed-your-codepens-into-your-dev-to-posts-i
 - [Stateful Component](#stateful-component)
 - [Controlled Input Component](#controlled-input-component)
 - [Precise DOM Update](#precise-dom-update)
-- [Escape Update Recursion](#escape-update-recursion)
+- [Escape Updating Recursion](#escape-updating-recursion)
 - [Component Lifecycle](#component-lifecycle)
 - [**Automatic/Reactive Updates**](#automaticreactive-updates)
 - [Routing](#router-library)
@@ -204,6 +206,8 @@ const ClickCounter = (count = 0) =>
 
 ## Controlled Input Component
 
+"Controlled Input" in React terms.
+
 ```js
 import {getElement} from '@fusorjs/dom';
 import {input, div} from '@fusorjs/dom/html';
@@ -250,7 +254,7 @@ setInterval(() => {
 
 This will update only the seconds, not the minutes.
 
-## Escape Update Recursion
+## Escape Updating Recursion
 
 ```js
 import {getElement, update} from '@fusorjs/dom';
@@ -359,14 +363,10 @@ window.addEventListener(
   },
   false,
 );
+export const getRoute = () => route;
 
 // Fusor integration
-export const getRoute = () => route;
-export const mountRoute = (self) => {
-  const callback = () => update(self);
-  observable.subscribe(callback);
-  return () => observable.unsubscribe(callback);
-};
+export const mountRoute = (self) => observable.subscribe(() => update(self));
 ```
 
 ### Reactive Component
@@ -473,7 +473,7 @@ const block = ul([...Array(10)].map((v, i) => li('Item number:', i + 1)));
 document.body.append(getElement(block));
 ``` -->
 
-## The End
+## Conclusion
 
 Now you know everything you need to start developing modern front-end applications with Fusor.
 

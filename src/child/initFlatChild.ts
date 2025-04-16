@@ -8,6 +8,7 @@ export const initFlatChild = <E extends Element>(
 ) => {
   // init array of children
   if (Array.isArray(childValue)) {
+    // todo DEVELOPMENT depth < 5
     for (const val of childValue) {
       initFlatChild(element, val, dynamicChildren);
     }

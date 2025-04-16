@@ -7,7 +7,7 @@
 It is:
 
 - **Simple** ― two API methods: `create` & `update` DOM
-- **Concise** ― less verbose than anything else
+- **Concise** ― less verbose than everything else
 - **Explicit** ― what you see is what you get, no black box magic
 - **Flexible** ― as using pure functions, both declarative and imperative
 - **Small/Performant** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.2), no dependencies
@@ -20,7 +20,7 @@ It is:
 npm install @fusorjs/dom
 ```
 
-Or:
+**Or use**:
 
 - **JSX** boilerplate for: [JavaScript](https://github.com/fusorjs/dom-starter-jsx-webpack) or [TypeScript](https://github.com/fusorjs/dom-starter-tsx-webpack)
 - **CDN**: <https://esm.sh/@fusorjs/dom> or <https://cdn.skypack.dev/@fusorjs/dom>
@@ -194,8 +194,8 @@ document.body.append(
 
 ## Applications
 
-- [TodoMvc](https://github.com/fusorjs/todomvc)
-- [Tutorial](https://github.com/fusorjs/tutorial)
+- [Todo-List](https://github.com/fusorjs/todomvc)
+- [Kitchen Sink](https://github.com/fusorjs/tutorial)
 
 ## Contributing
 

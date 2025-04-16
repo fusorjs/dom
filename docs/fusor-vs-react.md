@@ -49,12 +49,15 @@ The fundamental difference lies in the separation of concerns within the compone
 | Philosophy          | Lego, everything is controlled by the user                  | Black box monolith, automatically handles everything                                                              |
 | Verbosity           | [Less verbose](fusor-vs-react-verbosity.md)                 | [More verbose](fusor-vs-react-verbosity.md)                                                                       |
 | Component functions | Pure                                                        | Context is required                                                                                               |
+| Exception handling  | Native `try {} catch {} finally {}`                         | Error boundary mechanics                                                                                          |
 | Concurrency         | Explicit                                                    | Implicit                                                                                                          |
 | Library size (gz)   | [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.2) | [~2kB](https://bundlephobia.com/package/react@18.3.1) + [41kB](https://bundlephobia.com/package/react-dom@18.3.1) |
 
 > React Hooks depend not only on the `deps` array but also on the component instances, which does not allow fully reusing memoized data across multiple components.
 
 ## Code samples
+
+<!-- todo https://cekrem.github.io/posts/react-reconciliation-deep-dive/ -->
 
 |                    | Fusor                           | React                           |                                   |
 | ------------------ | ------------------------------- | ------------------------------- | --------------------------------- |
@@ -99,6 +102,8 @@ const FusorComponent = ({count = 0}) => (
 | Web components support | Complete          | Incomplete        |
 
 ## Lifecycle
+
+<!-- todo https://react.dev/reference/react/Component componentDidCatch -->
 
 |            | Fusor   | React                                                                                                |
 | ---------- | ------- | ---------------------------------------------------------------------------------------------------- |

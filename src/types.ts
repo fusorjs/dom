@@ -43,10 +43,12 @@ export type StaticArg = StaticProps | StaticChild;
 
 /* DYNAMIC ARGS */
 
+/** @deprecated use any */
 export type Prop = StaticProp | ((...a: unknown[]) => unknown); // todo Prop = unknown & distinct
 
 export type SingleChild = SingleStaticChild | (() => Child) | Fusion;
 
+/** @deprecated use any */
 export type Child = SingleChild | readonly SingleChild[]; // todo Child = unknown & distinct
 
 declare global {

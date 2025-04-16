@@ -1,6 +1,6 @@
 # Changelog
 
-> Tasks are flowing down, from [Maybe](#maybe) to [Done](#done).
+> Tasks are flowing from [Maybe](#maybe) down to [Done](#done).
 
 ## Maybe
 
@@ -10,26 +10,27 @@
 - Make Prop and Child classes with static create and update methods? - Yes to Prop for sure! So we could move prop updaters to array instead of object (speed of array construction).
 - implement style, object, data attributes
 - createAttribute object and update it directly
-- Optimize by diffing nodes for dynamic children array
 - elements with event handler callbacks (onclick) should be static in typescript <https://stackoverflow.com/q/71111120/7138254>. Or in version 3 will be deprecated.
 - Move "extras" out of DOM element objects (see the first rule). At the moment cannot remove it because it is used in `connectedCallback`.
-- Maybe remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance. But on the oter hand this allows to fast ref check skipping whole array if it not changed.
+- Maybe remove `arrayRef` checks to be able to mutate arrays in place and not recreate them for performance. But on the oter hand this allows to fast ref check skipping whole array if it not changed. Maybe allow option in the `update({skipSameRef})` or add a symbol prop to array `[FusorMutableArray]`.
 - Streamline all tag "renames" for all notations.
+- Export `React`, so no need to configure `jsxImportSource/jsxFactory` like in Solid
+- Add JSX `<Fragment></Fragment>` or `<></>` support (They are just arrays, right?)
+- Instantiate components from existing HTML (SSR) in separate module.
+- Add `x` hyper method (along with `h, s, m`) with `xmlns` parameter.
+- Optimize very large dynamic children arrays length > 1000, using `Set`.
 
 ## Todo
 
+- Invoke method call (if value changes) on the element: `setCustomValidity_c: () => pass1 === pass2 ? '' : 'passwords do not match'` translates to: `input.setCustomValidity('invalid');`
 - Implement tagged template string function for HTML...
 - Override a splitter for a current prop key, mybe like `_$$_name$$e` from `_` to `$$` or (`_"___"xlink:href___an___http://www.w3.org/1999/xlink`)
 - Optimize spread/rest in html.ts and svg.ts, check `javascript rest vs arguments performance` <https://www.measurethat.net/Benchmarks/Show/10518/0/rest-parameters-vs-arguments>, speed and especially memory usage (spread/rest optimization, see `button` in [html.ts](src/html.ts)).
 - Implement iterator support the same way as for static/dynamic arrays.
-- Use nested dynamic arrays, they will be applied to element
-- Move away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking...) to <https://stackblitz.com/>
 - build
   - Optimize build with rollup to be in line with ~3KiB size claim
   - Create `production` build with `development` checks removed
   - Create different build targets: ESM, CommonJS, UMD, AMD...
-- Add `x` hyper method (along with `h, s, m`) with `xmlns` parameter.
-- Add JSX `<Fragment></Fragment>` or `<></>` support (They are just arrays, right?)
 
 ### Version 2.X.X
 
@@ -57,6 +58,7 @@ type updateCurrent = (value: Element | Component) => void;
 
 - Improved JSX types
 - Improved docs
+- Moved away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking, it is slow...) to <codepen.io>
 
 ### Version 2.5.2
 

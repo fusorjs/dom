@@ -230,6 +230,7 @@ Specify `[name]_[type]`:
 - `p` - `p`roperty
 - `ps` - `p`roperty `s`tatic
 - `e` - `e`vent handler
+<!-- - `c` - `c`all a method on element -->
 
 > See `setParameterSeparator` to change the global suffix separator
 
