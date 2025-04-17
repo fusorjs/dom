@@ -106,6 +106,8 @@ Fusor creates DOM nodes wrapped in special data structures that are incompatible
 - `isUpdatable(node)` - check if DOM node is updatable
 - `getElement(node)` - retrieve normal DOM element
 
+Do not manually change the children or parameters of elements created by Fusor, as it caches them to avoid retrieving them from the DOM for performance reasons.
+
 ### Fusor Configuration
 
 > `export {defaultPropSplitter, setParameterSeparator, getParameterSeparator} from './prop/initProp';`
@@ -409,9 +411,3 @@ Use the simplest working solution:
 2. Use global variables (module import/export)
 3. Use component parameters
 4. On mount bubble subscribtion event to the observable parent in the DOM tree (like react form components)
-
-<!-- > Fusor is just a helper library for new way of writing web apps
-> Manually triggering updates is better than outsourcing this to some obscure/implicit/dumb/slow framework
-
-### New Wave of Web Apps Development способ создания веб приложений
- -->

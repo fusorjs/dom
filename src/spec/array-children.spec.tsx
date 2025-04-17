@@ -1,6 +1,6 @@
 import {Component, jsx} from '..';
 
-describe('dynamic children', () => {
+describe('dynamic children array', () => {
   test('replace only its previous values', () => {
     let value: any = [111, 222, 333];
     const component = (<div>AAA{() => value}BBB</div>) as Component<Element>;
@@ -97,6 +97,290 @@ describe('dynamic children', () => {
     component.update();
 
     expect(component.element.innerHTML).toBe('6-7-8-9-10-');
+  });
+
+  test('changing child same valuee', () => {
+    let children: any = [1, 2, 3];
+    const component = (<div>{() => children}</div>) as Component<Element>;
+
+    expect(component.element.innerHTML).toBe('123');
+
+    children = [1, 3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('13');
+
+    children = [2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('2');
+
+    children = [3, 2, 1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('321');
+
+    children = [1, 2, 3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('123');
+
+    children = 1;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('1');
+
+    children = [1, 2, 3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('123');
+
+    children = 2;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('2');
+
+    children = [1, 2, 3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('123');
+
+    children = [1, 2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('12');
+
+    children = [2, 3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('23');
+
+    children = [1, 2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('12');
+
+    children = [2, 1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('21');
+
+    children = [1, 2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('12');
+
+    children = [1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('1');
+
+    children = [2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('2');
+
+    children = [1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('1');
+
+    children = 1;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('1');
+  });
+
+  test('changing child nodes with the same refs', () => {
+    const c1 = <p>1</p>;
+    const c2 = <p>2</p>;
+    const c3 = <p>3</p>;
+
+    let children: any = [c1, c2, c3];
+    const component = (<div>{() => children}</div>) as Component<Element>;
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = [c1, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>3</p>');
+
+    children = [c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p>');
+
+    children = [c3, c2, c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>3</p><p>2</p><p>1</p>');
+
+    children = [c1, c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = c1;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
+
+    children = [c1, c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = c2;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p>');
+
+    children = [c1, c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = [c1, c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p>');
+
+    children = [c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p><p>3</p>');
+
+    children = [c1, c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p>');
+
+    children = [c2, c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p><p>1</p>');
+
+    children = [c1, c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p>');
+
+    children = [c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
+
+    children = [c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p>');
+
+    children = [c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
+
+    children = c1;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
+  });
+
+  test('changing child components with the same refs', () => {
+    const c1 = <p>{() => 1}</p>;
+    const c2 = <p>{() => 2}</p>;
+    const c3 = <p>{() => 3}</p>;
+
+    let children: any = [c1, c2, c3];
+    const component = (<div>{() => children}</div>) as Component<Element>;
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = [c1, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>3</p>');
+
+    children = [c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p>');
+
+    children = [c3, c2, c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>3</p><p>2</p><p>1</p>');
+
+    children = [c1, c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = c1;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
+
+    children = [c1, c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = c2;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p>');
+
+    children = [c1, c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p><p>3</p>');
+
+    children = [c1, c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p>');
+
+    children = [c2, c3];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p><p>3</p>');
+
+    children = [c1, c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p>');
+
+    children = [c2, c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p><p>1</p>');
+
+    children = [c1, c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p><p>2</p>');
+
+    children = [c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
+
+    children = [c2];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>2</p>');
+
+    children = [c1];
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
+
+    children = c1;
+    component.update();
+
+    expect(component.element.innerHTML).toBe('<p>1</p>');
   });
 
   // ? maybe not flatten dynamic nested arrays

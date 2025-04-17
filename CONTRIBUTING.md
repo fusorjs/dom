@@ -25,7 +25,13 @@ npm coverage
 
 ## Philosophy
 
-It (Fusor) fuses elements into components.
+> "_It (Fusor) **fuses** (DOM) **elements** into components._" - me
+
+<!--  -->
+
+> "_What if we take React as a framework and "lift out" key features like state, effects, error handling, concurrency, and server-side functionality? Then, we would get Fusor._" - me
+
+<!-- Если убрать ("Lift Up") из React внутреннюю/скрытую логику: управления стейтом и эффектами, обработки ошибок, управленя параллелизмом, и серверную логику, тогда получится - Fusor. -->
 
 > "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
 
@@ -50,3 +56,9 @@ It (Fusor) fuses elements into components.
 
 - Efficient use of provided and internal data
 - **Immutability**, avoid excessive creation
+
+<!--
+> Fusor is just a helper library for a new way of writing web apps
+> Manually triggering updates is better than outsourcing this to some obscure/implicit/slow framework
+
+-->

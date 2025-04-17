@@ -188,6 +188,7 @@ export interface DynamicProps {
   [key: string]: UpdatableProp;
 }
 
+// todo optimize if value === node
 export interface ChildCache {
   value: string | Node | Component<Element>;
   node: Node;

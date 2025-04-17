@@ -4,15 +4,13 @@
 
 <!-- Moreover, with Fusor and **vanilla** JavaScript, you can achieve everything that other major frameworks offer without sacrificing conciseness. -->
 
-It is:
-
 - **Simple** ― two API methods: `create` & `update` DOM
-- **Concise** ― less verbose than everything else
+- **Concise** ― less verbose than other approaches to frontend development
 - **Explicit** ― what you see is what you get, no black box magic
 - **Flexible** ― as using pure functions, both declarative and imperative
-- **Small/Performant** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.2), no dependencies
+- **Efficient** ― no hidden computation layers
+- **Small** ― size [~3kB](https://bundlephobia.com/package/@fusorjs/dom@2.5.2), no dependencies
 - **W3C Standards Compliant**
-<!-- - **Performant** ― full control over: DOM creation/updates, state, context, diffing, concurrency -->
 
 ## Install
 
@@ -20,7 +18,7 @@ It is:
 npm install @fusorjs/dom
 ```
 
-**Or use**:
+### Or
 
 - **JSX** boilerplate for: [JavaScript](https://github.com/fusorjs/dom-starter-jsx-webpack) or [TypeScript](https://github.com/fusorjs/dom-starter-tsx-webpack)
 - **CDN**: <https://esm.sh/@fusorjs/dom> or <https://cdn.skypack.dev/@fusorjs/dom>
@@ -116,7 +114,7 @@ document.body.append(getElement(block));
 
 [> run this example](https://codepen.io/Igor-S-the-scripter/pen/dPywxMB?editors=0110)
 
-### Stateful Component
+### Reusable Stateful Component
 
 <!--
 // This function runs once on creation, generating a DOM element
@@ -187,10 +185,9 @@ document.body.append(
 
 - [**TUTORIAL**](docs/tutorial.md)
 - [Reference](docs/reference.md)
-- [JSX vs Functional Syntax](docs/functional-notation.md)
 - [Optimization](docs/optimisation.md)
+- [JSX vs Functional Syntax](docs/functional-notation.md)
 - [Fusor vs React](docs/fusor-vs-react.md)
-- [Fusor vs React Verbosity](docs/fusor-vs-react-verbosity.md)
 
 ## Applications
 
@@ -202,3 +199,7 @@ document.body.append(
 Your suggestions and contributions are always welcome!
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details and [CHANGELOG](CHANGELOG.md) for agenda.
+
+## PS
+
+Let's make the world a better place by creating beautiful and efficient code!

@@ -4,9 +4,10 @@ import {Component} from '../component';
 import {convertChild} from './convertChild';
 import {replaceChild} from './replaceChild';
 
+const moved = Symbol('MovedChildCache');
+
 export const replaceChildren = (
   element: Node,
-  /** @mutated */
   cache: ChildCache[], // ! mutated
   nextValues: readonly any[],
   terminator: Text,
@@ -14,6 +15,7 @@ export const replaceChildren = (
   const prevLength = cache.length;
   const nextLength = nextValues.length;
   const minLength = Math.min(prevLength, nextLength);
+  const nextNodes = new Set<Node>();
 
   let i = 0;
 
@@ -25,7 +27,22 @@ export const replaceChildren = (
 
     if (typeof nextValue === 'function') nextValue = nextValue();
 
-    replaceChild(element, cache[i], nextValue);
+    let nextNode: Node;
+
+    if (cache.findIndex(({node}) => node === cache[i].node) >= i)
+      replaceChild(element, cache[i], nextValue);
+    else {
+      nextNode = nextValue instanceof Component ? nextValue.element : nextValue;
+
+      element.insertBefore(nextNode, terminator);
+
+      cache[i] = {
+        value: nextValue,
+        node: nextNode,
+      };
+    }
+
+    // nextNodes.add(nextNode);
   }
 
   // either remove
@@ -33,7 +50,8 @@ export const replaceChildren = (
     const start = i;
 
     do {
-      element.removeChild(cache[i].node);
+      if (cache.findIndex(({node}) => node === cache[i].node) >= start)
+        element.removeChild(cache[i].node);
       i++;
     } while (i < prevLength);
 

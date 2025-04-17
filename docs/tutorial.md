@@ -281,7 +281,7 @@ setInterval(() => {
 
 This will update only the minutes, not the seconds.
 
-Only components (`seconds`, `block`) are updated recursively. `() => seconds` is a `function`, not a component.
+Only components (`seconds`, `block`) are updated recursively. `() => seconds` is a `function`, not a component. Inside functions, you decide whether to `update` or not.
 
 Every function from `@fusorjs/dom/html` returns a component, provided it contains dynamic values. The same applies to JSX definitions.
 
