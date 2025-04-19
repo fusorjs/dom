@@ -4,10 +4,8 @@ import {Component} from '../component';
 
 import {convertChild} from './convertChild';
 
-/** Replace child value and update the cache if needed. */
 export const replaceChild = (
   element: Node,
-  /** @mutated */
   cache: ChildCache, // ! mutated
   nextValue: any,
 ): void => {
@@ -44,7 +42,7 @@ export const replaceChild = (
     // }
 
     // replace with new text node
-    nextNode = new Text(nextValue as string);
+    nextNode = new Text(nextValue);
     element.replaceChild(nextNode, prevNode);
   }
 

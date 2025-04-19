@@ -56,6 +56,7 @@ type updateCurrent = (value: Element | Component) => void;
 
 ### Version 2.5.3
 
+- Fix dynamic array updating
 - Improved JSX types
 - Improved docs
 - Moved away from <codesandbox.io> for demos (it breaks, link changes, syntax highlighting keeps breaking, it is slow...) to <codepen.io>

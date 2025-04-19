@@ -1,8 +1,8 @@
 import {ChildCache} from '../types';
 import {Component} from '../component';
+import {ObjectIs} from '../share';
 
 import {convertChild} from './convertChild';
-import {replaceChild} from './replaceChild';
 
 const moved = Symbol('MovedChildCache');
 
@@ -15,7 +15,7 @@ export const replaceChildren = (
   const prevLength = cache.length;
   const nextLength = nextValues.length;
   const minLength = Math.min(prevLength, nextLength);
-  const nextNodes = new Set<Node>();
+  const trackNodes = new Set<Node>();
 
   let i = 0;
 
@@ -27,22 +27,58 @@ export const replaceChildren = (
 
     if (typeof nextValue === 'function') nextValue = nextValue();
 
-    let nextNode: Node;
+    const _cache = cache[i];
+    const {value: prevValue, node: prevNode} = _cache;
 
-    if (cache.findIndex(({node}) => node === cache[i].node) >= i)
-      replaceChild(element, cache[i], nextValue);
-    else {
-      nextNode = nextValue instanceof Component ? nextValue.element : nextValue;
-
-      element.insertBefore(nextNode, terminator);
-
-      cache[i] = {
-        value: nextValue,
-        node: nextNode,
-      };
+    if (ObjectIs(nextValue, prevValue)) {
+      // trackNodes.add(prevNode);
+      continue;
     }
 
-    // nextNodes.add(nextNode);
+    // ---
+
+    let nextNode: Node | undefined;
+
+    if (nextValue instanceof Node) {
+      nextNode = nextValue;
+    } else if (nextValue instanceof Component) {
+      nextNode = nextValue.element;
+    }
+
+    if (nextNode) {
+      if (trackNodes.has(prevNode)) {
+        element.insertBefore(nextNode, terminator);
+        // todo check if it always the last and if so maybe track just its position
+      } else {
+        element.replaceChild(nextNode, prevNode);
+      }
+
+      trackNodes.add(nextNode);
+      _cache.value = nextValue;
+      _cache.node = nextNode;
+
+      continue;
+    }
+
+    // ---
+
+    // todo optimize: check if there are same value in cache and reuse its node
+
+    nextValue = convertChild(nextValue);
+
+    if (nextValue === prevValue) {
+      // trackNodes.add(prevNode);
+      continue;
+    }
+
+    // ---
+
+    nextNode = new Text(nextValue);
+    element.replaceChild(nextNode, prevNode);
+    // trackNodes.add(nextNode);
+
+    _cache.value = nextValue;
+    _cache.node = nextNode;
   }
 
   // either remove
@@ -50,8 +86,8 @@ export const replaceChildren = (
     const start = i;
 
     do {
-      if (cache.findIndex(({node}) => node === cache[i].node) >= start)
-        element.removeChild(cache[i].node);
+      const {node} = cache[i];
+      if (!trackNodes.has(node)) element.removeChild(node);
       i++;
     } while (i < prevLength);
 
