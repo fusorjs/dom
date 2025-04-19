@@ -4,11 +4,38 @@ import {
   ElementWithExtras,
   Fusion,
   Prop,
+  SingleChild,
 } from './types';
 import {elementExtrasName} from './share';
 import {Component} from './component';
 import {initProp} from './prop/initProp';
-import {initFlatChild} from './child/initFlatChild';
+import {initChild} from './child/initChild';
+
+const initFlatChild = <E extends Element>(
+  element: E,
+  childValue: any,
+  dynamicChildren?: DynamicChild<Element>[], // ! mutated
+) => {
+  // init array of children
+  if (Array.isArray(childValue)) {
+    // todo DEVELOPMENT depth < 5
+    for (const val of childValue) {
+      dynamicChildren = initFlatChild(element, val, dynamicChildren);
+    }
+  }
+
+  // init single child
+  else {
+    const dynamicChild = initChild(element, childValue as SingleChild);
+
+    if (dynamicChild) {
+      dynamicChildren ||= [];
+      dynamicChildren.push(dynamicChild);
+    }
+  }
+
+  return dynamicChildren;
+};
 
 export const init = (
   element: ElementWithExtras,
@@ -19,7 +46,7 @@ export const init = (
   if (length === 0) return element; // static
 
   let dynamicProps: DynamicProps | undefined;
-  let dynamicChildren: DynamicChild<Element>[] | undefined = [];
+  let dynamicChildren: DynamicChild<Element>[] | undefined;
 
   for (let index = 0; index < length; index++) {
     const arg = args[index];
@@ -27,9 +54,9 @@ export const init = (
     // init props
     if (arg?.constructor === Object) {
       for (const [key, val] of Object.entries(arg)) {
+        // JSX compatibility
         if (key === 'children') {
-          // for compatibility with JSX
-          initFlatChild(element, val, dynamicChildren);
+          dynamicChildren = initFlatChild(element, val, dynamicChildren);
           continue;
         }
 
@@ -44,11 +71,12 @@ export const init = (
 
     // init child
     else {
-      initFlatChild(element, arg, dynamicChildren);
+      dynamicChildren = initFlatChild(element, arg, dynamicChildren);
     }
   }
 
-  if (dynamicChildren.length === 0) dynamicChildren = undefined;
+  if (dynamicChildren && dynamicChildren.length === 0)
+    dynamicChildren = undefined;
 
   // * Static Element
 
