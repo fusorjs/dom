@@ -16,7 +16,7 @@
 - Streamline all tag "renames" for all notations.
 - Export `React`, so no need to configure `jsxImportSource/jsxFactory` like in Solid
 - Add JSX `<Fragment></Fragment>` or `<></>` support (They are just arrays, right?)
-- Instantiate components from existing HTML (SSR) in separate module.
+- Instantiate components from existing HTML (SSR), in separate module, or is SSR obsolete? The SE can perfectly index SPAs nowadays.
 - Add `x` hyper method (along with `h, s, m`) with `xmlns` parameter.
 - Optimize very large dynamic children arrays length > 1000, using `Set`.
 
