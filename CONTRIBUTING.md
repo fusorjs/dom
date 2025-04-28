@@ -29,9 +29,13 @@ npm coverage
 
 <!--  -->
 
-> "_What if we take React as a framework and "lift out" key features like state, effects, error handling, concurrency, and server-side functionality? Then, we would get Fusor._" - me
+> _"What if we take React as a framework and "lift out" key features like state, effects, error handling, and concurrency? Then, we could have a different approach to frontend development, offering more capabilities."_ - me
 
 <!-- Если убрать ("Lift Up") из React внутреннюю/скрытую логику: управления стейтом и эффектами, обработки ошибок, управленя параллелизмом, и серверную логику, тогда получится - Fusor. -->
+
+<!-- Reactive frontend development without React -->
+
+<!-- Non-standard/manual frontend development -->
 
 > "_Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away._" ― Antoine de Saint-Exupéry
 

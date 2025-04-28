@@ -339,7 +339,7 @@ setTimeout(() => element.remove(), 15000); // 4. Disconnect from DOM
 
 ## Automatic/Reactive Updates
 
-Automatic/reactive updates in big frameworks are nothing more than an implementation of the Observable pattern. This includes State in React, Signals in Solid, Redux, MobX, and many others. In Fusor, you can use any of those libraries.
+Signals or automatic/reactive updates in big frameworks are nothing more than an implementation of the Observable pattern. This includes State in React, Signals in Solid, Redux, MobX, and many others. In Fusor, you can use any of those libraries.
 
 Here, we discuss the generic solution:
 
@@ -347,25 +347,21 @@ Here, we discuss the generic solution:
 
 ```js
 import {update} from '@fusorjs/dom';
-import {Observable} from 'Any/Observable/Signal/Redux/Mobx...';
+import {Observable} from './observable';
 
-// Modern routing handling
 const observable = new Observable();
-const read = () => location.hash.substring(1); // omit "#"
-let route = read();
+let route = location.hash;
+
 window.addEventListener(
   'popstate',
   () => {
-    const next = read();
-    if (route === next) return;
-    route = next;
+    route = location.hash;
     observable.notify();
   },
   false,
 );
-export const getRoute = () => route;
 
-// Fusor integration
+export const getRoute = () => route;
 export const mountRoute = (self) => observable.subscribe(() => update(self));
 ```
 
@@ -381,7 +377,7 @@ export const RouteLink = (title, route) =>
   span({mount: mountRoute}, () =>
     getRoute() === route
       ? title // when selected
-      : a({href: `#${route}`}, title),
+      : a({href: route}, title),
   );
 ```
 
@@ -390,11 +386,11 @@ export const RouteLink = (title, route) =>
 ```js
 import {getElement} from '@fusorjs/dom';
 import {ul, li} from '@fusorjs/dom/html';
-import {RouteLink} from './RouteLink';
+import {RouteLink} from './route-link';
 
 const block = ul(
-  [...Array(10)].map((v, i) =>
-    li(RouteLink(`${i + 1}. Section`, `url-to-${i + 1}-section`)),
+  [...Array(10)].map((_, i) =>
+    li(RouteLink(`${i}. Section`, `#url-to-${i}-section`)),
   ),
 );
 

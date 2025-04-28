@@ -18,7 +18,7 @@
 npm install @fusorjs/dom
 ```
 
-### Or
+### Or Use
 
 - **JSX** boilerplate for: [JavaScript](https://github.com/fusorjs/dom-starter-jsx-webpack) or [TypeScript](https://github.com/fusorjs/dom-starter-tsx-webpack)
 - **CDN**: <https://esm.sh/@fusorjs/dom> or <https://cdn.skypack.dev/@fusorjs/dom>

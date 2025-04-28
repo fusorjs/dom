@@ -52,6 +52,21 @@ type updateCurrent = (value: Element | Component) => void;
 
 ## In Progress
 
+### Version 2.6.1
+
+- Remove all deprecated APIs: maybe Life, Component...
+- Review DOM manipulation performance https://www.reddit.com/r/javascript/comments/1jhenyx/patterns_for_memory_efficient_dom_manipulation/
+- Create functional-notation functions dynamically to reduce the bundle size.
+
+### XXX
+
+- Optimize child cache if value === node.
+- Optimization: if inserting item in array, and next item is the same, then use insertBefore.
+- Use nested dynamic arrays, they will be applied to element
+  - if (typeof nextValue === 'function') nextValue = nextValue(); // ? do we need it ?
+  - // todo apply nested arrays DEVELOPMENT depth < 5
+- Optimize by diffing nodes for dynamic children Map
+
 ## Done
 
 ### Version 2.5.3

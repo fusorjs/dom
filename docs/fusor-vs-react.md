@@ -4,7 +4,7 @@
 
 While Fusor shares some concepts with React, it sets itself apart by taking a more flexible and minimalist approach.
 
-React is like a monolithic black box where everything is managed internally: DOM creation/updating/diffing, state, context, concurrency, lifecycle, etc.
+React is like a monolithic black box where everything is managed internally: DOM creation/updating/diffing, state, context, exception handling, concurrency, lifecycle, etc.
 
 Fusor is like a set of Lego bricks. It was designed to show that all of these elements can be managed externally, explicitly, with less complexity and verbosity.
 

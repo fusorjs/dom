@@ -6,33 +6,35 @@
 npm install @fusorjs/dom
 ```
 
-Or:
+### Or Use CDN
 
-- **CDN**: <https://esm.sh/@fusorjs/dom> , <https://cdn.skypack.dev/@fusorjs/dom>
+- <https://esm.sh/@fusorjs/dom>
+- <https://cdn.skypack.dev/@fusorjs/dom>
 
-## Configure
-
-### Starter Projects
+### Or Use Boilerplate Project
 
 - **JSX**
   - **JavaScript**
     - [Webpack](https://github.com/fusorjs/dom-starter-jsx-webpack)
     - [Parcel](https://github.com/fusorjs/dom-starter-jsx-parcel)
-    - [CodeSandbox](https://codesandbox.io/p/sandbox/fusor-intro-jsx-webpack-4m7r37?file=%2Fsrc%2Fapp.jsx)
+    - [CDN](https://codepen.io/Igor-S-the-scripter/pen/NPWeORL?editors=1100)
+    <!-- - [CodeSandbox](https://codesandbox.io/p/sandbox/fusor-intro-jsx-webpack-4m7r37?file=%2Fsrc%2Fapp.jsx) -->
   - **TypeScript**
     - [Webpack](https://github.com/fusorjs/dom-starter-tsx-webpack)
     - [Parcel](https://github.com/fusorjs/dom-starter-tsx-parcel)
     - [CodeSandbox](https://codesandbox.io/p/sandbox/fusor-intro-tsx-r96fgd?file=%2Fsrc%2Findex.tsx)
 - **Functional Notation**
   - **JavaScript**
-    - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23)
+    - `npm install @fusorjs/dom` in an
+    - [CDN](https://codepen.io/Igor-S-the-scripter/pen/Byavpez?editors=0110)
+    <!-- - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-cvbhsk?file=%2Fsrc%2Findex.js%3A8%2C23) -->
   - **TypeScript**
     - Webpack - [Tutorial](https://github.com/fusorjs/tutorial) - [TodoMvc](https://github.com/fusorjs/todomvc)
-    - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-ts-h3wlp5?file=%2Fsrc%2Findex.ts)
+    <!-- - [Codesandbox](https://codesandbox.io/p/sandbox/fusor-intro-ts-h3wlp5?file=%2Fsrc%2Findex.ts) -->
 
 > [Functional/Hyper Notation](functional-notation.md) is more flexible, simpler to set up, does not require transpilation, available in JSX.
 
-### Configure JSX
+### Or Configure JSX Manually
 
 > `jsconfig.json` or `tsconfig.json`
 

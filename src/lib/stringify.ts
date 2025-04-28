@@ -2,6 +2,8 @@ import {Component} from '../component';
 
 const stringifyField = ([k, v]: [string, any]) => `"${k}":${stringify(v)}`;
 
+// todo https://2ality.com/2025/04/stringification-javascript.html
+
 /** Human readable representation of any value */
 export const stringify = (value: any): string => {
   switch (typeof value) {
