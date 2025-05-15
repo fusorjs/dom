@@ -3,6 +3,7 @@ import {
   SingleChild,
   ChildCache,
   UpdatableChildren,
+  Child_,
 } from '../types';
 
 import {replaceChild} from './replaceChild';
@@ -56,9 +57,7 @@ export const updateChild = (
     replaceChildren(
       element,
       cache,
-      [
-        nextValue as SingleChild, // todo as
-      ],
+      [nextValue as any as Child_],
       prevTerminator as Text,
     ); // todo optimize only remove children
     updatable.cache = cache[0];

@@ -1,4 +1,4 @@
-import {Component, jsx} from '..';
+import {getElement, jsx} from '..';
 
 test.each(
   // prettier-ignore
@@ -72,7 +72,7 @@ test.each([
     'Clicked 1 times',
   ],
 ])('count times clicked: %s', (description, CountingButton, text) => {
-  const {element} = (<CountingButton />) as Component<Element>;
+  const element = getElement(<CountingButton />);
   expect(element.innerHTML).toBe('Clicked 0 times');
   element.dispatchEvent(new Event('click'));
   expect(element.innerHTML).toBe(text);

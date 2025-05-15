@@ -18,3 +18,6 @@ export const getPropertyDescriptor = (
 
   return result;
 };
+
+// todo Object, Set, array of pairs
+// export const KEYED_CHILDREN = Symbol('KEYED_CHILDREN');

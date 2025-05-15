@@ -8,7 +8,3 @@ export {
   setParameterSeparator,
   getParameterSeparator,
 } from './prop/initProp';
-
-// todo deprecate:
-
-export {Component} from './component';

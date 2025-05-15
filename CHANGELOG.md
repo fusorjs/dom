@@ -67,6 +67,7 @@ type updateCurrent = (value: Element | Component) => void;
   - // todo apply nested arrays DEVELOPMENT depth < 5
 - Optimize by diffing nodes for dynamic children Map
 
+- Removed deprecated `Component` export.
 ## Done
 
 ### Version 2.5.3

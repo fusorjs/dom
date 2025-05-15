@@ -48,8 +48,9 @@ export type Prop = StaticProp | ((...a: unknown[]) => unknown); // todo Prop = u
 
 export type SingleChild = SingleStaticChild | (() => Child) | Fusion;
 
-/** @deprecated use any */
-export type Child = SingleChild | readonly SingleChild[]; // todo Child = unknown & distinct
+/** @deprecated use Child_ and remove "_" */
+export type Child = SingleChild | readonly SingleChild[];
+export type Child_ = unknown & Distinct<'Child'>;
 
 declare global {
   namespace Fusor {
@@ -201,9 +202,12 @@ export interface UpdatableChild {
   arrayRef: null; // keep for performance
 }
 
+// export type ChildKey = Distinct<'ChildKey'>;
+// export type ChildCacheMap = Map<ChildKey, ChildCache>;
+
 export type UpdatableChildren = {
   readonly update: () => Child;
-  cache: ChildCache[];
+  cache: ChildCache[]; // | ChildCacheMap;
   /** Empty node after the last array node (used for insertion before it if array is empty) */
   terminator: Text; // ! Comment will pollute innerHTML with "<!---->"
   arrayRef: Child[]; // ? remove in v3 ?

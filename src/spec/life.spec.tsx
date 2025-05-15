@@ -1,4 +1,5 @@
-import {Component, Fusion, jsx, update} from '..';
+import {Fusion, getElement, jsx, update} from '..';
+import {Component} from '../component';
 
 test('static mount/unmount', () => {
   let result = '';
@@ -41,18 +42,15 @@ test('dynamic mount/unmount', () => {
     >
       {() => content}
     </div>
-  ) as Component<Element>;
+  );
+  const element = getElement(wrapper);
 
   expect(wrapper).toBeInstanceOf(Component);
-  expect(wrapper.element.outerHTML).toBe(
-    '<div is="fusorjs-life-div">Hello</div>',
-  );
-  document.body.append(wrapper.element);
+  expect(element.outerHTML).toBe('<div is="fusorjs-life-div">Hello</div>');
+  document.body.append(element);
   expect(document.body.innerHTML).toBe(
     '<div is="fusorjs-life-div">Hello World</div>',
   );
-  document.body.removeChild(wrapper.element);
-  expect(wrapper.element.outerHTML).toBe(
-    '<div is="fusorjs-life-div">End</div>',
-  );
+  document.body.removeChild(element);
+  expect(element.outerHTML).toBe('<div is="fusorjs-life-div">End</div>');
 });

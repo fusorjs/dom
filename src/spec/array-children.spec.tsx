@@ -1,42 +1,44 @@
-import {Component, getElement, jsx, update} from '..';
+import {getElement, jsx, update} from '..';
+import {Component} from '../component';
 
 describe('dynamic children array', () => {
   test('replace only its previous values', () => {
     let value: any = [111, 222, 333];
-    const component = (<div>AAA{() => value}BBB</div>) as Component<Element>;
-    expect(component.element.innerHTML).toBe('AAA111222333BBB');
+    const component = <div>AAA{() => value}BBB</div>;
+    const element = getElement(component);
+    expect(element.innerHTML).toBe('AAA111222333BBB');
 
     value = [11, 22];
-    component.update();
-    expect(component.element.innerHTML).toBe('AAA1122BBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAA1122BBB');
 
     value = [1, 2, 3, 4];
-    component.update();
-    expect(component.element.innerHTML).toBe('AAA1234BBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAA1234BBB');
 
     value = 'abc';
-    component.update();
-    expect(component.element.innerHTML).toBe('AAAabcBBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAAabcBBB');
 
     value = '---';
-    component.update();
-    expect(component.element.innerHTML).toBe('AAA---BBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAA---BBB');
 
     value = ['aa', 'bb'];
-    component.update();
-    expect(component.element.innerHTML).toBe('AAAaabbBBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAAaabbBBB');
 
     value = [];
-    component.update();
-    expect(component.element.innerHTML).toBe('AAABBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAABBB');
 
     value = [111, 222, 333];
-    component.update();
-    expect(component.element.innerHTML).toBe('AAA111222333BBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAA111222333BBB');
 
     value = [11, 22];
-    component.update();
-    expect(component.element.innerHTML).toBe('AAA1122BBB');
+    update(component);
+    expect(element.innerHTML).toBe('AAA1122BBB');
   });
 
   test('replace only its previous values', () => {
@@ -50,53 +52,53 @@ describe('dynamic children array', () => {
         {() => center}
         {() => right}
       </div>
-    ) as Component<Element>;
+    );
+    const element = getElement(component);
 
-    expect(component.element.innerHTML).toBe('');
+    expect(element.innerHTML).toBe('');
 
     center = ['|'];
-    component.update();
-    expect(component.element.innerHTML).toBe('|');
+    update(component);
+    expect(element.innerHTML).toBe('|');
 
     left = ['('];
-    component.update();
-    expect(component.element.innerHTML).toBe('(|');
+    update(component);
+    expect(element.innerHTML).toBe('(|');
 
     right = [')'];
-    component.update();
-    expect(component.element.innerHTML).toBe('(|)');
+    update(component);
+    expect(element.innerHTML).toBe('(|)');
 
     left = [];
     center = [];
-    component.update();
-    expect(component.element.innerHTML).toBe(')');
+    update(component);
+    expect(element.innerHTML).toBe(')');
 
     center = ['|'];
-    component.update();
-    expect(component.element.innerHTML).toBe('|)');
+    update(component);
+    expect(element.innerHTML).toBe('|)');
 
     left = ['(', '('];
     center = [];
     right = [')', ')'];
-    component.update();
-    expect(component.element.innerHTML).toBe('(())');
+    update(component);
+    expect(element.innerHTML).toBe('(())');
 
     center = ['|', '|'];
-    component.update();
-    expect(component.element.innerHTML).toBe('((||))');
+    update(component);
+    expect(element.innerHTML).toBe('((||))');
   });
 
   test('dynamic array executes function children', () => {
     let count = 0;
-    const component = (
-      <div>{() => [...Array(5)].map(() => ++count + '-')}</div>
-    ) as Component<Element>;
+    const component = <div>{() => [...Array(5)].map(() => ++count + '-')}</div>;
+    const element = getElement(component);
 
-    expect(component.element.innerHTML).toBe('1-2-3-4-5-');
+    expect(element.innerHTML).toBe('1-2-3-4-5-');
 
-    component.update();
+    update(component);
 
-    expect(component.element.innerHTML).toBe('6-7-8-9-10-');
+    expect(element.innerHTML).toBe('6-7-8-9-10-');
   });
 
   {
@@ -178,7 +180,7 @@ describe('dynamic children array', () => {
     expect(component.element.innerHTML).toBe('111AAA---BBB222');
 
     // value = [11, 22];
-    // component.update();
+    // update(component);
 
     // expect(component.element.innerHTML).toBe('AAA1122BBB');
   });

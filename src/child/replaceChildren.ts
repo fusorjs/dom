@@ -1,61 +1,61 @@
-import {ChildCache} from '../types';
+import {Child_, ChildCache} from '../types';
 import {Component} from '../component';
 import {ObjectIs} from '../share';
 
 import {convertChild} from './convertChild';
 
-const moved = Symbol('MovedChildCache');
+// todo optimize insert & delete (note we rarely swap places), maybe only for keyed children
+// abcd  acd
+// acd   abcd
+// del   ins
 
 export const replaceChildren = (
   element: Node,
-  cache: ChildCache[], // ! mutated
-  nextValues: readonly any[],
+  caches: ChildCache[], // ! mutated
+  children: readonly Child_[],
   terminator: Text,
 ): void => {
-  const prevLength = cache.length;
-  const nextLength = nextValues.length;
-  const minLength = Math.min(prevLength, nextLength);
+  const cacheLength = caches.length;
+  const childLength = children.length;
+  const minLength = Math.min(cacheLength, childLength);
   const trackNodes = new Set<Node>();
 
-  let i = 0;
+  let index = 0;
 
   // compare
-  for (; i < minLength; i++) {
-    let nextValue = nextValues[i];
+  for (; index < minLength; index++) {
+    let child = children[index];
 
-    // ? maybe apply nested arrays ?
+    if (typeof child === 'function') child = (child as () => Child_)();
 
-    if (typeof nextValue === 'function') nextValue = nextValue();
+    // todo apply nested arrays
 
-    const _cache = cache[i];
-    const {value: prevValue, node: prevNode} = _cache;
+    const cached = caches[index];
+    const {value: cachedValue, node: cachedNode} = cached;
 
-    if (ObjectIs(nextValue, prevValue)) {
-      // trackNodes.add(prevNode);
-      continue;
-    }
+    if (ObjectIs(child, cachedValue)) continue; // todo is this correct without convertChild?
 
     // ---
 
-    let nextNode: Node | undefined;
+    let node: Node | undefined;
 
-    if (nextValue instanceof Node) {
-      nextNode = nextValue;
-    } else if (nextValue instanceof Component) {
-      nextNode = nextValue.element;
+    if (child instanceof Node) {
+      node = child;
+    } else if (child instanceof Component) {
+      node = child.element;
     }
 
-    if (nextNode) {
-      if (trackNodes.has(prevNode)) {
-        element.insertBefore(nextNode, terminator);
+    if (node) {
+      if (trackNodes.has(cachedNode)) {
+        element.insertBefore(node, terminator);
         // todo check if it always the last and if so maybe track just its position
       } else {
-        element.replaceChild(nextNode, prevNode);
+        element.replaceChild(node, cachedNode);
       }
 
-      trackNodes.add(nextNode);
-      _cache.value = nextValue;
-      _cache.node = nextNode;
+      trackNodes.add(node);
+      cached.value = child as any as Node | Component<any>;
+      cached.node = node;
 
       continue;
     }
@@ -64,59 +64,55 @@ export const replaceChildren = (
 
     // todo optimize: check if there are same value in cache and reuse its node
 
-    nextValue = convertChild(nextValue);
+    const value = convertChild(child);
 
-    if (nextValue === prevValue) {
-      // trackNodes.add(prevNode);
-      continue;
-    }
+    if (value === cachedValue) continue;
 
     // ---
 
-    nextNode = new Text(nextValue);
-    element.replaceChild(nextNode, prevNode);
-    // trackNodes.add(nextNode);
+    node = new Text(value);
+    element.replaceChild(node, cachedNode);
 
-    _cache.value = nextValue;
-    _cache.node = nextNode;
+    cached.value = value;
+    cached.node = node;
   }
 
   // either remove
-  if (i < prevLength) {
-    const start = i;
+  if (index < cacheLength) {
+    const start = index;
 
     do {
-      const {node} = cache[i];
+      const {node} = caches[index];
       if (!trackNodes.has(node)) element.removeChild(node);
-      i++;
-    } while (i < prevLength);
+      index++;
+    } while (index < cacheLength);
 
-    cache.splice(start); // ! delete last after all other computations
+    caches.splice(start); // ! delete last after all other computations
   }
 
   // or insert
-  for (; i < nextLength; i++) {
-    let value = nextValues[i];
+  for (; index < childLength; index++) {
+    let child = children[index];
 
-    // ? maybe apply nested arrays ?
+    if (typeof child === 'function') child = (child as () => Child_)();
 
-    if (typeof value === 'function') value = value();
+    // todo apply nested arrays
 
     let node: Node;
 
-    if (value instanceof Node) {
-      node = value;
-    } else if (value instanceof Component) {
-      node = value.element;
+    if (child instanceof Node) {
+      node = child;
+    } else if (child instanceof Component) {
+      node = child.element;
     } else {
-      value = convertChild(value);
-      node = new Text(value);
+      child = convertChild(child) as any;
+      node = new Text(child as any as string);
     }
 
     element.insertBefore(node, terminator);
 
-    cache.push({
-      value,
+    caches.push({
+      value: child as any as ChildCache['value'],
       node,
     });
   }
